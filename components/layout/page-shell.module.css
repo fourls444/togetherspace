@@ -1,0 +1,12 @@
+.shell {
+  width: min(100%, 64rem);
+  min-height: 100vh;
+  margin-inline: auto;
+  padding: 2.5rem 1.25rem;
+}
+
+@media (min-width: 40rem) {
+  .shell {
+    padding-inline: 2rem;
+  }
+}

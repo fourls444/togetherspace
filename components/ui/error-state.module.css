@@ -1,0 +1,17 @@
+.error {
+  padding: 1.5rem;
+  color: var(--color-error-text);
+  background: var(--color-error-surface);
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--radius-panel);
+}
+
+.error h1,
+.error h2 {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.error p {
+  margin: 0.5rem 0 0;
+}

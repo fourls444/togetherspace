@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TogetherSpace
 
-## Getting Started
+เว็บสำหรับสร้างพื้นที่ร่วมกันและจัดการสมาชิกในห้อง ปัจจุบันรองรับ Supabase Signup/Login, Dashboard, การสร้างห้อง และหน้ารายละเอียดสมาชิก
 
-First, run the development server:
+## Requirements
+
+- Node.js 20.9 หรือใหม่กว่า
+- npm
+- Supabase project
+
+## เริ่มต้นใช้งาน
+
+ติดตั้ง dependencies:
+
+```bash
+npm install
+```
+
+สร้างไฟล์ environment จากตัวอย่าง:
+
+```bash
+cp .env.example .env.local
+```
+
+สำหรับ PowerShell:
+
+```powershell
+Copy-Item .env.example .env.local
+```
+
+กรอกค่าต่อไปนี้ใน `.env.local`:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+DATABASE_URL=
+```
+
+- Project URL และ Publishable key อยู่ใน Supabase Dashboard → Settings → API Keys
+- Database URL อยู่ในปุ่ม Connect ของ Supabase Dashboard
+- ห้าม commit `.env.local`
+
+นำ database migrations ไปใช้:
+
+```bash
+npm run db:migrate
+```
+
+เริ่ม development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+เปิด [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+สมัครสมาชิกได้ที่ [http://localhost:3000/signup](http://localhost:3000/signup) ระบบจะสร้าง Profile และ username ให้อัตโนมัติ
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### ปิดการยืนยันอีเมลใน Supabase
 
-## Learn More
+ต้องปิด Confirm Email เพื่อให้สมัครแล้วเข้า Dashboard ได้ทันที:
 
-To learn more about Next.js, take a look at the following resources:
+1. เปิด Supabase Dashboard → Authentication → Providers
+2. เปิด Email provider
+3. ปิด Confirm Email แล้วบันทึก
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+หากเคยลองสมัครก่อนปิด Confirm Email บัญชีนั้นจะยังเป็นบัญชีที่รอยืนยัน ให้ไปที่ Authentication → Users แล้วลบบัญชีทดสอบเดิมก่อนสมัครใหม่ หรือยืนยันบัญชีเดิมด้วยตนเองหนึ่งครั้ง
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+> แอปไม่สามารถปิด Confirm Email ด้วย Publishable Key ได้ ต้องตั้งค่านี้ใน Supabase Dashboard
 
-## Deploy on Vercel
+## คำสั่งสำคัญ
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run lint         # ตรวจ ESLint
+npm run typecheck    # ตรวจ TypeScript
+npm run build        # สร้าง production build
+npm run db:generate  # สร้าง Drizzle migration จาก schema
+npm run db:migrate   # นำ migrations ไปใช้
+npm run db:studio    # เปิด Drizzle Studio
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## โครงสร้างหลัก
+
+```text
+app/          routes, route actions และ CSS เฉพาะหน้า
+components/   components ที่ใช้ซ้ำ พร้อม CSS Modules
+styles/       design tokens และ base styles
+lib/          Supabase, types และ validation
+db/           Drizzle schema
+drizzle/      SQL migrations และ metadata
+docs/         design specs และ implementation plans
+```
+
+## Phase ปัจจุบัน
+
+ทำแล้ว:
+
+- Supabase password Login/Logout
+- สมัครสมาชิกโดยไม่ต้องยืนยันอีเมล
+- สร้าง Profile อัตโนมัติจาก Auth user
+- Dashboard และรายการห้อง
+- สร้างห้องพร้อมเพิ่มผู้สร้างเป็น Owner
+- Room Detail และรายชื่อสมาชิก
+- Row Level Security
+
+ยังไม่รวม Join Room, การจัดการสมาชิก, Upload และ UI ตาม Figma ฉบับสมบูรณ์
