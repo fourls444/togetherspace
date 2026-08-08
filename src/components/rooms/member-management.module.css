@@ -1,0 +1,67 @@
+.container {
+  margin-top: 1rem;
+}
+
+.error {
+  margin: 0 0 1rem;
+  padding: 0.75rem;
+  color: var(--color-error-text);
+  font-size: 0.875rem;
+  background: var(--color-error-surface);
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--radius-control);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.member {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.member:first-child {
+  border-top: 0;
+}
+
+.info {
+  min-width: 0;
+}
+
+.name,
+.username {
+  margin: 0;
+}
+
+.name {
+  font-weight: 600;
+}
+
+.username {
+  margin-top: 0.125rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.roleSelect {
+  padding: 0.375rem 0.625rem;
+  color: var(--color-text);
+  font-size: 0.875rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-control);
+}

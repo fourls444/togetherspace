@@ -1,0 +1,62 @@
+.container {
+  max-width: 28rem;
+  margin: 3rem auto;
+  text-align: center;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0.5rem 0 0.75rem;
+  font-size: 1.75rem;
+}
+
+.badgeGroup {
+  display: flex;
+  justify-content: center;
+}
+
+.joinBtn {
+  width: 100%;
+}
+
+.memberMessage {
+  margin-top: 1rem;
+}
+
+.memberMessage p {
+  color: var(--color-text-muted);
+}
+
+.roomLink {
+  display: inline-block;
+  margin-top: 0.5rem;
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.roomLink:hover {
+  text-decoration: underline;
+}
+
+.error {
+  margin: 0 0 1rem;
+  padding: 0.75rem;
+  color: var(--color-error-text);
+  font-size: 0.875rem;
+  background: var(--color-error-surface);
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--radius-control);
+}
