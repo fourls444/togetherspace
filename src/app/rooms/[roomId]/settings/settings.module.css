@@ -1,5 +1,5 @@
 .container {
-  margin-left: 4.5rem;
+  margin-left: 5.25rem;
 }
 
 .backLink {
@@ -14,7 +14,8 @@
   text-underline-offset: 0.25rem;
 }
 
-.panel {
+.panel,
+.error {
   margin-top: 1.25rem;
 }
 
@@ -52,7 +53,9 @@
 
 .codeContainer {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
+  gap: 0.75rem;
   padding: 0.75rem 1rem;
   background: var(--color-background-offset);
   border: 1px solid var(--color-border);

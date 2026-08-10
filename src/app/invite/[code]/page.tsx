@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { PageShell } from "@/components/layout/page-shell";
 import { InvitePreview } from "@/components/rooms/invite-preview";
+import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
 import { createClient } from "@/lib/supabase/server";
 
@@ -24,107 +24,62 @@ export default async function InvitePage({
     redirect(`/login?next=/invite/${code}`);
   }
 
-  const { data: invite } = await supabase
-    .from("room_invites")
-    .select("id, room_id, expires_at, max_uses, uses_count, revoked_at")
-    .or(`invite_code.eq.${code.toUpperCase()},invite_token.eq.${code}`)
-    .maybeSingle();
+  const { data: previewRows, error } = await supabase.rpc("preview_room_invite", {
+    p_invite_token: code,
+  });
+  const preview = previewRows?.[0];
 
-  if (!invite) {
+  if (error || !preview) {
+    const message = error?.message ?? "";
+    const title = message.includes("revoked")
+      ? "คำเชิญถูกยกเลิก"
+      : message.includes("expired")
+        ? "คำเชิญหมดอายุ"
+        : message.includes("limit reached")
+          ? "คำเชิญถูกใช้งานครบแล้ว"
+          : "ไม่พบคำเชิญ";
+    const description = message.includes("revoked")
+      ? "คำเชิญนี้ถูกผู้ดูแลห้องยกเลิกแล้ว"
+      : message.includes("expired")
+        ? "ลิงก์คำเชิญนี้หมดอายุแล้ว"
+        : message.includes("limit reached")
+          ? "คำเชิญนี้ถูกใช้งานครบตามจำนวนครั้งที่กำหนดแล้ว"
+          : "ไม่พบคำเชิญนี้ หรือลิงก์คำเชิญไม่ถูกต้อง";
+
     return (
       <PageShell>
         <ErrorState
-          description="ไม่พบคำเชิญนี้ หรือลิงก์คำเชิญไม่ถูกต้อง"
+          description={description}
           headingLevel={1}
-          title="ไม่พบคำเชิญ"
+          title={title}
         />
         <p style={{ textAlign: "center", marginTop: "1rem" }}>
-          <Link href="/dashboard">← กลับไปหน้า Dashboard</Link>
+          <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
         </p>
       </PageShell>
     );
   }
 
-  if (invite.revoked_at) {
-    return (
-      <PageShell>
-        <ErrorState
-          description="คำเชิญนี้ถูกผู้ดูแลห้องยกเลิกแล้ว"
-          headingLevel={1}
-          title="คำเชิญถูกยกเลิก"
-        />
-        <p style={{ textAlign: "center", marginTop: "1rem" }}>
-          <Link href="/dashboard">← กลับไปหน้า Dashboard</Link>
-        </p>
-      </PageShell>
-    );
-  }
-
-  if (invite.expires_at && new Date(invite.expires_at) <= new Date()) {
-    return (
-      <PageShell>
-        <ErrorState
-          description="ลิงก์คำเชิญนี้หมดอายุแล้ว"
-          headingLevel={1}
-          title="คำเชิญหมดอายุ"
-        />
-        <p style={{ textAlign: "center", marginTop: "1rem" }}>
-          <Link href="/dashboard">← กลับไปหน้า Dashboard</Link>
-        </p>
-      </PageShell>
-    );
-  }
-
-  if (invite.max_uses !== null && invite.uses_count >= invite.max_uses) {
-    return (
-      <PageShell>
-        <ErrorState
-          description="คำเชิญนี้ถูกใช้งานครบตามจำนวนครั้งที่กำหนดแล้ว"
-          headingLevel={1}
-          title="คำเชิญถูกใช้งานครบแล้ว"
-        />
-        <p style={{ textAlign: "center", marginTop: "1rem" }}>
-          <Link href="/dashboard">← กลับไปหน้า Dashboard</Link>
-        </p>
-      </PageShell>
-    );
-  }
-
-  const { data: room } = await supabase
-    .from("rooms")
-    .select("id, name, type, avatar_url")
-    .eq("id", invite.room_id)
-    .single();
-
-  if (!room) {
-    return (
-      <PageShell>
-        <ErrorState
-          description="ห้องที่ถูกเชิญถูกลบไปแล้ว"
-          headingLevel={1}
-          title="ไม่พบห้อง"
-        />
-      </PageShell>
-    );
-  }
-
-  const { data: existingMember } = await supabase
-    .from("room_members")
-    .select("user_id")
-    .eq("room_id", room.id)
-    .eq("user_id", currentUserId)
-    .maybeSingle();
+  const roomCodeResult = preview.is_already_member
+    ? await supabase
+        .from("rooms")
+        .select("room_code")
+        .eq("id", preview.room_id)
+        .maybeSingle()
+    : { data: null };
 
   return (
     <PageShell>
       <InvitePreview
         codeOrToken={code}
-        isAlreadyMember={Boolean(existingMember)}
+        isAlreadyMember={preview.is_already_member}
         room={{
-          id: room.id,
-          name: room.name,
-          type: room.type,
-          avatarUrl: room.avatar_url,
+          id: preview.room_id,
+          name: preview.room_name,
+          roomCode: roomCodeResult.data?.room_code ?? preview.room_id,
+          type: preview.room_type,
+          avatarUrl: preview.room_avatar_url,
+          memberCount: preview.member_count,
         }}
       />
     </PageShell>

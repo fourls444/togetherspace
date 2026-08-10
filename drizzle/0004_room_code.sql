@@ -1,6 +1,6 @@
 -- 0004_room_code.sql
 -- เพิ่มคอลัมน์ room_code
-ALTER TABLE public.rooms ADD COLUMN room_code text;
+ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS room_code text;
 
 -- สร้างรหัสสุ่มให้ห้องที่มีอยู่เดิม (ถ้ามี)
 UPDATE public.rooms
@@ -9,7 +9,18 @@ WHERE room_code IS NULL;
 
 -- กำหนด Constraints
 ALTER TABLE public.rooms ALTER COLUMN room_code SET NOT NULL;
-ALTER TABLE public.rooms ADD CONSTRAINT rooms_room_code_unique UNIQUE (room_code);
+DO $$
+BEGIN
+	IF NOT EXISTS (
+		SELECT 1
+		FROM pg_constraint
+		WHERE conname = 'rooms_room_code_unique'
+			AND conrelid = 'public.rooms'::regclass
+	) THEN
+		ALTER TABLE public.rooms ADD CONSTRAINT rooms_room_code_unique UNIQUE (room_code);
+	END IF;
+END;
+$$;
 
 -- แก้ไขฟังก์ชัน create_room ให้สร้างรหัสห้องด้วย
 CREATE OR REPLACE FUNCTION public.create_room(

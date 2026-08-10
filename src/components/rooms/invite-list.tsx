@@ -18,11 +18,12 @@ export type InviteListItem = {
 };
 
 type InviteListProps = {
-  roomId: string;
   invites: InviteListItem[];
+  roomCode: string;
+  roomId: string;
 };
 
-export function InviteList({ roomId, invites }: InviteListProps) {
+export function InviteList({ invites, roomCode, roomId }: InviteListProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -37,7 +38,7 @@ export function InviteList({ roomId, invites }: InviteListProps) {
   const handleRevoke = (inviteId: string) => {
     if (!confirm("คุณต้องการยกเลิกคำเชิญนี้ใช่หรือไม่?")) return;
     startTransition(async () => {
-      await revokeInvite(inviteId, roomId);
+      await revokeInvite(inviteId, roomId, roomCode);
     });
   };
 
@@ -85,7 +86,7 @@ export function InviteList({ roomId, invites }: InviteListProps) {
               {!isInactive ? (
                 <>
                   <Button
-                    onClick={() => handleCopyLink(invite.inviteCode, invite.id)}
+                    onClick={() => handleCopyLink(invite.inviteToken, invite.id)}
                     type="button"
                   >
                     {copiedId === invite.id ? "คัดลอกแล้ว!" : "คัดลอกลิงก์"}

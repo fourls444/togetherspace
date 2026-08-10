@@ -8,6 +8,8 @@ export type Json =
 
 export type RoomType = "friend" | "couple" | "family";
 export type RoomRole = "owner" | "member";
+export type BoardType = "main" | "notes" | "checklist" | "poll" | "custom";
+export type BoardItemType = "note" | "checklist" | "poll";
 
 export type Database = {
   public: {
@@ -120,6 +122,149 @@ export type Database = {
         };
         Relationships: [];
       };
+      boards: {
+        Row: {
+          id: string;
+          room_id: string;
+          name: string;
+          board_type: BoardType;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          room_id: string;
+          name?: string;
+          board_type?: BoardType;
+          created_by: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          name?: string;
+          board_type?: BoardType;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      board_items: {
+        Row: {
+          id: string;
+          board_id: string;
+          item_type: BoardItemType;
+          title: string;
+          body: string | null;
+          position_x: number;
+          position_y: number;
+          width: number;
+          height: number;
+          z_index: number;
+          color: string | null;
+          poll_max_votes_per_user: number;
+          poll_allow_vote_cancel: boolean;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+          archived_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          board_id: string;
+          item_type: BoardItemType;
+          title: string;
+          body?: string | null;
+          position_x?: number;
+          position_y?: number;
+          width?: number;
+          height?: number;
+          z_index?: number;
+          color?: string | null;
+          poll_max_votes_per_user?: number;
+          poll_allow_vote_cancel?: boolean;
+          created_by: string;
+          created_at?: string;
+          updated_at?: string;
+          archived_at?: string | null;
+        };
+        Update: {
+          title?: string;
+          body?: string | null;
+          position_x?: number;
+          position_y?: number;
+          width?: number;
+          height?: number;
+          z_index?: number;
+          color?: string | null;
+          poll_max_votes_per_user?: number;
+          poll_allow_vote_cancel?: boolean;
+          updated_at?: string;
+          archived_at?: string | null;
+        };
+        Relationships: [];
+      };
+      board_checklist_items: {
+        Row: {
+          id: string;
+          board_item_id: string;
+          text: string;
+          is_done: boolean;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          board_item_id: string;
+          text: string;
+          is_done?: boolean;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          text?: string;
+          is_done?: boolean;
+          sort_order?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      board_poll_options: {
+        Row: {
+          id: string;
+          board_item_id: string;
+          label: string;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          board_item_id: string;
+          label: string;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Update: {
+          label?: string;
+          sort_order?: number;
+        };
+        Relationships: [];
+      };
+      board_poll_votes: {
+        Row: {
+          option_id: string;
+          user_id: string;
+          created_at: string;
+        };
+        Insert: {
+          option_id: string;
+          user_id: string;
+          created_at?: string;
+        };
+        Update: Record<string, never>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -182,6 +327,25 @@ export type Database = {
         };
         Returns: void;
       };
+      ensure_room_board: {
+        Args: {
+          p_room_id: string;
+        };
+        Returns: string;
+      };
+      preview_room_invite: {
+        Args: {
+          p_invite_token: string;
+        };
+        Returns: {
+          room_id: string;
+          room_name: string;
+          room_type: RoomType;
+          room_avatar_url: string | null;
+          member_count: number;
+          is_already_member: boolean;
+        }[];
+      };
       update_profile: {
         Args: {
           p_display_name?: string | null;
@@ -194,6 +358,8 @@ export type Database = {
     Enums: {
       room_type: RoomType;
       room_role: RoomRole;
+      board_type: BoardType;
+      board_item_type: BoardItemType;
     };
     CompositeTypes: Record<string, never>;
   };

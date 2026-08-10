@@ -1,7 +1,3 @@
-import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
-import { z } from "zod";
-
 import styles from "@/app/rooms/[roomId]/room-detail.module.css";
 import { PageShell } from "@/components/layout/page-shell";
 import { Sidebar } from "@/components/layout/sidebar";
@@ -10,54 +6,31 @@ import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
 import { Panel } from "@/components/ui/panel";
-import { createClient } from "@/lib/supabase/server";
+import { getRoomContext } from "@/lib/rooms/server";
+import { getRoomSubPath } from "@/lib/rooms/room-path";
 
 export const dynamic = "force-dynamic";
 
+/** แสดงหน้าห้องโดยใช้ room code บน URL และกันคนที่ไม่ใช่สมาชิกออกจากห้อง */
 export default async function RoomPage({
   params,
 }: {
   params: Promise<{ roomId: string }>;
 }) {
-  const { roomId } = await params;
-  if (!z.string().uuid().safeParse(roomId).success) notFound();
+  const { roomId: roomSlug } = await params;
+  const context = await getRoomContext(roomSlug);
 
-  const supabase = await createClient();
-  const { data: claimsData } = await supabase.auth.getClaims();
-  const currentUserId = claimsData?.claims.sub;
-
-  if (!currentUserId) redirect("/login");
-
-  // Fetch all user rooms for sidebar
-  const userMembershipsResult = await supabase
-    .from("room_members")
-    .select("room_id")
-    .eq("user_id", currentUserId);
-
-  const userRoomIds = userMembershipsResult.data?.map((m) => m.room_id) ?? [];
-  const sidebarRoomsResult = userRoomIds.length
-    ? await supabase.from("rooms").select("id, name, avatar_url").in("id", userRoomIds)
-    : { data: [] };
-
-  const roomResult = await supabase
-    .from("rooms")
-    .select("id, name, type, avatar_url, created_at")
-    .eq("id", roomId)
-    .maybeSingle();
-
-  if (roomResult.error) {
+  if (!context.isMember) {
     return (
       <div className={styles.container}>
-        <Sidebar rooms={sidebarRoomsResult.data ?? []} />
+        <Sidebar rooms={context.sidebarRooms} />
         <PageShell>
-          <Link className={styles.backLink} href="/dashboard">
-            ← กลับไปหน้า Dashboard
-          </Link>
+          <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
           <div className={styles.error}>
             <ErrorState
-              description="กรุณารีเฟรชหน้าและลองอีกครั้ง"
+              description="ถ้าต้องการเข้าห้องนี้ กรุณาใช้รหัสเข้าร่วมหรือขอลิงก์เชิญจากเจ้าของห้อง"
               headingLevel={1}
-              title="โหลดข้อมูลห้องไม่สำเร็จ"
+              title="คุณไม่ได้อยู่ในห้องนี้"
             />
           </div>
         </PageShell>
@@ -65,7 +38,8 @@ export default async function RoomPage({
     );
   }
 
-  if (!roomResult.data) notFound();
+  const { currentUserId, room, roomCode, roomId, sidebarRooms, supabase } =
+    context;
 
   const membershipsResult = await supabase
     .from("room_members")
@@ -88,11 +62,9 @@ export default async function RoomPage({
   if (membershipsResult.error || profilesResult.error) {
     return (
       <div className={styles.container}>
-        <Sidebar rooms={sidebarRoomsResult.data ?? []} />
+        <Sidebar rooms={sidebarRooms} />
         <PageShell>
-          <Link className={styles.backLink} href="/dashboard">
-            ← กลับไปหน้า Dashboard
-          </Link>
+          <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
           <div className={styles.error}>
             <ErrorState
               description="กรุณารีเฟรชหน้าและลองอีกครั้ง"
@@ -120,25 +92,29 @@ export default async function RoomPage({
 
   return (
     <div className={styles.container}>
-      <Sidebar rooms={sidebarRoomsResult.data ?? []} />
+      <Sidebar rooms={sidebarRooms} />
       <PageShell>
-        <Link className={styles.backLink} href="/dashboard">
-          ← กลับไปหน้า Dashboard
-        </Link>
+        <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
 
         <Panel as="header" className={styles.headerPanel}>
           <div className={styles.headerContent}>
             <div>
-              <p className={styles.eyebrow}>{roomResult.data.type}</p>
-              <h1 className={styles.title}>{roomResult.data.name}</h1>
+              <p className={styles.eyebrow}>{room.type}</p>
+              <h1 className={styles.title}>{room.name}</h1>
             </div>
             <div className={styles.roomActions}>
               <Badge>{memberships.length} สมาชิก</Badge>
-              <ButtonLink href={`/rooms/${roomId}/members`}>
+              <ButtonLink href={getRoomSubPath(roomCode, "members")}>
                 สมาชิก ({memberships.length})
               </ButtonLink>
+              <ButtonLink href={getRoomSubPath(roomCode, "board")}>
+                บอร์ด
+              </ButtonLink>
               {isOwner ? (
-                <ButtonLink href={`/rooms/${roomId}/settings`} variant="primary">
+                <ButtonLink
+                  href={getRoomSubPath(roomCode, "settings")}
+                  variant="primary"
+                >
                   ตั้งค่าห้อง
                 </ButtonLink>
               ) : null}
@@ -149,7 +125,9 @@ export default async function RoomPage({
         <Panel className={styles.membersPanel}>
           <div className={styles.membersHeader}>
             <h2 className={styles.membersTitle}>สมาชิกในห้อง</h2>
-            <Link href={`/rooms/${roomId}/members`}>ดูสมาชิกทั้งหมด →</Link>
+            <ButtonLink href={getRoomSubPath(roomCode, "members")}>
+              ดูสมาชิกทั้งหมด
+            </ButtonLink>
           </div>
           <MemberList members={members} />
         </Panel>

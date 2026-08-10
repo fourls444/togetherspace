@@ -1,47 +1,44 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
-import { z } from "zod";
 
 import styles from "@/app/rooms/[roomId]/members/members.module.css";
 import { PageShell } from "@/components/layout/page-shell";
 import { Sidebar } from "@/components/layout/sidebar";
 import { MemberList, type MemberListItem } from "@/components/rooms/member-list";
+import { ButtonLink } from "@/components/ui/button-link";
+import { ErrorState } from "@/components/ui/error-state";
 import { Panel } from "@/components/ui/panel";
-import { createClient } from "@/lib/supabase/server";
+import { getRoomContext } from "@/lib/rooms/server";
 
 export const dynamic = "force-dynamic";
 
+/** แสดงสมาชิกทั้งหมดของห้อง โดย URL ใช้ room code แทน UUID */
 export default async function RoomMembersPage({
   params,
 }: {
   params: Promise<{ roomId: string }>;
 }) {
-  const { roomId } = await params;
-  if (!z.string().uuid().safeParse(roomId).success) notFound();
+  const { roomId: roomSlug } = await params;
+  const context = await getRoomContext(roomSlug);
 
-  const supabase = await createClient();
-  const { data: claimsData } = await supabase.auth.getClaims();
-  const currentUserId = claimsData?.claims.sub;
-  if (!currentUserId) redirect("/login");
+  if (!context.isMember) {
+    return (
+      <div className={styles.container}>
+        <Sidebar rooms={context.sidebarRooms} />
+        <PageShell>
+          <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
+          <div className={styles.error}>
+            <ErrorState
+              description="ถ้าต้องการดูสมาชิกห้องนี้ กรุณาเข้าร่วมห้องก่อน"
+              headingLevel={1}
+              title="คุณไม่ได้อยู่ในห้องนี้"
+            />
+          </div>
+        </PageShell>
+      </div>
+    );
+  }
 
-  // User rooms for sidebar
-  const userMembershipsResult = await supabase
-    .from("room_members")
-    .select("room_id")
-    .eq("user_id", currentUserId);
-
-  const userRoomIds = userMembershipsResult.data?.map((m) => m.room_id) ?? [];
-  const sidebarRoomsResult = userRoomIds.length
-    ? await supabase.from("rooms").select("id, name, avatar_url").in("id", userRoomIds)
-    : { data: [] };
-
-  const roomResult = await supabase
-    .from("rooms")
-    .select("id, name")
-    .eq("id", roomId)
-    .maybeSingle();
-
-  if (!roomResult.data) notFound();
+  const { room, roomId, roomPath, sidebarRooms, supabase } = context;
 
   const membershipsResult = await supabase
     .from("room_members")
@@ -59,9 +56,7 @@ export default async function RoomMembersPage({
         .in("id", userIds)
     : { data: [] };
 
-  const profileById = new Map(
-    profilesResult.data?.map((p) => [p.id, p]),
-  );
+  const profileById = new Map(profilesResult.data?.map((p) => [p.id, p]));
 
   const members: MemberListItem[] = memberships.map((m) => {
     const profile = profileById.get(m.user_id);
@@ -75,10 +70,10 @@ export default async function RoomMembersPage({
 
   return (
     <div className={styles.container}>
-      <Sidebar rooms={sidebarRoomsResult.data ?? []} />
+      <Sidebar rooms={sidebarRooms} />
       <PageShell>
-        <Link className={styles.backLink} href={`/rooms/${roomId}`}>
-          ← กลับไปหน้าห้อง ({roomResult.data.name})
+        <Link className={styles.backLink} href={roomPath}>
+          ← กลับไปหน้าห้อง ({room.name})
         </Link>
         <Panel className={styles.panel}>
           <h1 className={styles.title}>สมาชิกในห้อง ({members.length})</h1>

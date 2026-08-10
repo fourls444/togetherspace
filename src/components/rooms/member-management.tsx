@@ -16,15 +16,17 @@ export type ManageMemberItem = {
 };
 
 type MemberManagementProps = {
-  roomId: string;
   currentUserId: string;
   members: ManageMemberItem[];
+  roomCode: string;
+  roomId: string;
 };
 
 export function MemberManagement({
-  roomId,
   currentUserId,
   members,
+  roomCode,
+  roomId,
 }: MemberManagementProps) {
   const [isPending, startTransition] = useTransition();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -33,7 +35,7 @@ export function MemberManagement({
     if (!confirm(`คุณต้องการลบ "${name}" ออกจากห้องใช่หรือไม่?`)) return;
     setErrorMsg(null);
     startTransition(async () => {
-      const res = await kickMember(roomId, userId);
+      const res = await kickMember(roomId, userId, roomCode);
       if (res.error) setErrorMsg(res.error);
     });
   };
@@ -41,7 +43,7 @@ export function MemberManagement({
   const handleRoleChange = (userId: string, newRole: RoomRole) => {
     setErrorMsg(null);
     startTransition(async () => {
-      const res = await changeMemberRole(roomId, userId, newRole);
+      const res = await changeMemberRole(roomId, userId, newRole, roomCode);
       if (res.error) setErrorMsg(res.error);
     });
   };

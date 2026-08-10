@@ -37,7 +37,7 @@ export default async function DashboardPage() {
   const roomsResult = roomIds.length
     ? await supabase
         .from("rooms")
-        .select("id, name, type, avatar_url, created_at")
+        .select("id, name, type, avatar_url, room_code, created_at")
         .in("id", roomIds)
     : { data: [], error: null };
 
@@ -83,31 +83,35 @@ export default async function DashboardPage() {
             description="กรุณารีเฟรชหน้าและลองอีกครั้ง"
             title="โหลดข้อมูลห้องไม่สำเร็จ"
           />
-        ) : userRooms.length ? (
-          <section aria-label="รายการห้อง" className={styles.roomsGrid}>
-            {userRooms.map((room) => (
-              <RoomCard
-                key={room.id}
-                role={membershipByRoom.get(room.id)?.role ?? "member"}
-                room={room}
-              />
-            ))}
-          </section>
         ) : (
-          <Panel className={styles.empty}>
-            <h2 className={styles.emptyTitle}>ยังไม่มีห้อง</h2>
-            <p className={styles.emptyDescription}>
-              สร้างห้องแรกของคุณ หรือเข้าร่วมห้องด้วยรหัสคำเชิญ
-            </p>
-            <div className={styles.emptyActions}>
-              <ButtonLink href="/dashboard/create-room" variant="primary">
-                สร้างห้องใหม่
-              </ButtonLink>
-              <ButtonLink href="/dashboard/join-room">
-                เข้าร่วมห้องด้วยรหัส
-              </ButtonLink>
-            </div>
-          </Panel>
+          <>
+            {userRooms.length ? (
+              <section aria-label="รายการห้อง" className={styles.roomsGrid}>
+                {userRooms.map((room) => (
+                  <RoomCard
+                    key={room.id}
+                    role={membershipByRoom.get(room.id)?.role ?? "member"}
+                    room={room}
+                  />
+                ))}
+              </section>
+            ) : (
+              <Panel className={styles.empty}>
+                <h2 className={styles.emptyTitle}>ยังไม่มีห้อง</h2>
+                <p className={styles.emptyDescription}>
+                  สร้างห้องแรกของคุณ หรือเข้าร่วมห้องด้วยรหัสคำเชิญ
+                </p>
+                <div className={styles.emptyActions}>
+                  <ButtonLink href="/dashboard/create-room" variant="primary">
+                    สร้างห้องใหม่
+                  </ButtonLink>
+                  <ButtonLink href="/dashboard/join-room">
+                    เข้าร่วมห้องด้วยรหัส
+                  </ButtonLink>
+                </div>
+              </Panel>
+            )}
+          </>
         )}
       </PageShell>
     </div>

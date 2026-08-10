@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 
 import { roomSchema } from "@/features/rooms/validation";
+import { getRoomPath } from "@/lib/rooms/room-path";
 import { createClient } from "@/lib/supabase/server";
 
 export type CreateRoomState = {
@@ -38,5 +39,11 @@ export async function createRoom(
     return { error: "สร้างห้องไม่สำเร็จ กรุณาลองอีกครั้ง" };
   }
 
-  redirect(`/rooms/${roomId}`);
+  const { data: room } = await supabase
+    .from("rooms")
+    .select("room_code")
+    .eq("id", roomId)
+    .single();
+
+  redirect(getRoomPath(room?.room_code ?? roomId));
 }
