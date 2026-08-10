@@ -1,0 +1,106 @@
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.smallButton {
+  padding: 0.45rem 0.7rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.smallButton:hover {
+  border-color: var(--color-primary);
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  align-items: start;
+  justify-items: center;
+  padding: 6rem 1rem 1rem;
+  background: rgb(15 23 42 / 0.35);
+}
+
+.modal {
+  display: grid;
+  width: min(100%, 36rem);
+  max-height: calc(100vh - 7rem);
+  gap: 1rem;
+  padding: 1rem;
+  overflow: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 1.5rem 4rem rgb(15 23 42 / 0.2);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.form {
+  display: grid;
+  gap: 1rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.closeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  color: var(--color-text);
+  background: var(--color-muted-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1.25rem;
+}
+
+.hint,
+.success {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.hint {
+  color: var(--color-text-muted);
+}
+
+.success {
+  color: #047857;
+}
+
+.radioGroup {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.radioOption {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  font-size: 0.875rem;
+}

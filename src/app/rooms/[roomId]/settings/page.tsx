@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
-import { z } from "zod";
 
 import styles from "@/app/rooms/[roomId]/settings/settings.module.css";
 import { PageShell } from "@/components/layout/page-shell";
@@ -12,45 +10,44 @@ import {
   MemberManagement,
   type ManageMemberItem,
 } from "@/components/rooms/member-management";
+import { ButtonLink } from "@/components/ui/button-link";
+import { CopyButton } from "@/components/ui/copy-button";
 import { ErrorState } from "@/components/ui/error-state";
 import { Panel } from "@/components/ui/panel";
-import { createClient } from "@/lib/supabase/server";
+import { getRoomContext } from "@/lib/rooms/server";
 
 export const dynamic = "force-dynamic";
 
+/** แสดงหน้าตั้งค่าห้อง โดยใช้ room code บน URL แต่ยังส่ง UUID ให้ action ภายใน */
 export default async function RoomSettingsPage({
   params,
 }: {
   params: Promise<{ roomId: string }>;
 }) {
-  const { roomId } = await params;
-  if (!z.string().uuid().safeParse(roomId).success) notFound();
+  const { roomId: roomSlug } = await params;
+  const context = await getRoomContext(roomSlug);
 
-  const supabase = await createClient();
-  const { data: claimsData } = await supabase.auth.getClaims();
-  const currentUserId = claimsData?.claims.sub;
-  if (!currentUserId) redirect("/login");
+  if (!context.isMember) {
+    return (
+      <div className={styles.container}>
+        <Sidebar rooms={context.sidebarRooms} />
+        <PageShell>
+          <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
+          <div className={styles.error}>
+            <ErrorState
+              description="ถ้าต้องการตั้งค่าห้องนี้ กรุณาเข้าร่วมห้องก่อน"
+              headingLevel={1}
+              title="คุณไม่ได้อยู่ในห้องนี้"
+            />
+          </div>
+        </PageShell>
+      </div>
+    );
+  }
 
-  // User rooms for sidebar
-  const userMembershipsResult = await supabase
-    .from("room_members")
-    .select("room_id")
-    .eq("user_id", currentUserId);
+  const { currentUserId, room, roomCode, roomId, roomPath, sidebarRooms, supabase } =
+    context;
 
-  const userRoomIds = userMembershipsResult.data?.map((m) => m.room_id) ?? [];
-  const sidebarRoomsResult = userRoomIds.length
-    ? await supabase.from("rooms").select("id, name, avatar_url").in("id", userRoomIds)
-    : { data: [] };
-
-  const roomResult = await supabase
-    .from("rooms")
-    .select("id, name, type, room_code")
-    .eq("id", roomId)
-    .maybeSingle();
-
-  if (!roomResult.data) notFound();
-
-  // Check current user role
   const { data: memberRecord } = await supabase
     .from("room_members")
     .select("role")
@@ -58,11 +55,8 @@ export default async function RoomSettingsPage({
     .eq("user_id", currentUserId)
     .maybeSingle();
 
-  if (!memberRecord) notFound();
+  const isOwner = memberRecord?.role === "owner";
 
-  const isOwner = memberRecord.role === "owner";
-
-  // Fetch memberships + profiles
   const membershipsResult = await supabase
     .from("room_members")
     .select("user_id, role, joined_at")
@@ -79,9 +73,7 @@ export default async function RoomSettingsPage({
         .in("id", userIds)
     : { data: [] };
 
-  const profileById = new Map(
-    profilesResult.data?.map((p) => [p.id, p]),
-  );
+  const profileById = new Map(profilesResult.data?.map((p) => [p.id, p]));
 
   const members: ManageMemberItem[] = memberships.map((m) => {
     const profile = profileById.get(m.user_id);
@@ -93,7 +85,6 @@ export default async function RoomSettingsPage({
     };
   });
 
-  // Fetch invites (if owner)
   const invitesResult = isOwner
     ? await supabase
         .from("room_invites")
@@ -117,21 +108,26 @@ export default async function RoomSettingsPage({
 
   return (
     <div className={styles.container}>
-      <Sidebar rooms={sidebarRoomsResult.data ?? []} />
+      <Sidebar rooms={sidebarRooms} />
       <PageShell>
-        <Link className={styles.backLink} href={`/rooms/${roomId}`}>
-          ← กลับไปหน้าห้อง ({roomResult.data.name})
+        <Link className={styles.backLink} href={roomPath}>
+          ← กลับไปหน้าห้อง ({room.name})
         </Link>
         <Panel className={styles.panel}>
-          <h1 className={styles.title}>ตั้งค่าห้อง: {roomResult.data.name}</h1>
+          <h1 className={styles.title}>ตั้งค่าห้อง: {room.name}</h1>
 
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>รหัสห้อง (Room Code)</h2>
             <p className={styles.subText}>
-              รหัสถาวรสำหรับให้ผู้ใช้อื่นเข้าร่วมห้อง
+              รหัสถาวรสำหรับให้ผู้ใช้อื่นเข้าร่วมห้องผ่านหน้า Join Room
             </p>
             <div className={styles.codeContainer}>
-              <code className={styles.code}>{roomResult.data.room_code}</code>
+              <code className={styles.code}>{roomCode}</code>
+              <CopyButton
+                copiedLabel="คัดลอกแล้ว"
+                label="คัดลอกรหัส"
+                text={roomCode}
+              />
             </div>
           </section>
 
@@ -139,14 +135,17 @@ export default async function RoomSettingsPage({
             <>
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>สร้างคำเชิญใหม่</h2>
-                <CreateInviteForm roomId={roomId} />
+                <p className={styles.subText}>
+                  ใช้เมื่อต้องการลิงก์ชั่วคราวที่กำหนดวันหมดอายุหรือจำนวนครั้งได้
+                </p>
+                <CreateInviteForm roomCode={roomCode} roomId={roomId} />
               </section>
 
               <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>
                   รายการคำเชิญที่สร้างไว้ ({invites.length})
                 </h2>
-                <InviteList invites={invites} roomId={roomId} />
+                <InviteList invites={invites} roomCode={roomCode} roomId={roomId} />
               </section>
 
               <section className={styles.section}>
@@ -156,6 +155,7 @@ export default async function RoomSettingsPage({
                 <MemberManagement
                   currentUserId={currentUserId}
                   members={members}
+                  roomCode={roomCode}
                   roomId={roomId}
                 />
               </section>

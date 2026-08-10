@@ -15,7 +15,8 @@
 }
 
 .headerPanel,
-.membersPanel,
+.createPanel,
+.itemsPanel,
 .error {
   margin-top: 1.25rem;
 }
@@ -30,7 +31,8 @@
 
 .eyebrow,
 .title,
-.membersTitle {
+.description,
+.sectionTitle {
   margin: 0;
 }
 
@@ -44,21 +46,15 @@
 
 .title {
   margin-top: 0.25rem;
-  font-size: 1.875rem;
+  font-size: 1.75rem;
 }
 
-.membersHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+.description {
+  margin-top: 0.5rem;
+  color: var(--color-text-muted);
 }
 
-.membersTitle {
+.sectionTitle {
+  margin-bottom: 1rem;
   font-size: 1.25rem;
-}
-
-.roomActions {
-  display: flex;
-  gap: 0.5rem;
 }

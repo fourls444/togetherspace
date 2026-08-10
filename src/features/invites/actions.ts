@@ -7,6 +7,7 @@ import {
   createInviteSchema,
   joinByCodeSchema,
 } from "@/features/invites/validation";
+import { getRoomPath, getRoomSubPath, isRoomCode } from "@/lib/rooms/room-path";
 import { createClient } from "@/lib/supabase/server";
 
 export type CreateInviteState = {
@@ -30,6 +31,7 @@ export async function createInvite(
   formData: FormData,
 ): Promise<CreateInviteState> {
   const roomId = formData.get("roomId");
+  const roomCode = formData.get("roomCode");
   const maxUses = formData.get("maxUses");
   const expiresAt = formData.get("expiresAt");
 
@@ -63,13 +65,14 @@ export async function createInvite(
     return { error: "สร้างลิงก์คำเชิญไม่สำเร็จ: " + error.message };
   }
 
-  revalidatePath(`/rooms/${result.data.roomId}/settings`);
+  revalidatePath(getSettingsPath(roomCode, result.data.roomId));
   return { success: true };
 }
 
 export async function revokeInvite(
   inviteId: string,
   roomId: string,
+  roomCode?: string,
 ): Promise<ActionState> {
   const supabase = await createClient();
   const { data: claimsData } = await supabase.auth.getClaims();
@@ -83,8 +86,29 @@ export async function revokeInvite(
     return { error: "ยกเลิกรหัสคำเชิญไม่สำเร็จ" };
   }
 
-  revalidatePath(`/rooms/${roomId}/settings`);
+  revalidatePath(getSettingsPath(roomCode, roomId));
   return { success: true };
+}
+
+/** คืน path หน้าตั้งค่าจาก room code ถ้ามี ไม่เช่นนั้น fallback เป็น UUID path */
+function getSettingsPath(roomCode: FormDataEntryValue | string | null | undefined, roomId: string) {
+  return typeof roomCode === "string" && isRoomCode(roomCode)
+    ? getRoomSubPath(roomCode, "settings")
+    : `/rooms/${roomId}/settings`;
+}
+
+/** หา room code จาก room id เพื่อใช้ redirect โดยไม่โชว์ UUID บน URL */
+async function getRoomCodeById(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  roomId: string,
+) {
+  const { data: room } = await supabase
+    .from("rooms")
+    .select("room_code")
+    .eq("id", roomId)
+    .single();
+
+  return room?.room_code ?? roomId;
 }
 
 export async function joinRoomByCode(
@@ -124,7 +148,8 @@ export async function joinRoomByCode(
     return { error: "เข้าร่วมห้องไม่สำเร็จ กรุณาตรวจสอบรหัสคำเชิญ" };
   }
 
-  redirect(`/rooms/${roomId}`);
+  const roomCode = await getRoomCodeById(supabase, roomId);
+  redirect(getRoomPath(roomCode));
 }
 
 export async function joinRoomByToken(
@@ -153,5 +178,6 @@ export async function joinRoomByToken(
     return { error: "เข้าร่วมห้องไม่สำเร็จ กรุณาลองอีกครั้ง" };
   }
 
-  redirect(`/rooms/${roomId}`);
+  const roomCode = await getRoomCodeById(supabase, roomId);
+  redirect(getRoomPath(roomCode));
 }

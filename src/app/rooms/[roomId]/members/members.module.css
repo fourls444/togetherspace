@@ -1,5 +1,5 @@
 .container {
-  margin-left: 4.5rem;
+  margin-left: 5.25rem;
 }
 
 .backLink {
@@ -14,7 +14,8 @@
   text-underline-offset: 0.25rem;
 }
 
-.panel {
+.panel,
+.error {
   margin-top: 1.25rem;
 }
 

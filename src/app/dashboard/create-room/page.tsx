@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import styles from "@/app/dashboard/create-room/create-room.module.css";
 import { RoomForm } from "@/app/dashboard/create-room/room-form";
 import { PageShell } from "@/components/layout/page-shell";
 import { Sidebar } from "@/components/layout/sidebar";
+import { ButtonLink } from "@/components/ui/button-link";
 import { Panel } from "@/components/ui/panel";
 import { createClient } from "@/lib/supabase/server";
 
@@ -23,7 +23,10 @@ export default async function CreateRoomPage() {
 
   const roomIds = membershipsResult.data?.map((m) => m.room_id) ?? [];
   const roomsResult = roomIds.length
-    ? await supabase.from("rooms").select("id, name, avatar_url").in("id", roomIds)
+    ? await supabase
+        .from("rooms")
+        .select("id, name, avatar_url, room_code")
+        .in("id", roomIds)
     : { data: [] };
 
   return (
@@ -31,9 +34,7 @@ export default async function CreateRoomPage() {
       <Sidebar rooms={roomsResult.data ?? []} />
       <PageShell>
         <div className={styles.content}>
-          <Link className={styles.backLink} href="/dashboard">
-            ← กลับไปหน้าห้อง
-          </Link>
+          <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
           <Panel className={styles.panel}>
             <div className={styles.intro}>
               <p className={styles.eyebrow}>New room</p>

@@ -13,10 +13,11 @@ import formStyles from "@/components/ui/form.module.css";
 const initialState: CreateInviteState = {};
 
 type CreateInviteFormProps = {
+  roomCode: string;
   roomId: string;
 };
 
-export function CreateInviteForm({ roomId }: CreateInviteFormProps) {
+export function CreateInviteForm({ roomCode, roomId }: CreateInviteFormProps) {
   const [state, formAction, isPending] = useActionState(
     createInvite,
     initialState,
@@ -24,6 +25,7 @@ export function CreateInviteForm({ roomId }: CreateInviteFormProps) {
 
   return (
     <form action={formAction} className={formStyles.form}>
+      <input name="roomCode" type="hidden" value={roomCode} />
       <input name="roomId" type="hidden" value={roomId} />
 
       <div className={formStyles.field}>

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { getRoomPath, getRoomSubPath, isRoomCode } from "@/lib/rooms/room-path";
 import type { RoomRole } from "@/lib/types/database";
 import { createClient } from "@/lib/supabase/server";
 
@@ -14,6 +15,7 @@ export type MemberActionState = {
 export async function kickMember(
   roomId: string,
   targetUserId: string,
+  roomCode?: string,
 ): Promise<MemberActionState> {
   const supabase = await createClient();
   const { data: claimsData } = await supabase.auth.getClaims();
@@ -28,9 +30,7 @@ export async function kickMember(
     return { error: "ไม่สามารถลบสมาชิกออกจากห้องได้: " + error.message };
   }
 
-  revalidatePath(`/rooms/${roomId}`);
-  revalidatePath(`/rooms/${roomId}/members`);
-  revalidatePath(`/rooms/${roomId}/settings`);
+  revalidateRoomPaths(roomId, roomCode);
   return { success: true };
 }
 
@@ -38,6 +38,7 @@ export async function changeMemberRole(
   roomId: string,
   targetUserId: string,
   newRole: RoomRole,
+  roomCode?: string,
 ): Promise<MemberActionState> {
   const supabase = await createClient();
   const { data: claimsData } = await supabase.auth.getClaims();
@@ -56,9 +57,7 @@ export async function changeMemberRole(
     return { error: "เปลี่ยนบทบาทไม่สำเร็จ: " + error.message };
   }
 
-  revalidatePath(`/rooms/${roomId}`);
-  revalidatePath(`/rooms/${roomId}/members`);
-  revalidatePath(`/rooms/${roomId}/settings`);
+  revalidateRoomPaths(roomId, roomCode);
   return { success: true };
 }
 
@@ -80,4 +79,18 @@ export async function leaveRoom(roomId: string): Promise<MemberActionState> {
 
   revalidatePath("/dashboard");
   redirect("/dashboard");
+}
+
+/** Refresh path ห้องทั้งหน้าหลัก สมาชิก และตั้งค่า โดยเลือกใช้ room code ถ้ามี */
+function revalidateRoomPaths(roomId: string, roomCode?: string) {
+  if (roomCode && isRoomCode(roomCode)) {
+    revalidatePath(getRoomPath(roomCode));
+    revalidatePath(getRoomSubPath(roomCode, "members"));
+    revalidatePath(getRoomSubPath(roomCode, "settings"));
+    return;
+  }
+
+  revalidatePath(`/rooms/${roomId}`);
+  revalidatePath(`/rooms/${roomId}/members`);
+  revalidatePath(`/rooms/${roomId}/settings`);
 }

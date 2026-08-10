@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { getRoomPath } from "@/lib/rooms/room-path";
 import styles from "@/components/layout/sidebar.module.css";
 
 type RoomSidebarItem = {
   id: string;
   name: string;
+  room_code: string;
   avatarUrl?: string | null;
 };
 
@@ -37,13 +39,14 @@ export function Sidebar({ rooms }: SidebarProps) {
 
       <div className={styles.roomList}>
         {rooms.map((room) => {
-          const isCurrentRoom = pathname.startsWith(`/rooms/${room.id}`);
+          const roomPath = getRoomPath(room.room_code);
+          const isCurrentRoom = pathname.startsWith(roomPath);
           return (
             <Link
               className={`${styles.navItem} ${
                 isCurrentRoom ? styles.active : ""
               }`}
-              href={`/rooms/${room.id}`}
+              href={roomPath}
               key={room.id}
             >
               <span>{getInitials(room.name)}</span>
