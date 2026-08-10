@@ -1,33 +1,30 @@
 import { cache } from "react";
-import { redirect } from "next/navigation";
 
 import type { RoomSidebarItem } from "@/components/layout/sidebar";
 import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
-/** โหลดรายการห้องสำหรับ sidebar — cache ต่อ request */
+/** โหลดรายการห้องสำหรับ sidebar — หนึ่ง query + cache ต่อ request */
 export const getSidebarRooms = cache(async (): Promise<RoomSidebarItem[]> => {
   const supabase = await createClient();
   const { data: claimsData } = await supabase.auth.getClaims();
   const userId = claimsData?.claims.sub;
   if (!userId) return [];
 
-  const { data: memberships } = await supabase
-    .from("room_members")
-    .select("room_id")
-    .eq("user_id", userId);
-
-  const roomIds = memberships?.map((m) => m.room_id) ?? [];
-  if (!roomIds.length) return [];
-
   const { data: rooms } = await supabase
     .from("rooms")
-    .select("id, name, avatar_url, room_code")
-    .in("id", roomIds);
+    .select("id, name, avatar_url, room_code, room_members!inner(user_id)")
+    .eq("room_members.user_id", userId);
 
-  return rooms ?? [];
+  return (rooms ?? []).map((room) => ({
+    id: room.id,
+    name: room.name,
+    avatar_url: room.avatar_url,
+    room_code: room.room_code,
+  }));
 });
 
-/** ตรวจ session สำหรับ layout แอป — redirect ถ้ายังไม่ล็อกอิน */
+/** ตรวจ session สำหรับหน้าแอป — redirect ถ้ายังไม่ล็อกอิน */
 export const requireAppUser = cache(async () => {
   const supabase = await createClient();
   const { data: claimsData } = await supabase.auth.getClaims();

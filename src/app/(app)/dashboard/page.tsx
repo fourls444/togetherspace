@@ -3,40 +3,28 @@ import { LogoutForm } from "@/components/auth/logout-form";
 import { RoomCard } from "@/components/rooms/room-card";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
+import type { RoomRole } from "@/lib/types/database";
 import { requireAppUser } from "@/lib/rooms/sidebar";
 
 export default async function DashboardPage() {
   const { supabase, userId } = await requireAppUser();
 
-  const [profileResult, membershipsResult] = await Promise.all([
+  const [profileResult, roomsResult] = await Promise.all([
     supabase
       .from("profiles")
       .select("username, display_name, avatar_url")
       .eq("id", userId)
       .maybeSingle(),
     supabase
-      .from("room_members")
-      .select("room_id, role, joined_at")
-      .eq("user_id", userId)
-      .order("joined_at", { ascending: false }),
+      .from("rooms")
+      .select(
+        "id, name, type, avatar_url, room_code, created_at, room_members!inner(role, joined_at)",
+      )
+      .eq("room_members.user_id", userId)
+      .order("created_at", { ascending: false }),
   ]);
 
-  const memberships = membershipsResult.data ?? [];
-  const roomIds = memberships.map((membership) => membership.room_id);
-  const roomsResult = roomIds.length
-    ? await supabase
-        .from("rooms")
-        .select("id, name, type, avatar_url, room_code, created_at")
-        .in("id", roomIds)
-    : { data: [], error: null };
-
-  const hasLoadError = Boolean(
-    profileResult.error || membershipsResult.error || roomsResult.error,
-  );
-  const membershipByRoom = new Map(
-    memberships.map((membership) => [membership.room_id, membership]),
-  );
-
+  const hasLoadError = Boolean(profileResult.error || roomsResult.error);
   const userRooms = roomsResult.data ?? [];
   const displayName =
     profileResult.data?.display_name ??
@@ -69,13 +57,16 @@ export default async function DashboardPage() {
         />
       ) : userRooms.length ? (
         <section aria-label="รายการห้อง" className={styles.roomsGrid}>
-          {userRooms.map((room) => (
-            <RoomCard
-              key={room.id}
-              role={membershipByRoom.get(room.id)?.role ?? "member"}
-              room={room}
-            />
-          ))}
+          {userRooms.map((room) => {
+            const membership = Array.isArray(room.room_members)
+              ? room.room_members[0]
+              : room.room_members;
+            const role = (membership?.role ?? "member") as RoomRole;
+
+            return (
+              <RoomCard key={room.id} role={role} room={room} />
+            );
+          })}
         </section>
       ) : (
         <section aria-label="ยังไม่มีห้อง" className={styles.empty}>

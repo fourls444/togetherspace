@@ -36,24 +36,16 @@ export default async function RoomMembersPage({
 
   const membershipsResult = await supabase
     .from("room_members")
-    .select("user_id, role, joined_at")
+    .select(
+      "user_id, role, joined_at, profiles(username, display_name, avatar_url)",
+    )
     .eq("room_id", roomId)
     .order("joined_at");
 
   const memberships = membershipsResult.data ?? [];
-  const userIds = memberships.map((m) => m.user_id);
-
-  const profilesResult = userIds.length
-    ? await supabase
-        .from("profiles")
-        .select("id, username, display_name, avatar_url")
-        .in("id", userIds)
-    : { data: [] };
-
-  const profileById = new Map(profilesResult.data?.map((p) => [p.id, p]));
 
   const members: MemberListItem[] = memberships.map((m) => {
-    const profile = profileById.get(m.user_id);
+    const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles;
     return {
       userId: m.user_id,
       displayName: profile?.display_name ?? "ไม่พบชื่อสมาชิก",

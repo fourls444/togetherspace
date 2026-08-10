@@ -43,23 +43,17 @@ export default async function RoomPage({
 
   const membershipsResult = await supabase
     .from("room_members")
-    .select("user_id, role, joined_at")
+    .select(
+      "user_id, role, joined_at, profiles(username, display_name, avatar_url)",
+    )
     .eq("room_id", roomId)
     .order("joined_at");
 
   const memberships = membershipsResult.data ?? [];
-  const userIds = memberships.map((membership) => membership.user_id);
   const currentMember = memberships.find((m) => m.user_id === currentUserId);
   const isOwner = currentMember?.role === "owner";
 
-  const profilesResult = userIds.length
-    ? await supabase
-        .from("profiles")
-        .select("id, username, display_name, avatar_url")
-        .in("id", userIds)
-    : { data: [], error: null };
-
-  if (membershipsResult.error || profilesResult.error) {
+  if (membershipsResult.error) {
     return (
       <main className={styles.shell}>
         <Link className={styles.backLink} href="/dashboard">
@@ -76,11 +70,10 @@ export default async function RoomPage({
     );
   }
 
-  const profileById = new Map(
-    profilesResult.data?.map((profile) => [profile.id, profile]),
-  );
   const members: MemberListItem[] = memberships.map((membership) => {
-    const profile = profileById.get(membership.user_id);
+    const profile = Array.isArray(membership.profiles)
+      ? membership.profiles[0]
+      : membership.profiles;
     return {
       userId: membership.user_id,
       displayName: profile?.display_name ?? "ไม่พบชื่อสมาชิก",

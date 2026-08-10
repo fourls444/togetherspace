@@ -26,7 +26,7 @@ export function RoomCard({ room, role }: RoomCardProps) {
   const avatar = room.avatar_url?.trim();
 
   return (
-    <Link className={styles.card} href={getRoomPath(room.room_code)}>
+    <Link className={styles.card} href={getRoomPath(room.room_code)} prefetch>
       <div className={styles.leading}>
         <div className={styles.avatar} aria-hidden>
           {avatar ? (

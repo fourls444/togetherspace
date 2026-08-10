@@ -208,11 +208,38 @@
   line-height: 1;
 }
 
+.pendingDot {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-primary) 70%, transparent);
+  animation: pendingPulse 0.9s ease-in-out infinite;
+}
+
+@keyframes pendingPulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .homeItem,
   .roomAvatar,
   .actionItem,
   .roomPill {
     transition: none;
+  }
+
+  .pendingDot {
+    animation: none;
+    opacity: 1;
   }
 }

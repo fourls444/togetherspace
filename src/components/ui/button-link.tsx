@@ -20,7 +20,7 @@ export function ButtonLink({
     .join(" ");
 
   return (
-    <Link className={classes} href={href}>
+    <Link className={classes} href={href} prefetch>
       {children}
     </Link>
   );

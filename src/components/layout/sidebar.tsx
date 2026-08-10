@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
 
 import { getRoomPath } from "@/lib/rooms/room-path";
 import styles from "@/components/layout/sidebar.module.css";
@@ -22,6 +24,29 @@ function roomInitial(name: string) {
   return trimmed ? trimmed.slice(0, 1).toUpperCase() : "?";
 }
 
+function PendingMark() {
+  const { pending } = useLinkStatus();
+  if (!pending) return null;
+  return <span className={styles.pendingDot} aria-hidden />;
+}
+
+function NavLink({
+  href,
+  className,
+  children,
+}: {
+  href: string;
+  className: string;
+  children: ReactNode;
+}) {
+  return (
+    <Link className={className} href={href} prefetch>
+      {children}
+      <PendingMark />
+    </Link>
+  );
+}
+
 export function Sidebar({ rooms }: SidebarProps) {
   const pathname = usePathname();
   const isHome = pathname === "/dashboard";
@@ -30,7 +55,7 @@ export function Sidebar({ rooms }: SidebarProps) {
 
   return (
     <aside className={styles.sidebar} aria-label="สลับห้อง">
-      <Link
+      <NavLink
         className={`${styles.homeItem} ${isHome ? styles.activeHome : ""}`}
         href="/dashboard"
       >
@@ -38,7 +63,7 @@ export function Sidebar({ rooms }: SidebarProps) {
           บ้าน
         </span>
         <span className={styles.itemLabel}>หน้าหลัก</span>
-      </Link>
+      </NavLink>
 
       <div className={styles.divider} aria-hidden />
 
@@ -49,7 +74,7 @@ export function Sidebar({ rooms }: SidebarProps) {
           const avatar = room.avatar_url?.trim();
 
           return (
-            <Link
+            <NavLink
               className={`${styles.roomItem} ${
                 isCurrentRoom ? styles.activeRoom : ""
               }`}
@@ -68,14 +93,14 @@ export function Sidebar({ rooms }: SidebarProps) {
                 )}
               </span>
               <span className={styles.itemLabel}>{room.name}</span>
-            </Link>
+            </NavLink>
           );
         })}
       </div>
 
       <div className={styles.bottomActions}>
         <div className={styles.divider} aria-hidden />
-        <Link
+        <NavLink
           className={`${styles.actionItem} ${isCreate ? styles.activeAction : ""}`}
           href="/dashboard/create-room"
         >
@@ -83,8 +108,8 @@ export function Sidebar({ rooms }: SidebarProps) {
             +
           </span>
           <span className={styles.itemLabel}>สร้าง</span>
-        </Link>
-        <Link
+        </NavLink>
+        <NavLink
           className={`${styles.actionItem} ${isJoin ? styles.activeAction : ""}`}
           href="/dashboard/join-room"
         >
@@ -92,7 +117,7 @@ export function Sidebar({ rooms }: SidebarProps) {
             เข้า
           </span>
           <span className={styles.itemLabel}>เข้าร่วม</span>
-        </Link>
+        </NavLink>
       </div>
     </aside>
   );

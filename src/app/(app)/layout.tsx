@@ -1,14 +1,26 @@
-import type { PropsWithChildren } from "react";
+import { Suspense, type PropsWithChildren } from "react";
 
 import { AppFrame } from "@/components/layout/app-frame";
-import { getSidebarRooms, requireAppUser } from "@/lib/rooms/sidebar";
+import { Sidebar } from "@/components/layout/sidebar";
+import { getSidebarRooms } from "@/lib/rooms/sidebar";
 
-export const dynamic = "force-dynamic";
-
-/** โครงแอปหลังล็อกอิน — sidebar + คลื่นคงอยู่ข้ามหน้า ไม่ remount ทุกคลิก */
-export default async function AppLayout({ children }: PropsWithChildren) {
-  await requireAppUser();
+/** โหลดรายการห้องแบบไม่บล็อกเปลือกแอป */
+async function AppSidebar() {
   const rooms = await getSidebarRooms();
+  return <Sidebar rooms={rooms} />;
+}
 
-  return <AppFrame rooms={rooms}>{children}</AppFrame>;
+/** โครงแอปหลังล็อกอิน — เปลือก sync, ข้อมูล sidebar สตรีมแยก */
+export default function AppLayout({ children }: PropsWithChildren) {
+  return (
+    <AppFrame
+      sidebar={
+        <Suspense fallback={<Sidebar rooms={[]} />}>
+          <AppSidebar />
+        </Suspense>
+      }
+    >
+      {children}
+    </AppFrame>
+  );
 }

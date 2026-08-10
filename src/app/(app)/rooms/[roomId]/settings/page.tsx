@@ -51,37 +51,28 @@ export default async function RoomSettingsPage({
       .maybeSingle(),
     supabase
       .from("room_members")
-      .select("user_id, role, joined_at")
+      .select(
+        "user_id, role, joined_at, profiles(username, display_name, avatar_url)",
+      )
       .eq("room_id", roomId)
       .order("joined_at"),
   ]);
 
   const isOwner = memberRecordResult.data?.role === "owner";
   const memberships = membershipsResult.data ?? [];
-  const userIds = memberships.map((m) => m.user_id);
 
-  const [profilesResult, invitesResult] = await Promise.all([
-    userIds.length
-      ? supabase
-          .from("profiles")
-          .select("id, username, display_name, avatar_url")
-          .in("id", userIds)
-      : Promise.resolve({ data: [] as { id: string; username: string; display_name: string; avatar_url: string | null }[] }),
-    isOwner
-      ? supabase
-          .from("room_invites")
-          .select(
-            "id, invite_code, invite_token, uses_count, max_uses, expires_at, created_at, revoked_at",
-          )
-          .eq("room_id", roomId)
-          .order("created_at", { ascending: false })
-      : Promise.resolve({ data: [] as never[] }),
-  ]);
-
-  const profileById = new Map(profilesResult.data?.map((p) => [p.id, p]));
+  const invitesResult = isOwner
+    ? await supabase
+        .from("room_invites")
+        .select(
+          "id, invite_code, invite_token, uses_count, max_uses, expires_at, created_at, revoked_at",
+        )
+        .eq("room_id", roomId)
+        .order("created_at", { ascending: false })
+    : { data: [] as never[] };
 
   const members: ManageMemberItem[] = memberships.map((m) => {
-    const profile = profileById.get(m.user_id);
+    const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles;
     return {
       userId: m.user_id,
       displayName: profile?.display_name ?? "ไม่พบชื่อสมาชิก",
