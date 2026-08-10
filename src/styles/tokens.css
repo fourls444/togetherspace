@@ -1,23 +1,37 @@
 :root {
-  --color-background: #ffffff;
-  --color-surface: #ffffff;
-  --color-muted-surface: #f5f5f5;
-  --color-hover: #eeeeee;
-  --color-sidebar: #ffffff;
-  --color-sidebar-hover: #f0f0f0;
-  --color-text: #000000;
-  --color-text-muted: #555555;
-  --color-border: #cccccc;
-  --color-border-strong: #888888;
-  --color-primary: #000000;
-  --color-primary-hover: #333333;
-  --color-primary-text: #ffffff;
-  --color-focus: #000000;
-  --color-error: #000000;
-  --color-error-text: #cc0000;
-  --color-error-surface: #fafafa;
-  --color-error-border: #cc0000;
-  --radius-control: 0.25rem;
-  --radius-panel: 0.25rem;
-  --shadow-panel: none;
+  /* Living Room After Dark — TogetherSpace
+     ห้องนั่งเล่นโทนน้ำเงินมืด + แสงโคมเหลืองส้มอ่อน + ข้อความครีม */
+  --color-background: #0d1424;
+  --color-surface: #151d31;
+  --color-muted-surface: #1c2540;
+  --color-hover: #243050;
+  --color-primary-soft: #3a2a18;
+  --color-sidebar: #0f1628;
+  --color-sidebar-hover: #1c2540;
+  --color-text: #f3ede3;
+  --color-text-muted: #a8b0c2;
+  --color-placeholder: #6f788f;
+  --color-border: #2a334a;
+  --color-border-strong: #3d4a66;
+  --color-primary: #e8a055;
+  --color-primary-hover: #f0b56e;
+  --color-primary-text: #1a1208;
+  --color-focus: #f0b56e;
+  --color-error: #f08080;
+  --color-error-text: #ffd4d4;
+  --color-error-surface: #3a1c22;
+  --color-error-border: #7a3038;
+  --radius-control: 0.75rem;
+  --radius-panel: 1rem;
+  --radius-auth-card: 1.15rem;
+  --radius-room: 1.5rem;
+  --radius-brand-mark: 0.75rem;
+  --shadow-panel: 0 12px 32px rgb(8 10 24 / 0.5), 0 0 40px rgb(232 160 85 / 0.08);
+  --font-size-display: clamp(2rem, 4.2vw, 2.75rem);
+  --font-size-brand: 1.35rem;
+  --font-size-title: 1.2rem;
+  --font-size-body: 1rem;
+  --font-size-body-sm: 0.95rem;
+  --font-size-label: 0.875rem;
+  --font-size-mark: 0.75rem;
 }

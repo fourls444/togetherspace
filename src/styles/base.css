@@ -12,7 +12,8 @@ body {
 
 body {
   color: var(--color-text);
-  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans), var(--font-sans-thai), system-ui, -apple-system,
+    sans-serif;
   background: var(--color-background);
 }
 

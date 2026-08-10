@@ -40,3 +40,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Cursor local tooling (skills / agents / hooks — ติดตั้งเองต่อเครื่อง)
+.cursor/
+
+# Impeccable (local tooling — เพื่อนในทีมไม่ได้ใช้)
+.impeccable/

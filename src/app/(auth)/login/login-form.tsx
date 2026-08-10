@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { login, type LoginState } from "@/app/login/actions";
+import { login, type LoginState } from "@/app/(auth)/login/actions";
+import { PasswordField } from "@/components/ui/password-field";
 import { Button } from "@/components/ui/button";
 import { FieldErrors } from "@/components/ui/field-errors";
 import formStyles from "@/components/ui/form.module.css";
@@ -39,26 +41,27 @@ export function LoginForm() {
         <FieldErrors id="email-errors" messages={state.fieldErrors?.email} />
       </div>
 
-      <div className={formStyles.field}>
-        <label className={formStyles.label} htmlFor="password">
-          รหัสผ่าน
-        </label>
-        <input
-          aria-describedby={
-            state.fieldErrors?.password ? "password-errors" : undefined
+      <PasswordField
+        autoComplete="current-password"
+        errorId="password-errors"
+        errorMessages={state.fieldErrors?.password}
+        id="password"
+        label="รหัสผ่าน"
+        name="password"
+        required
+      />
+
+      <div className={formStyles.formFooter}>
+        <Link
+          className={formStyles.textLink}
+          href={
+            nextParam
+              ? `/forgot-password?next=${encodeURIComponent(nextParam)}`
+              : "/forgot-password"
           }
-          aria-invalid={Boolean(state.fieldErrors?.password)}
-          autoComplete="current-password"
-          className={formStyles.control}
-          id="password"
-          name="password"
-          required
-          type="password"
-        />
-        <FieldErrors
-          id="password-errors"
-          messages={state.fieldErrors?.password}
-        />
+        >
+          ลืมรหัสผ่าน?
+        </Link>
       </div>
 
       {state.error ? (

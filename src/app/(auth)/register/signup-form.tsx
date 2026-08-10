@@ -1,9 +1,11 @@
 "use client";
 
 import { useActionState } from "react";
+import { useSearchParams } from "next/navigation";
 
-import { signup, type SignupState } from "@/app/register/actions";
-import styles from "@/app/register/signup.module.css";
+import { signup, type SignupState } from "@/app/(auth)/register/actions";
+import styles from "@/app/(auth)/register/signup.module.css";
+import { PasswordField } from "@/components/ui/password-field";
 import { Button } from "@/components/ui/button";
 import { FieldErrors } from "@/components/ui/field-errors";
 import formStyles from "@/components/ui/form.module.css";
@@ -12,13 +14,20 @@ const initialState: SignupState = {};
 
 /** รับข้อมูลสมัครสมาชิกและผูก error จาก server กลับไปยังช่องที่มีปัญหา */
 export function SignupForm() {
+  const searchParams = useSearchParams();
+  const nextParam = searchParams.get("next") || "";
   const [state, formAction, isPending] = useActionState(signup, initialState);
 
   return (
-    <form action={formAction} className={formStyles.form}>
+    <form
+      action={formAction}
+      className={`${formStyles.form} ${formStyles.formCompact}`}
+    >
+      {nextParam ? <input name="next" type="hidden" value={nextParam} /> : null}
+
       <div className={formStyles.field}>
         <label className={formStyles.label} htmlFor="username">
-          ชื่อผู้ใช้ (Username)
+          ชื่อบัญชี
         </label>
         <input
           aria-describedby={
@@ -31,10 +40,11 @@ export function SignupForm() {
           id="username"
           maxLength={30}
           name="username"
+          placeholder="เช่น space_01"
           required
         />
         <p className={styles.hint} id="username-hint">
-          3-30 ตัวอักษร ใช้ได้เฉพาะ a-z, 0-9 และ _ (ตัวพิมพ์เล็กทั้งหมด)
+          3–30 ตัว · อังกฤษ ตัวเลข _ · ใช้ในลิงก์/โปรไฟล์
         </p>
         <FieldErrors id="username-errors" messages={state.fieldErrors?.username} />
       </div>
@@ -58,58 +68,29 @@ export function SignupForm() {
         <FieldErrors id="email-errors" messages={state.fieldErrors?.email} />
       </div>
 
-      <div className={formStyles.field}>
-        <label className={formStyles.label} htmlFor="password">
-          รหัสผ่าน
-        </label>
-        <input
-          aria-describedby={
-            state.fieldErrors?.password
-              ? "password-hint password-errors"
-              : "password-hint"
-          }
-          aria-invalid={Boolean(state.fieldErrors?.password)}
-          autoComplete="new-password"
-          className={formStyles.control}
-          id="password"
-          minLength={8}
-          name="password"
-          required
-          type="password"
-        />
-        <p className={styles.hint} id="password-hint">
-          อย่างน้อย 8 ตัวอักษร
-        </p>
-        <FieldErrors
-          id="password-errors"
-          messages={state.fieldErrors?.password}
-        />
-      </div>
+      <PasswordField
+        autoComplete="new-password"
+        errorId="password-errors"
+        errorMessages={state.fieldErrors?.password}
+        hint="อย่างน้อย 8 ตัว"
+        hintId="password-hint"
+        id="password"
+        label="รหัสผ่าน"
+        minLength={8}
+        name="password"
+        required
+      />
 
-      <div className={formStyles.field}>
-        <label className={formStyles.label} htmlFor="confirmPassword">
-          ยืนยันรหัสผ่าน
-        </label>
-        <input
-          aria-describedby={
-            state.fieldErrors?.confirmPassword
-              ? "confirm-password-errors"
-              : undefined
-          }
-          aria-invalid={Boolean(state.fieldErrors?.confirmPassword)}
-          autoComplete="new-password"
-          className={formStyles.control}
-          id="confirmPassword"
-          minLength={8}
-          name="confirmPassword"
-          required
-          type="password"
-        />
-        <FieldErrors
-          id="confirm-password-errors"
-          messages={state.fieldErrors?.confirmPassword}
-        />
-      </div>
+      <PasswordField
+        autoComplete="new-password"
+        errorId="confirm-password-errors"
+        errorMessages={state.fieldErrors?.confirmPassword}
+        id="confirmPassword"
+        label="ยืนยันรหัสผ่าน"
+        minLength={8}
+        name="confirmPassword"
+        required
+      />
 
       {state.error ? (
         <p className={formStyles.serviceError} role="alert">

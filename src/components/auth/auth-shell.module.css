@@ -1,53 +1,536 @@
-.shell {
-  display: flex;
+.page {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+.waves {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 1;
+}
+
+.grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-height: 100vh;
+  min-height: 100dvh;
+  grid-template-columns: 1fr;
+}
+
+.left {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 2rem;
+  padding: 1.5rem 1.25rem 2.5rem;
+  padding-top: max(1.5rem, env(safe-area-inset-top));
+  padding-bottom: max(2.5rem, env(safe-area-inset-bottom));
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: fit-content;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.brandMark {
+  display: inline-flex;
+  width: 2.5rem;
+  height: 2.5rem;
   align-items: center;
   justify-content: center;
+  border-radius: var(--radius-brand-mark);
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+  font-size: var(--font-size-mark);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  box-shadow: 0 8px 24px rgb(232 160 85 / 0.28);
 }
 
-.panel {
+.brandName {
+  font-family: var(--font-display), var(--font-display-thai), Georgia,
+    "Times New Roman", serif;
+  font-size: var(--font-size-brand);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.leftStack {
+  display: flex;
   width: 100%;
-  max-width: 30rem;
+  max-width: 26rem;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 1.5rem;
+  margin-inline: auto;
 }
 
-.intro {
+.sloganBlock {
   display: grid;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  gap: 0.75rem;
 }
 
-.eyebrow,
-.title,
-.description,
+.slogan {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-display), var(--font-display-thai), Georgia,
+    "Times New Roman", serif;
+  font-size: var(--font-size-display);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+
+.sloganSupport {
+  margin: 0;
+  max-width: 34ch;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-body-sm);
+  line-height: 1.6;
+}
+
+.card {
+  width: 100%;
+  padding: 1.25rem 1.35rem 1.35rem;
+  background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-auth-card);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(16px);
+  will-change: transform, opacity;
+}
+
+.panelEnter {
+  animation: panelEnter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.panelExitRight {
+  animation: panelExitRight 300ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  pointer-events: none;
+}
+
+.panelExitLeft {
+  animation: panelExitLeft 300ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  pointer-events: none;
+}
+
+.panelEnterExpand {
+  animation: panelEnterExpand 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.panelEnterFromRight {
+  animation: panelEnterFromRight 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.sloganEnter {
+  animation: sloganEnter 380ms ease both;
+}
+
+.sloganExit {
+  animation: sloganExit 240ms ease both;
+  pointer-events: none;
+}
+
+@keyframes panelExitRight {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(42%) scale(0.96);
+  }
+}
+
+@keyframes panelExitLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-42%) scale(0.96);
+  }
+}
+
+@keyframes panelEnterExpand {
+  from {
+    opacity: 0;
+    transform: translateX(-18%) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes panelEnterFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(36%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes panelEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sloganExit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes sloganEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cardIntro {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: var(--font-size-title);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.cardDescription,
 .switchAccount p {
   margin: 0;
-}
-
-.eyebrow {
   color: var(--color-text-muted);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.title {
-  font-size: 1.5rem;
-}
-
-.description,
-.switchAccount p {
-  color: var(--color-text-muted);
-  font-size: 0.875rem;
-  line-height: 1.5;
+  font-size: var(--font-size-label);
+  line-height: 1.55;
 }
 
 .switchAccount {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: 0.75rem;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
   border-top: 1px solid var(--color-border);
+}
+
+.right {
+  display: none;
+}
+
+.roomStage {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  padding: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-room);
+  background:
+    radial-gradient(
+      120% 90% at 78% 18%,
+      color-mix(in srgb, var(--color-primary) 22%, transparent),
+      transparent 52%
+    ),
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--color-muted-surface) 88%, transparent),
+      color-mix(in srgb, var(--color-surface) 94%, #070b14)
+    );
+  box-shadow: var(--shadow-panel);
+}
+
+.lampGlow {
+  position: absolute;
+  top: 18%;
+  right: 16%;
+  width: min(16rem, 42%);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-primary) 55%, #fff) 0%,
+    color-mix(in srgb, var(--color-primary) 28%, transparent) 38%,
+    transparent 72%
+  );
+  filter: blur(2px);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.roomContent {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  max-width: 26rem;
+  gap: 1rem;
+  margin-top: auto;
+}
+
+.roomTitle {
+  margin: 0;
+  font-family: var(--font-display), var(--font-display-thai), Georgia,
+    "Times New Roman", serif;
+  font-size: var(--font-size-display);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+
+.roomText {
+  margin: 0;
+  max-width: 36ch;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-body-sm);
+  line-height: 1.6;
+}
+
+.roomList {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.roomItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-text);
+  font-size: var(--font-size-body-sm);
+  line-height: 1.4;
+}
+
+.roomDot {
+  flex: 0 0 auto;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 12px rgb(232 160 85 / 0.45);
+}
+
+.mobileAtmosphere {
+  display: block;
+}
+
+.mobileAtmosphereInner {
+  position: relative;
+  overflow: hidden;
+  padding: 1.25rem 1.25rem 1.35rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-room);
+  background:
+    radial-gradient(
+      120% 90% at 88% 0%,
+      color-mix(in srgb, var(--color-primary) 20%, transparent),
+      transparent 55%
+    ),
+    color-mix(in srgb, var(--color-surface) 88%, transparent);
+  box-shadow: var(--shadow-panel);
+}
+
+.mobileAtmosphereInner .lampGlow {
+  top: -20%;
+  right: 8%;
+  width: 8rem;
+  opacity: 0.75;
+}
+
+.mobileAtmosphereInner .roomTitle {
+  font-size: var(--font-size-title);
+}
+
+.mobileAtmosphereInner .roomText {
+  font-size: var(--font-size-label);
+}
+
+.mobileAtmosphereInner .roomList {
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+@media (min-width: 960px) {
+  .grid {
+    grid-template-columns: minmax(24rem, 0.9fr) minmax(0, 1.1fr);
+    align-items: stretch;
+    min-height: 100dvh;
+  }
+
+  .left {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-height: 100%;
+    padding: 2rem 1.75rem 2rem 3rem;
+  }
+
+  .leftStack {
+    flex: 1 1 auto;
+    justify-content: center;
+    margin-inline: 0;
+    margin-left: auto;
+    margin-right: 1.25rem;
+    padding-block: 0;
+    gap: 1.5rem;
+  }
+
+  .mobileAtmosphere {
+    display: none;
+  }
+
+  .right {
+    display: flex;
+    min-height: 100%;
+    height: auto;
+    align-self: stretch;
+    padding: 2rem 2rem 2rem 0.75rem;
+  }
+
+  .roomStage {
+    flex: 1 1 auto;
+    min-height: 100%;
+  }
+}
+
+@media (min-width: 1200px) {
+  .left {
+    padding-left: 4.75rem;
+  }
+
+  .leftStack {
+    margin-right: 2.25rem;
+    max-width: 27rem;
+  }
+
+  .right {
+    padding-right: 2.75rem;
+  }
+
+  .roomStage {
+    padding: 2.5rem;
+  }
+}
+
+@media (max-width: 959px) {
+  .leftStack {
+    gap: 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panelEnter,
+  .panelExitRight,
+  .panelExitLeft,
+  .panelEnterExpand,
+  .panelEnterFromRight,
+  .sloganEnter,
+  .sloganExit {
+    animation: none;
+  }
+}
+
+/* หน้าสมัคร: กระชับให้จบในจอเดียวโดยไม่ต้องเลื่อน */
+.pageRegister {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.pageRegister .left {
+  gap: 0.75rem;
+  padding-top: max(0.85rem, env(safe-area-inset-top));
+  padding-bottom: max(0.85rem, env(safe-area-inset-bottom));
+}
+
+.pageRegister .brandMark {
+  width: 2rem;
+  height: 2rem;
+}
+
+.pageRegister .brandName {
+  font-size: var(--font-size-title);
+}
+
+.pageRegister .leftStack {
+  gap: 0.75rem;
+  justify-content: center;
+  min-height: 0;
+}
+
+.pageRegister .slogan {
+  font-size: clamp(1.2rem, 3vw, 1.35rem);
+  line-height: 1.2;
+}
+
+.pageRegister .card {
+  padding: 0.9rem 1rem 1rem;
+}
+
+.pageRegister .cardIntro {
+  margin-bottom: 0.65rem;
+}
+
+.pageRegister .cardTitle {
+  font-size: var(--font-size-title);
+}
+
+.pageRegister .switchAccount {
+  margin-top: 0.65rem;
+  padding-top: 0.65rem;
+}
+
+@media (min-width: 960px) {
+  .pageRegister .left {
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .pageRegister .leftStack {
+    gap: 0.85rem;
+  }
 }

@@ -16,7 +16,7 @@ export type SignupState = {
   };
 };
 
-/** ตรวจข้อมูล สมัครสมาชิก และส่งผู้ใช้ไป Dashboard ทันทีหลังสมัครสำเร็จ */
+/** ตรวจข้อมูล สมัครสมาชิก และส่งผู้ใช้ไปหน้าถัดไปหลังสมัครสำเร็จ */
 export async function signup(
   _previousState: SignupState,
   formData: FormData,
@@ -34,6 +34,8 @@ export async function signup(
     return { fieldErrors: result.error.flatten().fieldErrors };
   }
 
+  const nextUrl = (formData.get("next") as string) || "/dashboard";
+
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email: result.data.email,
@@ -41,7 +43,6 @@ export async function signup(
     options: {
       data: {
         username: result.data.username,
-        // display_name ยังไม่ได้ตั้งตอนสมัคร สามารถแก้ไขได้ในหน้า Profile
       },
     },
   });
@@ -51,12 +52,11 @@ export async function signup(
   }
 
   if (data.session) {
-    redirect("/dashboard");
+    redirect(nextUrl);
   }
 
-  // กรณียังไม่มี session (email confirm เปิดอยู่) แสดง error ให้ admin รู้
   return {
     error:
-      "สมัครสมาชิกสำเร็จแต่ยังไม่มี session กรุณาปิด Email Confirmation ใน Supabase Dashboard แล้วลองใหม่",
+      "เราได้รับข้อมูลแล้ว โปรดเปิดอีเมลของคุณแล้วกดยืนยันบัญชี จากนั้นกลับมาเข้าสู่ระบบได้เลย",
   };
 }

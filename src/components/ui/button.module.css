@@ -39,13 +39,13 @@
 }
 
 .danger {
-  color: var(--color-text);
-  background: var(--color-surface);
-  border-color: #000000;
+  color: var(--color-primary-text);
+  background: var(--color-error);
+  border-color: var(--color-error);
 }
 
 .danger:hover {
-  background: #f0f0f0;
+  background: color-mix(in srgb, var(--color-error) 88%, #000);
 }
 
 .default {

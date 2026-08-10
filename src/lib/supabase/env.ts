@@ -5,7 +5,7 @@ type SupabaseEnvironment = {
 
 /** ตรวจและคืนค่า Supabase environment ที่พร้อมนำไปสร้าง client */
 export function getSupabaseEnv(environment: SupabaseEnvironment) {
-  const url = environment.url?.trim();
+  const url = environment.url?.trim().replace(/\/+$/, "");
   const publishableKey = environment.publishableKey?.trim();
 
   if (!url) {

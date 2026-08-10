@@ -1,3 +1,47 @@
+# TogetherSpace Agent Guide
+
+อ่านไฟล์นี้และ `.cursor/rules/` ก่อนลงมือแก้โค้ด
+
+## โปรเจคนี้คืออะไร
+TogetherSpace = เว็บพื้นที่ร่วมสำหรับกลุ่มเพื่อน / แฟน / ครอบครัว  
+มีห้อง, สมาชิก, คำเชิญ และจะมีโมดูลกิจกรรม (อัลบั้ม ปฏิทิน ฯลฯ) ทีหลัง
+
+## ใครทำอะไร
+| ฝั่ง | รับผิดชอบ |
+|------|-----------|
+| เพื่อน | Backend, Supabase, DB, Auth logic, RLS |
+| ในแชทนี้ | Frontend ให้ดูดี ใช้ง่าย ตามธีมที่ล็อก |
+
+อย่าเปลี่ยน schema / migration / RPC / นโยบายสิทธิ์ ถ้าผู้ใช้ไม่ได้ขอ
+
+## ธีมสี (ล็อก)
+ดูตารางใน `.cursor/rules/togetherspace-product.mdc`  
+อัปเดตค่าจริงใน `src/styles/tokens.css`
+
+หลักสั้นๆ: พื้นน้ำเงินมืด `#0D1424` · การ์ด `#151D31` · ข้อความครีม `#F3EDE3` · ปุ่มโคม `#E8A055`
+
+## Typography (ล็อก)
+- Display: **Instrument Serif** + **Taviraj** (ไทย)
+- UI/Body: **DM Sans** + **Anuphan** (ไทย)
+- รายละเอียด: `docs/TYPOGRAPHY.md`
+
+## หน้า Login / Register (สำคัญ)
+เลย์เอาต์แบบ split:
+- **ซ้าย** สโลแกน + ช่องทาง login
+- **ขวา** พรีวิววิดีโอโปรโมตภาพรวมเว็บ
+
+รายละเอียดบังคับอยู่ใน `.cursor/rules/auth-landing-layout.mdc`
+
+## Stack ที่ใช้อยู่
+- Next.js App Router ใต้ `src/app/`
+- CSS Modules + tokens ใน `src/styles/`
+- Supabase Auth (อย่าพัง flow เดิมตอนจัด UI)
+
+## ก่อน commit / push
+ทำเมื่อผู้ใช้ขอเท่านั้น
+
+---
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know
