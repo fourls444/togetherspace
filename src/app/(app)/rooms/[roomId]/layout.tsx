@@ -2,10 +2,10 @@ import type { PropsWithChildren } from "react";
 
 import styles from "@/components/rooms/room-chrome.module.css";
 import { RoomNav } from "@/components/rooms/room-nav";
+import { ButtonLink } from "@/components/ui/button-link";
 import { ROOM_TYPE_LABEL } from "@/lib/rooms/labels";
 import { getRoomPath, getRoomSubPath } from "@/lib/rooms/room-path";
 import { getRoomContext } from "@/lib/rooms/server";
-import Link from "next/link";
 
 function roomInitial(name: string) {
   const trimmed = name.trim();
@@ -33,9 +33,9 @@ export default async function RoomLayout({
   return (
     <div className={styles.place}>
       <header className={styles.header}>
-        <Link className={styles.back} href="/dashboard" prefetch>
-          ← กลับหน้าแรก
-        </Link>
+        <ButtonLink className={styles.backButton} href="/dashboard">
+          กลับหน้าแรก
+        </ButtonLink>
         <div className={styles.identity}>
           <div className={styles.avatar} aria-hidden>
             {avatar ? (

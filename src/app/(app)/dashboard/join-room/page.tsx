@@ -5,8 +5,8 @@ import { ButtonLink } from "@/components/ui/button-link";
 export default function JoinRoomPage() {
   return (
     <div className={styles.wrap}>
-      <ButtonLink className={styles.back} href="/dashboard">
-        ← กลับหน้าแรก
+      <ButtonLink className={styles.backButton} href="/dashboard">
+        กลับหน้าแรก
       </ButtonLink>
       <div className={styles.panel}>
         <div className={styles.intro}>

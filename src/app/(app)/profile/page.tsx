@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { ProfileForm } from "@/app/(app)/profile/profile-form";
 import styles from "@/app/(app)/profile/profile.module.css";
+import { ButtonLink } from "@/components/ui/button-link";
 import { requireAppUser } from "@/lib/rooms/sidebar";
 
 export default async function ProfilePage() {
@@ -18,9 +18,9 @@ export default async function ProfilePage() {
 
   return (
     <div className={styles.wrap}>
-      <Link className={styles.back} href="/dashboard">
-        ← กลับหน้าแรก
-      </Link>
+      <ButtonLink className={styles.backButton} href="/dashboard">
+        กลับหน้าแรก
+      </ButtonLink>
       <div className={styles.panel}>
         <div className={styles.intro}>
           <h1 className={styles.title}>โปรไฟล์ของคุณ</h1>

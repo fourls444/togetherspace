@@ -19,16 +19,8 @@
   box-shadow: var(--shadow-panel);
 }
 
-.back {
+.backButton {
   width: fit-content;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-label);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.back:hover {
-  color: var(--color-text);
 }
 
 .identity {
