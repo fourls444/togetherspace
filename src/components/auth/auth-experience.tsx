@@ -8,6 +8,11 @@ import { LoginForm } from "@/app/(auth)/login/login-form";
 import { SignupForm } from "@/app/(auth)/register/signup-form";
 import { AuthWavesBackground } from "@/components/auth/auth-waves-background";
 import styles from "@/components/auth/auth-shell.module.css";
+import {
+  AUTH_GLOW_COLOR,
+  MagicBentoCard,
+  MagicBentoSpotlight,
+} from "@/components/effects/magic-bento/MagicBentoCard";
 import { Button } from "@/components/ui/button";
 import formStyles from "@/components/ui/form.module.css";
 
@@ -84,6 +89,7 @@ export function AuthExperience() {
   const [switching, setSwitching] = useState(false);
   const isFirstRender = useRef(true);
   const visibleModeRef = useRef(visibleMode);
+  const bentoSectionRef = useRef<HTMLDivElement>(null);
   visibleModeRef.current = visibleMode;
 
   useEffect(() => {
@@ -169,7 +175,15 @@ export function AuthExperience() {
       <div className={styles.waves} aria-hidden>
         <AuthWavesBackground />
       </div>
-      <div className={styles.grid}>
+      <div
+        ref={bentoSectionRef}
+        className={`${styles.grid} magic-bento-section`}
+      >
+        <MagicBentoSpotlight
+          sectionRef={bentoSectionRef}
+          glowColor={AUTH_GLOW_COLOR}
+          spotlightRadius={300}
+        />
         <section className={styles.left} aria-label={copy.title}>
           <Link className={styles.brand} href="/">
             <span className={styles.brandMark} aria-hidden>
@@ -192,7 +206,16 @@ export function AuthExperience() {
               )}
             </div>
 
-            <div className={`${styles.card} ${panelAnim}`}>
+            <MagicBentoCard
+              className={`${styles.card} ${panelAnim}`}
+              glowColor={AUTH_GLOW_COLOR}
+              enableStars
+              enableBorderGlow
+              enableTilt={false}
+              enableMagnetism={false}
+              clickEffect={false}
+              particleCount={10}
+            >
               <div className={styles.cardIntro}>
                 <h2 className={styles.cardTitle}>{copy.title}</h2>
                 {visibleMode === "register" ? null : (
@@ -228,12 +251,23 @@ export function AuthExperience() {
                   {copy.switchLabel}
                 </Button>
               </div>
-            </div>
+            </MagicBentoCard>
           </div>
         </section>
 
         <section className={styles.right} aria-label="ภาพบรรยากาศห้อง">
-          <div className={styles.roomStage}>{roomPanel}</div>
+          <MagicBentoCard
+            className={styles.roomStage}
+            glowColor={AUTH_GLOW_COLOR}
+            enableStars
+            enableBorderGlow
+            enableTilt={false}
+            enableMagnetism={false}
+            clickEffect
+            particleCount={12}
+          >
+            {roomPanel}
+          </MagicBentoCard>
         </section>
       </div>
     </main>

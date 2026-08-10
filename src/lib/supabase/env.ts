@@ -13,7 +13,9 @@ export function getSupabaseEnv(environment: SupabaseEnvironment) {
   }
 
   if (!publishableKey) {
-    throw new Error("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is required");
+    throw new Error(
+      "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY is required",
+    );
   }
 
   return { url, publishableKey };
@@ -23,6 +25,8 @@ export function getSupabaseEnv(environment: SupabaseEnvironment) {
 export function getPublicSupabaseEnv() {
   return getSupabaseEnv({
     url: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    publishableKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+    publishableKey:
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   });
 }
