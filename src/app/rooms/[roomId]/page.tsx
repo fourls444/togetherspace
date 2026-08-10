@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import styles from "@/app/rooms/[roomId]/room-detail.module.css";
-import { Sidebar } from "@/components/layout/sidebar";
+import { AppFrame } from "@/components/layout/app-frame";
 import { MemberList, type MemberListItem } from "@/components/rooms/member-list";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button-link";
@@ -28,8 +28,7 @@ export default async function RoomPage({
 
   if (!context.isMember) {
     return (
-      <div className={styles.container}>
-        <Sidebar rooms={context.sidebarRooms} />
+      <AppFrame rooms={context.sidebarRooms}>
         <main className={styles.shell}>
           <Link className={styles.backLink} href="/dashboard">
             ← กลับไปหน้าหลัก
@@ -42,7 +41,7 @@ export default async function RoomPage({
             />
           </div>
         </main>
-      </div>
+      </AppFrame>
     );
   }
 
@@ -69,8 +68,7 @@ export default async function RoomPage({
 
   if (membershipsResult.error || profilesResult.error) {
     return (
-      <div className={styles.container}>
-        <Sidebar rooms={sidebarRooms} />
+      <AppFrame rooms={sidebarRooms}>
         <main className={styles.shell}>
           <Link className={styles.backLink} href="/dashboard">
             ← กลับไปหน้าหลัก
@@ -83,7 +81,7 @@ export default async function RoomPage({
             />
           </div>
         </main>
-      </div>
+      </AppFrame>
     );
   }
 
@@ -104,8 +102,7 @@ export default async function RoomPage({
   const avatar = room.avatar_url?.trim();
 
   return (
-    <div className={styles.container}>
-      <Sidebar rooms={sidebarRooms} />
+    <AppFrame rooms={sidebarRooms}>
       <main className={styles.shell}>
         <div className={styles.topBar}>
           <Link className={styles.backLink} href="/dashboard">
@@ -177,6 +174,6 @@ export default async function RoomPage({
           <MemberList members={members} />
         </section>
       </main>
-    </div>
+    </AppFrame>
   );
 }

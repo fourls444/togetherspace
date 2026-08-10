@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 import styles from "@/app/rooms/[roomId]/settings/settings.module.css";
+import { AppFrame } from "@/components/layout/app-frame";
 import { PageShell } from "@/components/layout/page-shell";
-import { Sidebar } from "@/components/layout/sidebar";
 import { CreateInviteForm } from "@/components/rooms/create-invite-form";
 import { InviteList, type InviteListItem } from "@/components/rooms/invite-list";
 import { LeaveRoomButton } from "@/components/rooms/leave-room-button";
@@ -29,8 +29,7 @@ export default async function RoomSettingsPage({
 
   if (!context.isMember) {
     return (
-      <div className={styles.container}>
-        <Sidebar rooms={context.sidebarRooms} />
+      <AppFrame rooms={context.sidebarRooms}>
         <PageShell>
           <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
           <div className={styles.error}>
@@ -41,7 +40,7 @@ export default async function RoomSettingsPage({
             />
           </div>
         </PageShell>
-      </div>
+    </AppFrame>
     );
   }
 
@@ -107,8 +106,7 @@ export default async function RoomSettingsPage({
   }));
 
   return (
-    <div className={styles.container}>
-      <Sidebar rooms={sidebarRooms} />
+    <AppFrame rooms={sidebarRooms}>
       <PageShell>
         <Link className={styles.backLink} href={roomPath}>
           ← กลับไปหน้าห้อง ({room.name})
@@ -178,6 +176,6 @@ export default async function RoomSettingsPage({
           </section>
         </Panel>
       </PageShell>
-    </div>
+    </AppFrame>
   );
 }

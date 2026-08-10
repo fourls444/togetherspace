@@ -2,8 +2,8 @@ import { redirect } from "next/navigation";
 
 import styles from "@/app/dashboard/create-room/create-room.module.css";
 import { RoomForm } from "@/app/dashboard/create-room/room-form";
+import { AppFrame } from "@/components/layout/app-frame";
 import { PageShell } from "@/components/layout/page-shell";
-import { Sidebar } from "@/components/layout/sidebar";
 import { ButtonLink } from "@/components/ui/button-link";
 import { Panel } from "@/components/ui/panel";
 import { createClient } from "@/lib/supabase/server";
@@ -30,8 +30,7 @@ export default async function CreateRoomPage() {
     : { data: [] };
 
   return (
-    <div className={styles.container}>
-      <Sidebar rooms={roomsResult.data ?? []} />
+    <AppFrame rooms={roomsResult.data ?? []}>
       <PageShell>
         <div className={styles.content}>
           <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
@@ -44,6 +43,6 @@ export default async function CreateRoomPage() {
           </Panel>
         </div>
       </PageShell>
-    </div>
+    </AppFrame>
   );
 }

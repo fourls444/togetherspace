@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 import styles from "@/app/rooms/[roomId]/members/members.module.css";
+import { AppFrame } from "@/components/layout/app-frame";
 import { PageShell } from "@/components/layout/page-shell";
-import { Sidebar } from "@/components/layout/sidebar";
 import { MemberList, type MemberListItem } from "@/components/rooms/member-list";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
@@ -22,8 +22,7 @@ export default async function RoomMembersPage({
 
   if (!context.isMember) {
     return (
-      <div className={styles.container}>
-        <Sidebar rooms={context.sidebarRooms} />
+      <AppFrame rooms={context.sidebarRooms}>
         <PageShell>
           <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
           <div className={styles.error}>
@@ -34,7 +33,7 @@ export default async function RoomMembersPage({
             />
           </div>
         </PageShell>
-      </div>
+    </AppFrame>
     );
   }
 
@@ -69,8 +68,7 @@ export default async function RoomMembersPage({
   });
 
   return (
-    <div className={styles.container}>
-      <Sidebar rooms={sidebarRooms} />
+    <AppFrame rooms={sidebarRooms}>
       <PageShell>
         <Link className={styles.backLink} href={roomPath}>
           ← กลับไปหน้าห้อง ({room.name})
@@ -80,6 +78,6 @@ export default async function RoomMembersPage({
           <MemberList members={members} />
         </Panel>
       </PageShell>
-    </div>
+    </AppFrame>
   );
 }

@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 
 import styles from "@/app/dashboard/join-room/join-room.module.css";
+import { AppFrame } from "@/components/layout/app-frame";
 import { PageShell } from "@/components/layout/page-shell";
-import { Sidebar } from "@/components/layout/sidebar";
 import { JoinForm } from "@/components/rooms/join-form";
 import { ButtonLink } from "@/components/ui/button-link";
 import { Panel } from "@/components/ui/panel";
@@ -30,8 +30,7 @@ export default async function JoinRoomPage() {
     : { data: [] };
 
   return (
-    <div className={styles.container}>
-      <Sidebar rooms={roomsResult.data ?? []} />
+    <AppFrame rooms={roomsResult.data ?? []}>
       <PageShell>
         <div className={styles.content}>
           <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
@@ -54,6 +53,6 @@ export default async function JoinRoomPage() {
           </Panel>
         </div>
       </PageShell>
-    </div>
+    </AppFrame>
   );
 }

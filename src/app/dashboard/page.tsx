@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 
 import styles from "@/app/dashboard/dashboard.module.css";
 import { LogoutForm } from "@/components/auth/logout-form";
-import { Sidebar } from "@/components/layout/sidebar";
+import { AppFrame } from "@/components/layout/app-frame";
 import { RoomCard } from "@/components/rooms/room-card";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
@@ -53,8 +53,7 @@ export default async function DashboardPage() {
     "ผู้ใช้";
 
   return (
-    <div className={styles.container}>
-      <Sidebar rooms={userRooms} />
+    <AppFrame rooms={userRooms}>
       <main className={styles.shell}>
         <header className={styles.header}>
           <div>
@@ -104,6 +103,6 @@ export default async function DashboardPage() {
           </section>
         )}
       </main>
-    </div>
+    </AppFrame>
   );
 }
