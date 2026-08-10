@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { LoginForm } from "@/app/(auth)/login/login-form";
 import { SignupForm } from "@/app/(auth)/register/signup-form";
+import { AuthFloatingLinesBackground } from "@/components/auth/auth-floating-lines-background";
 import { AuthWavesBackground } from "@/components/auth/auth-waves-background";
 import styles from "@/components/auth/auth-shell.module.css";
 import {
@@ -147,25 +148,22 @@ export function AuthExperience() {
     router.push(nextPath, { scroll: false });
   }
 
-  const roomPanel = (
-    <>
-      <div className={styles.lampGlow} aria-hidden />
-      <div className={styles.roomContent}>
-        <p className={styles.roomTitle}>ห้องหลังค่ำของเรา</p>
-        <p className={styles.roomText}>
-          พื้นที่เงียบสงบสำหรับเพื่อน แฟน หรือครอบครัว
-          เริ่มจากสร้างห้องและเชิญคนสำคัญเข้ามาด้วยกัน
-        </p>
-        <ul className={styles.roomList}>
-          {ROOM_MOMENTS.map((item) => (
-            <li key={item} className={styles.roomItem}>
-              <span className={styles.roomDot} aria-hidden />
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </>
+  const roomCopy = (
+    <div className={styles.roomContent}>
+      <p className={styles.roomTitle}>ห้องหลังค่ำของเรา</p>
+      <p className={styles.roomText}>
+        พื้นที่เงียบสงบสำหรับเพื่อน แฟน หรือครอบครัว
+        เริ่มจากสร้างห้องและเชิญคนสำคัญเข้ามาด้วยกัน
+      </p>
+      <ul className={styles.roomList}>
+        {ROOM_MOMENTS.map((item) => (
+          <li key={item} className={styles.roomItem}>
+            <span className={styles.roomDot} aria-hidden />
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 
   return (
@@ -194,7 +192,10 @@ export function AuthExperience() {
 
           {visibleMode !== "register" ? (
             <div className={styles.mobileAtmosphere}>
-              <div className={styles.mobileAtmosphereInner}>{roomPanel}</div>
+              <div className={styles.mobileAtmosphereInner}>
+                <div className={styles.lampGlow} aria-hidden />
+                {roomCopy}
+              </div>
             </div>
           ) : null}
 
@@ -259,14 +260,18 @@ export function AuthExperience() {
           <MagicBentoCard
             className={styles.roomStage}
             glowColor={AUTH_GLOW_COLOR}
-            enableStars
+            enableStars={false}
             enableBorderGlow
             enableTilt={false}
             enableMagnetism={false}
-            clickEffect
-            particleCount={12}
+            clickEffect={false}
+            particleCount={0}
           >
-            {roomPanel}
+            <div className={styles.roomLines} aria-hidden>
+              <AuthFloatingLinesBackground />
+            </div>
+            <div className={styles.lampGlow} aria-hidden />
+            {roomCopy}
           </MagicBentoCard>
         </section>
       </div>
