@@ -27,7 +27,7 @@ export function RoomCard({ room, role }: RoomCardProps) {
 
   return (
     <Link className={styles.card} href={getRoomPath(room.room_code)} prefetch>
-      <div className={styles.leading}>
+      <div className={styles.top}>
         <div className={styles.avatar} aria-hidden>
           {avatar ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -36,12 +36,12 @@ export function RoomCard({ room, role }: RoomCardProps) {
             <span className={styles.avatarInitial}>{roomInitial(room.name)}</span>
           )}
         </div>
-        <div className={styles.content}>
-          <h2>{room.name}</h2>
-          <p>{ROOM_TYPE_LABEL[room.type]}</p>
-        </div>
+        <Badge>{ROOM_ROLE_LABEL[role]}</Badge>
       </div>
-      <Badge>{ROOM_ROLE_LABEL[role]}</Badge>
+      <div className={styles.body}>
+        <h2 className={styles.name}>{room.name}</h2>
+        <p className={styles.meta}>{ROOM_TYPE_LABEL[room.type]}</p>
+      </div>
     </Link>
   );
 }

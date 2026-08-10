@@ -1,0 +1,118 @@
+.stack {
+  display: grid;
+  gap: 1.15rem;
+}
+
+.panel {
+  display: grid;
+  gap: 1rem;
+  justify-items: start;
+}
+
+.presence {
+  padding: 1.35rem 1.35rem 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-room);
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  box-shadow: var(--shadow-panel);
+}
+
+.presenceHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.blockTitle {
+  margin: 0;
+  font-size: var(--font-size-title);
+  font-weight: 600;
+}
+
+.blockMeta {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-label);
+}
+
+.presenceActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 1.1rem;
+}
+
+.spotlight {
+  display: grid;
+  gap: 0.55rem;
+  padding: 1.5rem 1.4rem;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-room);
+  background:
+    radial-gradient(
+      90% 80% at 100% 0%,
+      color-mix(in srgb, var(--color-primary) 20%, transparent),
+      transparent 55%
+    ),
+    color-mix(in srgb, var(--color-surface) 94%, transparent);
+  box-shadow: var(--shadow-panel);
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    background 160ms ease;
+}
+
+.spotlight:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border));
+  transform: translateY(-2px);
+}
+
+.spotlight:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.spotlightKicker {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: var(--font-size-label);
+  font-weight: 700;
+}
+
+.spotlightTitle {
+  margin: 0;
+  font-family: var(--font-display-thai), var(--font-display), serif;
+  font-size: var(--font-size-display);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.spotlightText {
+  margin: 0;
+  max-width: 36ch;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-body-sm);
+  line-height: 1.55;
+}
+
+.spotlightCta {
+  margin-top: 0.35rem;
+  color: var(--color-text);
+  font-size: var(--font-size-label);
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spotlight {
+    transition: none;
+  }
+
+  .spotlight:hover {
+    transform: none;
+  }
+}

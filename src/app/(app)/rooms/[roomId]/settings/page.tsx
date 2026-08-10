@@ -1,7 +1,4 @@
-import Link from "next/link";
-
 import styles from "@/app/(app)/rooms/[roomId]/settings/settings.module.css";
-import { PageShell } from "@/components/layout/page-shell";
 import { CreateInviteForm } from "@/components/rooms/create-invite-form";
 import { InviteList, type InviteListItem } from "@/components/rooms/invite-list";
 import { LeaveRoomButton } from "@/components/rooms/leave-room-button";
@@ -12,10 +9,9 @@ import {
 import { ButtonLink } from "@/components/ui/button-link";
 import { CopyButton } from "@/components/ui/copy-button";
 import { ErrorState } from "@/components/ui/error-state";
-import { Panel } from "@/components/ui/panel";
 import { getRoomContext } from "@/lib/rooms/server";
 
-/** แสดงหน้าตั้งค่าห้อง โดยใช้ room code บน URL แต่ยังส่ง UUID ให้ action ภายใน */
+/** แชร์ห้อง — รหัส/คำเชิญ ดูแลสมาชิก และออกจากห้อง */
 export default async function RoomSettingsPage({
   params,
 }: {
@@ -26,21 +22,18 @@ export default async function RoomSettingsPage({
 
   if (!context.isMember) {
     return (
-      <PageShell>
-        <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
-        <div className={styles.error}>
-          <ErrorState
-            description="ถ้าต้องการตั้งค่าห้องนี้ กรุณาเข้าร่วมห้องก่อน"
-            headingLevel={1}
-            title="คุณไม่ได้อยู่ในห้องนี้"
-          />
-        </div>
-      </PageShell>
+      <div className={styles.stack}>
+        <ErrorState
+          description="ถ้าต้องการดูแลห้องนี้ กรุณาเข้าร่วมห้องก่อน"
+          headingLevel={1}
+          title="คุณไม่ได้อยู่ในห้องนี้"
+        />
+        <ButtonLink href="/dashboard">กลับหน้าแรก</ButtonLink>
+      </div>
     );
   }
 
-  const { currentUserId, room, roomCode, roomId, roomPath, supabase } =
-    context;
+  const { currentUserId, roomCode, roomId, supabase } = context;
 
   const [memberRecordResult, membershipsResult] = await Promise.all([
     supabase
@@ -93,74 +86,70 @@ export default async function RoomSettingsPage({
   }));
 
   return (
-    <PageShell>
-      <Link className={styles.backLink} href={roomPath}>
-        ← กลับไปหน้าห้อง ({room.name})
-      </Link>
-      <Panel className={styles.panel}>
-        <h1 className={styles.title}>ตั้งค่าห้อง: {room.name}</h1>
+    <div className={styles.stack}>
+      <section className={styles.panel}>
+        <h2 className={styles.title}>แชร์ห้องนี้</h2>
+        <p className={styles.lead}>
+          ส่งรหัสห้องให้คนสำคัญ เพื่อเข้ามาอยู่ด้วยกัน
+        </p>
+        <div className={styles.codeRow}>
+          <code className={styles.code}>{roomCode}</code>
+          <CopyButton
+            copiedLabel="คัดลอกแล้ว"
+            label="คัดลอกรหัส"
+            text={roomCode}
+          />
+        </div>
+      </section>
 
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>รหัสห้อง (Room Code)</h2>
-          <p className={styles.subText}>
-            รหัสถาวรสำหรับให้ผู้ใช้อื่นเข้าร่วมห้องผ่านหน้า Join Room
-          </p>
-          <div className={styles.codeContainer}>
-            <code className={styles.code}>{roomCode}</code>
-            <CopyButton
-              copiedLabel="คัดลอกแล้ว"
-              label="คัดลอกรหัส"
-              text={roomCode}
-            />
-          </div>
-        </section>
-
-        {isOwner ? (
-          <>
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>สร้างคำเชิญใหม่</h2>
-              <p className={styles.subText}>
-                ใช้เมื่อต้องการลิงก์ชั่วคราวที่กำหนดวันหมดอายุหรือจำนวนครั้งได้
-              </p>
-              <CreateInviteForm roomCode={roomCode} roomId={roomId} />
-            </section>
-
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>
-                รายการคำเชิญที่สร้างไว้ ({invites.length})
-              </h2>
-              <InviteList invites={invites} roomCode={roomCode} roomId={roomId} />
-            </section>
-
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>
-                จัดการสมาชิก ({members.length})
-              </h2>
-              <MemberManagement
-                currentUserId={currentUserId}
-                members={members}
+      {isOwner ? (
+        <>
+          <section className={styles.panel}>
+            <h2 className={styles.title}>คำเชิญชั่วคราว</h2>
+            <p className={styles.lead}>
+              สร้างลิงก์ที่กำหนดวันหมดอายุ หรือจำกัดจำนวนครั้งได้
+            </p>
+            <CreateInviteForm roomCode={roomCode} roomId={roomId} />
+            <div className={styles.inviteList}>
+              <h3 className={styles.subTitle}>
+                ที่สร้างไว้แล้ว ({invites.length})
+              </h3>
+              <InviteList
+                invites={invites}
                 roomCode={roomCode}
                 roomId={roomId}
               />
-            </section>
-          </>
-        ) : (
-          <section className={styles.section}>
-            <ErrorState
-              description="เฉพาะเจ้าของห้องเท่านั้นที่สามารถจัดการคำเชิญและสมาชิกได้"
-              headingLevel={2}
-              title="การเข้าถึงจำกัด"
+            </div>
+          </section>
+
+          <section className={styles.panel}>
+            <h2 className={styles.title}>ดูแลคนในห้อง</h2>
+            <p className={styles.lead}>
+              เปลี่ยนบทบาท หรือนำคนออกจากห้องถ้าจำเป็น
+            </p>
+            <MemberManagement
+              currentUserId={currentUserId}
+              members={members}
+              roomCode={roomCode}
+              roomId={roomId}
             />
           </section>
-        )}
-
-        <section className={styles.section}>
-          <h2 className={`${styles.sectionTitle} ${styles.dangerSection}`}>
-            ออกจากห้อง
-          </h2>
-          <LeaveRoomButton roomId={roomId} />
+        </>
+      ) : (
+        <section className={styles.panel}>
+          <h2 className={styles.title}>เชิญเพื่อนเข้าห้อง</h2>
+          <p className={styles.lead}>
+            ส่งรหัสห้องด้านบนให้เพื่อนได้เลย — การสร้างลิงก์เชิญและจัดการบทบาท
+            เป็นของเจ้าของห้อง
+          </p>
         </section>
-      </Panel>
-    </PageShell>
+      )}
+
+      <section className={`${styles.panel} ${styles.danger}`}>
+        <h2 className={styles.title}>ออกจากห้อง</h2>
+        <p className={styles.lead}>ออกแล้วจะเข้าอีกครั้งได้ด้วยรหัสหรือคำเชิญ</p>
+        <LeaveRoomButton roomId={roomId} />
+      </section>
+    </div>
   );
 }

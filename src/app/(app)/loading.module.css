@@ -1,13 +1,12 @@
 .shell {
-  width: min(100%, 68rem);
-  margin-inline: auto;
-  padding: 2rem 1.25rem 3rem;
+  display: grid;
+  gap: 0.9rem;
+  padding-top: 0.5rem;
 }
 
 .block {
   display: grid;
   gap: 0.65rem;
-  margin-bottom: 1.75rem;
 }
 
 .lineWide,
@@ -20,19 +19,18 @@
 }
 
 .lineWide {
-  width: min(14rem, 55%);
+  width: min(16rem, 55%);
   height: 2rem;
 }
 
 .line {
-  width: min(9rem, 40%);
+  width: min(10rem, 40%);
   height: 0.9rem;
   opacity: 0.75;
 }
 
 .card {
-  height: 5.5rem;
-  margin-bottom: 0.9rem;
+  height: 7rem;
 }
 
 @keyframes pulse {
@@ -42,12 +40,6 @@
   }
   50% {
     opacity: 1;
-  }
-}
-
-@media (min-width: 40rem) {
-  .shell {
-    padding-inline: 2rem;
   }
 }
 

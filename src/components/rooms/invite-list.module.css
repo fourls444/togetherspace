@@ -41,7 +41,7 @@
   padding: 0.125rem 0.375rem;
   font-family: monospace;
   background: var(--color-muted-surface);
-  border-radius: 0.25rem;
+  border-radius: var(--radius-control);
 }
 
 .meta {

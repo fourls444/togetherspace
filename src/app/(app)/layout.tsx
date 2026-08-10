@@ -1,26 +1,30 @@
-import { Suspense, type PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 
-import { AppFrame } from "@/components/layout/app-frame";
-import { Sidebar } from "@/components/layout/sidebar";
-import { getSidebarRooms } from "@/lib/rooms/sidebar";
+import { AppShell } from "@/components/layout/app-shell";
+import { requireAppUser } from "@/lib/rooms/sidebar";
 
-/** โหลดรายการห้องแบบไม่บล็อกเปลือกแอป */
-async function AppSidebar() {
-  const rooms = await getSidebarRooms();
-  return <Sidebar rooms={rooms} />;
-}
+/** โครงแอปหลังล็อกอิน — โหลดโปรไฟล์สำหรับปุ่มบัญชี */
+export default async function AppLayout({ children }: PropsWithChildren) {
+  const { supabase, userId } = await requireAppUser();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("display_name, username, avatar_url")
+    .eq("id", userId)
+    .maybeSingle();
 
-/** โครงแอปหลังล็อกอิน — เปลือก sync, ข้อมูล sidebar สตรีมแยก */
-export default function AppLayout({ children }: PropsWithChildren) {
+  const displayName =
+    profile?.display_name?.trim() ||
+    profile?.username?.trim() ||
+    "บัญชี";
+
   return (
-    <AppFrame
-      sidebar={
-        <Suspense fallback={<Sidebar rooms={[]} />}>
-          <AppSidebar />
-        </Suspense>
-      }
+    <AppShell
+      account={{
+        displayName,
+        avatarUrl: profile?.avatar_url?.trim() || null,
+      }}
     >
       {children}
-    </AppFrame>
+    </AppShell>
   );
 }

@@ -9,7 +9,7 @@
 .error h1,
 .error h2 {
   margin: 0;
-  font-size: 1.125rem;
+  font-size: var(--font-size-title);
 }
 
 .error p {

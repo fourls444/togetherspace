@@ -1,11 +1,11 @@
 import {
-  archiveBoardItem,
   toggleChecklistItem,
   updateBoardItem,
   updateChecklistItem,
   updatePollOption,
   votePollOption,
 } from "@/features/boards/actions";
+import { ArchiveBoardItemButton } from "@/components/boards/archive-board-item-button";
 import { Button } from "@/components/ui/button";
 import formStyles from "@/components/ui/form.module.css";
 import type { BoardItemType } from "@/lib/types/database";
@@ -39,13 +39,19 @@ type BoardItemListProps = {
   roomId: string;
 };
 
-/** แสดงรายการ card บน board โดยแยก render ตามประเภท note, checklist และ poll */
+const ITEM_TYPE_LABEL: Record<BoardItemType, string> = {
+  note: "โน้ต",
+  checklist: "รายการ",
+  poll: "โพล",
+};
+
+/** แสดงรายการบนบอร์ด แยกตามโน้ต / รายการ / โพล */
 export function BoardItemList({ items, roomCode, roomId }: BoardItemListProps) {
   if (!items.length) {
     return (
       <div className={styles.empty}>
         <h2>บอร์ดยังว่างอยู่</h2>
-        <p>ลองเพิ่ม note, checklist หรือ poll แรกของห้องนี้ได้เลย</p>
+        <p>ลองเพิ่มโน้ต รายการ หรือโพลแรกของห้องนี้ได้เลย</p>
       </div>
     );
   }
@@ -56,23 +62,21 @@ export function BoardItemList({ items, roomCode, roomId }: BoardItemListProps) {
         <article className={styles.card} key={item.id}>
           <div className={styles.cardHeader}>
             <div>
-              <p className={styles.type}>{item.itemType}</p>
+              <p className={styles.type}>{ITEM_TYPE_LABEL[item.itemType]}</p>
               <h2 className={styles.title}>{item.title}</h2>
             </div>
-            <form action={archiveBoardItem}>
-              <input name="roomId" type="hidden" value={roomId} />
-              <input name="roomCode" type="hidden" value={roomCode} />
-              <input name="boardItemId" type="hidden" value={item.id} />
-              <Button type="submit" variant="danger">
-                ลบ
-              </Button>
-            </form>
+            <ArchiveBoardItemButton
+              boardItemId={item.id}
+              roomCode={roomCode}
+              roomId={roomId}
+              title={item.title}
+            />
           </div>
 
           {item.body ? <p className={styles.body}>{item.body}</p> : null}
 
           <details className={styles.editBox}>
-            <summary>แก้ไข card</summary>
+            <summary>แก้ไขรายการ</summary>
             <form action={updateBoardItem} className={styles.editForm}>
               <input name="roomId" type="hidden" value={roomId} />
               <input name="roomCode" type="hidden" value={roomCode} />
@@ -99,7 +103,7 @@ export function BoardItemList({ items, roomCode, roomId }: BoardItemListProps) {
                 name="body"
                 rows={3}
               />
-              <Button type="submit">บันทึก card</Button>
+              <Button type="submit">บันทึก</Button>
             </form>
           </details>
 
@@ -120,7 +124,6 @@ export function BoardItemList({ items, roomCode, roomId }: BoardItemListProps) {
   );
 }
 
-/** แสดง checklist พร้อมปุ่ม toggle ที่ส่ง Server Action แบบ progressive enhancement */
 function ChecklistItems({
   items,
   roomCode,
@@ -175,7 +178,6 @@ function ChecklistItems({
   );
 }
 
-/** แสดงตัวเลือก poll พร้อมจำนวน vote และสถานะที่ผู้ใช้เคยโหวต */
 function PollOptions({
   item,
   roomCode,
@@ -218,7 +220,9 @@ function PollOptions({
                 </Button>
               </form>
               <span>{option.label}</span>
-              <span className={styles.voteCount}>{option.voteCount} vote</span>
+              <span className={styles.voteCount}>
+                {option.voteCount} โหวต
+              </span>
               <details className={styles.inlineEdit}>
                 <summary>แก้ไข</summary>
                 <form action={updatePollOption} className={styles.inlineEditForm}>

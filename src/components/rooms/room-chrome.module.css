@@ -1,0 +1,120 @@
+.place {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.header {
+  display: grid;
+  gap: 1.15rem;
+  padding: 1.35rem 1.35rem 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-room);
+  background:
+    radial-gradient(
+      85% 90% at 100% 0%,
+      color-mix(in srgb, var(--color-primary) 18%, transparent),
+      transparent 52%
+    ),
+    color-mix(in srgb, var(--color-surface) 94%, transparent);
+  box-shadow: var(--shadow-panel);
+}
+
+.back {
+  width: fit-content;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--color-text);
+}
+
+.identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 4.25rem;
+  height: 4.25rem;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--color-border);
+  background: var(--color-muted-surface);
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarInitial {
+  font-family: var(--font-display-thai), var(--font-display), serif;
+  font-size: var(--font-size-display);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.type,
+.name {
+  margin: 0;
+}
+
+.type {
+  color: var(--color-primary);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+}
+
+.name {
+  margin-top: 0.2rem;
+  font-family: var(--font-display-thai), var(--font-display), serif;
+  font-size: var(--font-size-display);
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.navLink {
+  padding: 0.5rem 0.85rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+}
+
+.navLink:hover {
+  color: var(--color-text);
+  background: var(--color-hover);
+}
+
+.navLinkActive {
+  color: var(--color-primary-text);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.body {
+  min-width: 0;
+}
+
+@media (min-width: 40rem) {
+  .header {
+    padding: 1.6rem 1.6rem 1.35rem;
+  }
+}

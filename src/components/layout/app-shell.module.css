@@ -1,0 +1,27 @@
+.shell {
+  position: relative;
+  min-height: 100vh;
+  isolation: isolate;
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+.main {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 72rem);
+  margin-inline: auto;
+  padding: 1.25rem 1.25rem 3.5rem;
+}
+
+@media (min-width: 40rem) {
+  .main {
+    padding-inline: 2rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .main {
+    padding-inline: 2.5rem;
+  }
+}

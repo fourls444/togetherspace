@@ -22,7 +22,7 @@ export function JoinForm() {
     <form action={formAction} className={formStyles.form}>
       <div className={formStyles.field}>
         <label className={formStyles.label} htmlFor="inviteCode">
-          รหัสห้อง (Room Code) หรือรหัสคำเชิญ
+          รหัสห้อง หรือรหัสคำเชิญ
         </label>
         <input
           aria-describedby={

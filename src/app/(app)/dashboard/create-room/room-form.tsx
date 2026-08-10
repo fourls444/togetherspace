@@ -1,18 +1,40 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 
 import { createRoom, type CreateRoomState } from "@/features/rooms/actions";
 import { Button } from "@/components/ui/button";
 import { FieldErrors } from "@/components/ui/field-errors";
 import formStyles from "@/components/ui/form.module.css";
+import styles from "@/app/(app)/dashboard/create-room/room-form.module.css";
 
 const initialState: CreateRoomState = {};
+
+const ROOM_TYPES = [
+  {
+    value: "friend",
+    title: "กลุ่มเพื่อน",
+    description: "คุยเล่น นัดเจอ เก็บโมเมนต์ด้วยกัน",
+  },
+  {
+    value: "couple",
+    title: "คู่รัก",
+    description: "พื้นที่สองคน สำหรับเรื่องของเรา",
+  },
+  {
+    value: "family",
+    title: "ครอบครัว",
+    description: "บ้านนี้ สำหรับคนในครอบครัว",
+  },
+] as const;
 
 export function RoomForm() {
   const [state, formAction, isPending] = useActionState(
     createRoom,
     initialState,
+  );
+  const [type, setType] = useState<(typeof ROOM_TYPES)[number]["value"]>(
+    "friend",
   );
 
   return (
@@ -28,33 +50,38 @@ export function RoomForm() {
           id="name"
           maxLength={80}
           name="name"
+          placeholder="เช่น ห้องหลังเลิกงาน"
           required
         />
         <FieldErrors id="name-errors" messages={state.fieldErrors?.name} />
       </div>
 
-      <div className={formStyles.field}>
-        <label className={formStyles.label} htmlFor="type">
-          ประเภทห้อง
-        </label>
-        <select
-          aria-describedby={state.fieldErrors?.type ? "type-errors" : undefined}
-          aria-invalid={Boolean(state.fieldErrors?.type)}
-          className={formStyles.control}
-          defaultValue="friend"
-          id="type"
-          name="type"
-        >
-          <option value="friend">Friend</option>
-          <option value="couple">Couple</option>
-          <option value="family">Family</option>
-        </select>
+      <fieldset className={styles.typeField}>
+        <legend className={formStyles.label}>ห้องนี้สำหรับใคร</legend>
+        <input name="type" type="hidden" value={type} />
+        <div className={styles.typeGrid}>
+          {ROOM_TYPES.map((option) => {
+            const selected = type === option.value;
+            return (
+              <button
+                aria-pressed={selected}
+                className={`${styles.typeCard} ${selected ? styles.typeCardSelected : ""}`}
+                key={option.value}
+                onClick={() => setType(option.value)}
+                type="button"
+              >
+                <span className={styles.typeTitle}>{option.title}</span>
+                <span className={styles.typeText}>{option.description}</span>
+              </button>
+            );
+          })}
+        </div>
         <FieldErrors id="type-errors" messages={state.fieldErrors?.type} />
-      </div>
+      </fieldset>
 
       <div className={formStyles.field}>
         <label className={formStyles.label} htmlFor="avatarUrl">
-          URL รูปห้อง (ไม่บังคับ)
+          ลิงก์รูปห้อง (ไม่บังคับ)
         </label>
         <input
           aria-describedby={
@@ -64,7 +91,7 @@ export function RoomForm() {
           className={formStyles.control}
           id="avatarUrl"
           name="avatarUrl"
-          placeholder="https://example.com/image.png"
+          placeholder="วางลิงก์รูปถ้ามี"
           type="url"
         />
         <FieldErrors

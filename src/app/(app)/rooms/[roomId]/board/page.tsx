@@ -1,20 +1,14 @@
-import Link from "next/link";
-
 import styles from "@/app/(app)/rooms/[roomId]/board/board.module.css";
 import {
   BoardItemList,
   type BoardItemView,
 } from "@/components/boards/board-item-list";
 import { BoardCreateForms } from "@/components/boards/board-create-forms";
-import { PageShell } from "@/components/layout/page-shell";
-import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
-import { Panel } from "@/components/ui/panel";
-import { ROOM_TYPE_LABEL } from "@/lib/rooms/labels";
 import { getRoomContext } from "@/lib/rooms/server";
 
-/** หน้า Board MVP ของห้อง รองรับ note, checklist และ poll แบบยังไม่ realtime */
+/** บอร์ดของห้อง — โน้ต เช็คลิสต์ โพล */
 export default async function RoomBoardPage({
   params,
 }: {
@@ -25,40 +19,31 @@ export default async function RoomBoardPage({
 
   if (!context.isMember) {
     return (
-      <PageShell>
-        <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
-        <div className={styles.error}>
-          <ErrorState
-            description="ถ้าต้องการเปิดบอร์ดนี้ กรุณาเข้าร่วมห้องก่อน"
-            headingLevel={1}
-            title="คุณไม่ได้อยู่ในห้องนี้"
-          />
-        </div>
-      </PageShell>
+      <div className={styles.stack}>
+        <ErrorState
+          description="ถ้าต้องการเปิดบอร์ดนี้ กรุณาเข้าร่วมห้องก่อน"
+          headingLevel={1}
+          title="คุณไม่ได้อยู่ในห้องนี้"
+        />
+        <ButtonLink href="/dashboard">กลับหน้าแรก</ButtonLink>
+      </div>
     );
   }
 
-  const { currentUserId, room, roomCode, roomId, roomPath, supabase } =
-    context;
+  const { currentUserId, roomCode, roomId, supabase } = context;
 
   const { data: boardId, error: boardError } = await supabase.rpc(
     "ensure_room_board",
-    {
-      p_room_id: roomId,
-    },
+    { p_room_id: roomId },
   );
 
   if (boardError || !boardId) {
     return (
-      <PageShell>
-        <div className={styles.error}>
-          <ErrorState
-            description="กรุณาตรวจสิทธิ์สมาชิกห้องและลองอีกครั้ง"
-            headingLevel={1}
-            title="เปิดบอร์ดไม่สำเร็จ"
-          />
-        </div>
-      </PageShell>
+      <ErrorState
+        description="กรุณาลองอีกครั้งในอีกสักครู่"
+        headingLevel={1}
+        title="เปิดบอร์ดไม่สำเร็จ"
+      />
     );
   }
 
@@ -112,14 +97,18 @@ export default async function RoomBoardPage({
     checklistByItem.set(item.board_item_id, list);
   }
 
-  const votesByOption = new Map<string, { count: number; currentUser: boolean }>();
+  const votesByOption = new Map<
+    string,
+    { count: number; currentUser: boolean }
+  >();
   for (const vote of votesResult.data ?? []) {
     const current = votesByOption.get(vote.option_id) ?? {
       count: 0,
       currentUser: false,
     };
     current.count += 1;
-    current.currentUser = current.currentUser || vote.user_id === currentUserId;
+    current.currentUser =
+      current.currentUser || vote.user_id === currentUserId;
     votesByOption.set(vote.option_id, current);
   }
 
@@ -152,32 +141,18 @@ export default async function RoomBoardPage({
   }));
 
   return (
-    <PageShell>
-      <Link className={styles.backLink} href={roomPath}>
-        ← กลับไปหน้าห้อง ({room.name})
-      </Link>
-
-      <Panel as="header" className={styles.headerPanel}>
-        <div className={styles.headerContent}>
-          <div>
-            <h1 className={styles.title}>บอร์ดของ {room.name}</h1>
-            <p className={styles.description}>
-              เก็บโน้ต เช็คลิสต์ และโพลของห้องไว้ในที่เดียว
-            </p>
-          </div>
-          <Badge>{ROOM_TYPE_LABEL[room.type]}</Badge>
-        </div>
-      </Panel>
-
-      <Panel className={styles.createPanel}>
-        <h2 className={styles.sectionTitle}>เพิ่มลงบอร์ด</h2>
+    <div className={styles.stack}>
+      <section className={styles.panel}>
+        <h2 className={styles.title}>บอร์ดของเรา</h2>
+        <p className={styles.lead}>
+          เก็บโน้ต เช็คลิสต์ และโพลไว้ด้วยกันในห้องนี้
+        </p>
         <BoardCreateForms boardId={boardId} roomCode={roomCode} roomId={roomId} />
-      </Panel>
-
-      <Panel className={styles.itemsPanel}>
-        <h2 className={styles.sectionTitle}>รายการบนบอร์ด</h2>
+      </section>
+      <section className={styles.panel}>
+        <h2 className={styles.title}>บนบอร์ดตอนนี้</h2>
         <BoardItemList items={items} roomCode={roomCode} roomId={roomId} />
-      </Panel>
-    </PageShell>
+      </section>
+    </div>
   );
 }

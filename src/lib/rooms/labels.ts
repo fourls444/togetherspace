@@ -30,8 +30,8 @@ export function getRoomHomeModules(type: RoomType): RoomModule[] {
       },
       {
         key: "members",
-        title: "สมาชิก",
-        description: "ดูคนในห้องและบทบาท",
+        title: "คนในห้อง",
+        description: "ดูว่าใครอยู่ด้วยกันในพื้นที่นี้",
         href: "members",
       },
     ];
@@ -42,13 +42,13 @@ export function getRoomHomeModules(type: RoomType): RoomModule[] {
       {
         key: "board",
         title: "บอร์ดครอบครัว",
-        description: "จัดกิจกรรมและข้อความสำคัญไว้ด้วยกัน",
+        description: "ข้อความสำคัญและสิ่งที่ต้องทำด้วยกัน",
         href: "board",
       },
       {
         key: "members",
-        title: "สมาชิกครอบครัว",
-        description: "รายชื่อคนในบ้านและสิทธิ์การเข้าถึง",
+        title: "คนในบ้าน",
+        description: "รายชื่อคนในครอบครัวที่อยู่ในห้อง",
         href: "members",
       },
     ];
@@ -63,8 +63,8 @@ export function getRoomHomeModules(type: RoomType): RoomModule[] {
     },
     {
       key: "members",
-      title: "สมาชิกในกลุ่ม",
-      description: "ดูเพื่อนในห้องและจัดการสิทธิ์",
+      title: "เพื่อนในห้อง",
+      description: "ดูว่าใครอยู่ด้วยกันตอนนี้",
       href: "members",
     },
   ];

@@ -1,0 +1,78 @@
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.25rem;
+  background: color-mix(in srgb, var(--color-background) 78%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.brandMark {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-brand-mark);
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+  font-size: var(--font-size-mark);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  box-shadow: 0 8px 20px rgb(232 160 85 / 0.22);
+}
+
+.brandName {
+  font-family: var(--font-display), var(--font-display-thai), Georgia, serif;
+  font-size: var(--font-size-brand);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.homeLink {
+  display: none;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.homeLink:hover,
+.homeLinkActive {
+  color: var(--color-text);
+}
+
+@media (min-width: 40rem) {
+  .topbar {
+    padding-inline: 2rem;
+  }
+
+  .homeLink {
+    display: inline;
+  }
+}
+
+@media (min-width: 64rem) {
+  .topbar {
+    padding-inline: 2.5rem;
+  }
+}

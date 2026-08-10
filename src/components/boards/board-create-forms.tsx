@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
 import {
   createChecklist,
@@ -23,7 +23,7 @@ type BoardCreateFormsProps = {
 
 type ActiveForm = "note" | "checklist" | "poll" | null;
 
-/** แสดงปุ่มเพิ่ม item แบบเล็ก และเปิด modal เฉพาะประเภทที่ผู้ใช้เลือก */
+/** แสดงปุ่มเพิ่มรายการ และเปิด modal ตามประเภทที่เลือก */
 export function BoardCreateForms({
   boardId,
   roomCode,
@@ -43,6 +43,21 @@ export function BoardCreateForms({
     initialState,
   );
 
+  useEffect(() => {
+    if (!activeForm) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setActiveForm(null);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [activeForm]);
+
+  useEffect(() => {
+    if (noteState.success || checklistState.success || pollState.success) {
+      setActiveForm(null);
+    }
+  }, [noteState.success, checklistState.success, pollState.success]);
+
   return (
     <div>
       <div aria-label="เพิ่มรายการลงบอร์ด" className={styles.toolbar}>
@@ -51,31 +66,36 @@ export function BoardCreateForms({
           onClick={() => setActiveForm("note")}
           type="button"
         >
-          + Note
+          + โน้ต
         </button>
         <button
           className={styles.smallButton}
           onClick={() => setActiveForm("checklist")}
           type="button"
         >
-          + Checklist
+          + รายการ
         </button>
         <button
           className={styles.smallButton}
           onClick={() => setActiveForm("poll")}
           type="button"
         >
-          + Poll
+          + โพล
         </button>
       </div>
 
       {activeForm ? (
-        <div className={styles.overlay}>
+        <div
+          className={styles.overlay}
+          onClick={() => setActiveForm(null)}
+          role="presentation"
+        >
           <div
             aria-modal="true"
             className={styles.modal}
             role="dialog"
             aria-labelledby="board-create-modal-title"
+            onClick={(event) => event.stopPropagation()}
           >
             <div className={styles.modalHeader}>
               <h2 className={styles.title} id="board-create-modal-title">
@@ -130,14 +150,12 @@ export function BoardCreateForms({
   );
 }
 
-/** คืนชื่อหัว modal ตามประเภท item ที่กำลังสร้าง */
 function getModalTitle(activeForm: Exclude<ActiveForm, null>) {
-  if (activeForm === "note") return "เพิ่ม Note";
-  if (activeForm === "checklist") return "เพิ่ม Checklist";
-  return "เพิ่ม Poll";
+  if (activeForm === "note") return "เพิ่มโน้ต";
+  if (activeForm === "checklist") return "เพิ่มรายการ";
+  return "เพิ่มโพล";
 }
 
-/** ฟอร์มสร้าง note สำหรับข้อความธรรมดา */
 function NoteForm({
   action,
   boardId,
@@ -159,14 +177,13 @@ function NoteForm({
       <BoardTitleField idPrefix="note" state={state} />
       <BoardBodyField idPrefix="note" state={state} />
       <BoardError state={state} />
-      <Button pending={isPending} pendingText="กำลังเพิ่ม note…" variant="primary">
-        เพิ่ม note
+      <Button pending={isPending} pendingText="กำลังเพิ่มโน้ต…" variant="primary">
+        เพิ่มโน้ต
       </Button>
     </form>
   );
 }
 
-/** ฟอร์มสร้าง checklist โดยแยกรายการจาก textarea หนึ่งบรรทัดต่อหนึ่งรายการ */
 function ChecklistForm({
   action,
   boardId,
@@ -189,7 +206,7 @@ function ChecklistForm({
       <BoardBodyField idPrefix="checklist" state={state} />
       <div className={formStyles.field}>
         <label className={formStyles.label} htmlFor="checklistItems">
-          รายการ checklist
+          รายการในเช็คลิสต์
         </label>
         <textarea
           aria-describedby={
@@ -215,16 +232,15 @@ function ChecklistForm({
       <BoardError state={state} />
       <Button
         pending={isPending}
-        pendingText="กำลังเพิ่ม checklist…"
+        pendingText="กำลังเพิ่มรายการ…"
         variant="primary"
       >
-        เพิ่ม checklist
+        เพิ่มรายการ
       </Button>
     </form>
   );
 }
 
-/** ฟอร์มสร้าง poll พร้อมเลือกโหมดจำนวนโหวตต่อคนแบบสั้นและยกเลิกโหวตได้เสมอ */
 function PollForm({
   action,
   boardId,
@@ -270,7 +286,7 @@ function PollForm({
           </label>
         </div>
         <p className={styles.hint} id="poll-vote-mode-hint">
-          ผู้ใช้สามารถกดตัวเลือกที่โหวตไว้เพื่อยกเลิกได้เสมอ
+          กดตัวเลือกที่โหวตไว้เพื่อยกเลิกได้เสมอ
         </p>
         <FieldErrors
           id="poll-vote-mode-errors"
@@ -279,7 +295,7 @@ function PollForm({
       </div>
       <div className={formStyles.field}>
         <label className={formStyles.label} htmlFor="pollOptions">
-          ตัวเลือก poll
+          ตัวเลือกโพล
         </label>
         <textarea
           aria-describedby={
@@ -303,14 +319,13 @@ function PollForm({
         />
       </div>
       <BoardError state={state} />
-      <Button pending={isPending} pendingText="กำลังเพิ่ม poll…" variant="primary">
-        เพิ่ม poll
+      <Button pending={isPending} pendingText="กำลังเพิ่มโพล…" variant="primary">
+        เพิ่มโพล
       </Button>
     </form>
   );
 }
 
-/** เก็บค่า room/board ที่ทุกฟอร์มต้องส่งกลับไปยัง Server Action */
 function BoardHiddenFields({
   boardId,
   roomCode,
@@ -325,7 +340,6 @@ function BoardHiddenFields({
   );
 }
 
-/** ช่องหัวข้อที่ใช้ร่วมกันระหว่าง note, checklist และ poll */
 function BoardTitleField({
   idPrefix,
   state,
@@ -354,7 +368,6 @@ function BoardTitleField({
   );
 }
 
-/** ช่องรายละเอียดเสริมที่ใช้ร่วมกันระหว่าง board item ทุกประเภท */
 function BoardBodyField({
   idPrefix,
   state,
@@ -383,7 +396,6 @@ function BoardBodyField({
   );
 }
 
-/** แสดง error จาก service หรือสถานะสำเร็จหลังส่งฟอร์ม */
 function BoardError({ state }: { state: BoardActionState }) {
   if (state.error) {
     return (
