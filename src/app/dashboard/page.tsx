@@ -2,12 +2,10 @@ import { redirect } from "next/navigation";
 
 import styles from "@/app/dashboard/dashboard.module.css";
 import { LogoutForm } from "@/components/auth/logout-form";
-import { PageShell } from "@/components/layout/page-shell";
 import { Sidebar } from "@/components/layout/sidebar";
 import { RoomCard } from "@/components/rooms/room-card";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
-import { Panel } from "@/components/ui/panel";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -49,31 +47,27 @@ export default async function DashboardPage() {
   );
 
   const userRooms = roomsResult.data ?? [];
+  const displayName =
+    profileResult.data?.display_name ??
+    profileResult.data?.username ??
+    "ผู้ใช้";
 
   return (
     <div className={styles.container}>
       <Sidebar rooms={userRooms} />
-      <PageShell>
+      <main className={styles.shell}>
         <header className={styles.header}>
           <div>
             <p className={styles.eyebrow}>TogetherSpace</p>
             <h1 className={styles.title}>ห้องของคุณ</h1>
-            <p className={styles.profileName}>
-              {profileResult.data?.display_name ??
-                profileResult.data?.username ??
-                "ผู้ใช้"}
-            </p>
+            <p className={styles.profileName}>{displayName}</p>
           </div>
           <div className={styles.actions}>
             <ButtonLink href="/dashboard/create-room" variant="primary">
               สร้างห้อง
             </ButtonLink>
-            <ButtonLink href="/dashboard/join-room">
-              เข้าร่วมห้อง
-            </ButtonLink>
-            <ButtonLink href="/profile">
-              แก้ไขโปรไฟล์
-            </ButtonLink>
+            <ButtonLink href="/dashboard/join-room">เข้าร่วมห้อง</ButtonLink>
+            <ButtonLink href="/profile">แก้ไขโปรไฟล์</ButtonLink>
             <LogoutForm />
           </div>
         </header>
@@ -83,37 +77,33 @@ export default async function DashboardPage() {
             description="กรุณารีเฟรชหน้าและลองอีกครั้ง"
             title="โหลดข้อมูลห้องไม่สำเร็จ"
           />
+        ) : userRooms.length ? (
+          <section aria-label="รายการห้อง" className={styles.roomsGrid}>
+            {userRooms.map((room) => (
+              <RoomCard
+                key={room.id}
+                role={membershipByRoom.get(room.id)?.role ?? "member"}
+                room={room}
+              />
+            ))}
+          </section>
         ) : (
-          <>
-            {userRooms.length ? (
-              <section aria-label="รายการห้อง" className={styles.roomsGrid}>
-                {userRooms.map((room) => (
-                  <RoomCard
-                    key={room.id}
-                    role={membershipByRoom.get(room.id)?.role ?? "member"}
-                    room={room}
-                  />
-                ))}
-              </section>
-            ) : (
-              <Panel className={styles.empty}>
-                <h2 className={styles.emptyTitle}>ยังไม่มีห้อง</h2>
-                <p className={styles.emptyDescription}>
-                  สร้างห้องแรกของคุณ หรือเข้าร่วมห้องด้วยรหัสคำเชิญ
-                </p>
-                <div className={styles.emptyActions}>
-                  <ButtonLink href="/dashboard/create-room" variant="primary">
-                    สร้างห้องใหม่
-                  </ButtonLink>
-                  <ButtonLink href="/dashboard/join-room">
-                    เข้าร่วมห้องด้วยรหัส
-                  </ButtonLink>
-                </div>
-              </Panel>
-            )}
-          </>
+          <section aria-label="ยังไม่มีห้อง" className={styles.empty}>
+            <h2 className={styles.emptyTitle}>ยังไม่มีห้อง</h2>
+            <p className={styles.emptyDescription}>
+              สร้างห้องแรกของคุณ หรือเข้าร่วมห้องด้วยรหัสคำเชิญ
+            </p>
+            <div className={styles.emptyActions}>
+              <ButtonLink href="/dashboard/create-room" variant="primary">
+                สร้างห้องใหม่
+              </ButtonLink>
+              <ButtonLink href="/dashboard/join-room">
+                เข้าร่วมห้องด้วยรหัส
+              </ButtonLink>
+            </div>
+          </section>
         )}
-      </PageShell>
+      </main>
     </div>
   );
 }

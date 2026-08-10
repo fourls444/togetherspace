@@ -1,15 +1,21 @@
+import Link from "next/link";
+
 import styles from "@/app/rooms/[roomId]/room-detail.module.css";
-import { PageShell } from "@/components/layout/page-shell";
 import { Sidebar } from "@/components/layout/sidebar";
 import { MemberList, type MemberListItem } from "@/components/rooms/member-list";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
-import { Panel } from "@/components/ui/panel";
-import { getRoomContext } from "@/lib/rooms/server";
+import { getRoomHomeModules, ROOM_TYPE_LABEL } from "@/lib/rooms/labels";
 import { getRoomSubPath } from "@/lib/rooms/room-path";
+import { getRoomContext } from "@/lib/rooms/server";
 
 export const dynamic = "force-dynamic";
+
+function roomInitial(name: string) {
+  const trimmed = name.trim();
+  return trimmed ? trimmed.slice(0, 1).toUpperCase() : "?";
+}
 
 /** แสดงหน้าห้องโดยใช้ room code บน URL และกันคนที่ไม่ใช่สมาชิกออกจากห้อง */
 export default async function RoomPage({
@@ -24,8 +30,10 @@ export default async function RoomPage({
     return (
       <div className={styles.container}>
         <Sidebar rooms={context.sidebarRooms} />
-        <PageShell>
-          <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
+        <main className={styles.shell}>
+          <Link className={styles.backLink} href="/dashboard">
+            ← กลับไปหน้าหลัก
+          </Link>
           <div className={styles.error}>
             <ErrorState
               description="ถ้าต้องการเข้าห้องนี้ กรุณาใช้รหัสเข้าร่วมหรือขอลิงก์เชิญจากเจ้าของห้อง"
@@ -33,7 +41,7 @@ export default async function RoomPage({
               title="คุณไม่ได้อยู่ในห้องนี้"
             />
           </div>
-        </PageShell>
+        </main>
       </div>
     );
   }
@@ -63,8 +71,10 @@ export default async function RoomPage({
     return (
       <div className={styles.container}>
         <Sidebar rooms={sidebarRooms} />
-        <PageShell>
-          <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
+        <main className={styles.shell}>
+          <Link className={styles.backLink} href="/dashboard">
+            ← กลับไปหน้าหลัก
+          </Link>
           <div className={styles.error}>
             <ErrorState
               description="กรุณารีเฟรชหน้าและลองอีกครั้ง"
@@ -72,7 +82,7 @@ export default async function RoomPage({
               title="โหลดรายชื่อสมาชิกไม่สำเร็จ"
             />
           </div>
-        </PageShell>
+        </main>
       </div>
     );
   }
@@ -90,48 +100,83 @@ export default async function RoomPage({
     };
   });
 
+  const modules = getRoomHomeModules(room.type);
+  const avatar = room.avatar_url?.trim();
+
   return (
     <div className={styles.container}>
       <Sidebar rooms={sidebarRooms} />
-      <PageShell>
-        <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
+      <main className={styles.shell}>
+        <div className={styles.topBar}>
+          <Link className={styles.backLink} href="/dashboard">
+            ← กลับไปหน้าหลัก
+          </Link>
+          <div className={styles.roomActions}>
+            {isOwner ? (
+              <ButtonLink
+                href={getRoomSubPath(roomCode, "settings")}
+                variant="primary"
+              >
+                ตั้งค่าห้อง
+              </ButtonLink>
+            ) : null}
+          </div>
+        </div>
 
-        <Panel as="header" className={styles.headerPanel}>
-          <div className={styles.headerContent}>
-            <div>
-              <p className={styles.eyebrow}>{room.type}</p>
-              <h1 className={styles.title}>{room.name}</h1>
+        <header className={styles.hero}>
+          <div className={styles.heroMain}>
+            <div className={styles.heroAvatar} aria-hidden>
+              {avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img alt="" className={styles.heroImage} src={avatar} />
+              ) : (
+                <span className={styles.heroInitial}>
+                  {roomInitial(room.name)}
+                </span>
+              )}
             </div>
-            <div className={styles.roomActions}>
-              <Badge>{memberships.length} สมาชิก</Badge>
-              <ButtonLink href={getRoomSubPath(roomCode, "members")}>
-                สมาชิก ({memberships.length})
-              </ButtonLink>
-              <ButtonLink href={getRoomSubPath(roomCode, "board")}>
-                บอร์ด
-              </ButtonLink>
-              {isOwner ? (
-                <ButtonLink
-                  href={getRoomSubPath(roomCode, "settings")}
-                  variant="primary"
-                >
-                  ตั้งค่าห้อง
-                </ButtonLink>
-              ) : null}
+            <div>
+              <p className={styles.eyebrow}>{ROOM_TYPE_LABEL[room.type]}</p>
+              <h1 className={styles.title}>{room.name}</h1>
+              <p className={styles.heroMeta}>
+                {memberships.length} สมาชิก · รหัสห้อง {roomCode}
+              </p>
             </div>
           </div>
-        </Panel>
+          <div className={styles.roomActions}>
+            <Badge>{memberships.length} สมาชิก</Badge>
+            <ButtonLink href={getRoomSubPath(roomCode, "members")}>
+              สมาชิก
+            </ButtonLink>
+            <ButtonLink href={getRoomSubPath(roomCode, "board")}>
+              บอร์ด
+            </ButtonLink>
+          </div>
+        </header>
 
-        <Panel className={styles.membersPanel}>
+        <section aria-label="เนื้อหาห้อง" className={styles.moduleGrid}>
+          {modules.map((module) => (
+            <Link
+              className={styles.moduleCard}
+              href={getRoomSubPath(roomCode, module.href)}
+              key={module.key}
+            >
+              <h2 className={styles.moduleTitle}>{module.title}</h2>
+              <p className={styles.moduleText}>{module.description}</p>
+            </Link>
+          ))}
+        </section>
+
+        <section className={styles.membersPanel} aria-label="สมาชิกในห้อง">
           <div className={styles.membersHeader}>
             <h2 className={styles.membersTitle}>สมาชิกในห้อง</h2>
             <ButtonLink href={getRoomSubPath(roomCode, "members")}>
-              ดูสมาชิกทั้งหมด
+              ดูทั้งหมด
             </ButtonLink>
           </div>
           <MemberList members={members} />
-        </Panel>
-      </PageShell>
+        </section>
+      </main>
     </div>
   );
 }
