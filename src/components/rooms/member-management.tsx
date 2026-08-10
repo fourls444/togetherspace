@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { changeMemberRole, kickMember } from "@/features/members/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ROOM_ROLE_LABEL } from "@/lib/rooms/labels";
 import type { RoomRole } from "@/lib/types/database";
 import styles from "@/components/rooms/member-management.module.css";
 
@@ -63,7 +64,9 @@ export function MemberManagement({
 
               <div className={styles.actions}>
                 {isSelf ? (
-                  <Badge>{member.role} (คุณ)</Badge>
+                  <Badge>
+                    {ROOM_ROLE_LABEL[member.role]} (คุณ)
+                  </Badge>
                 ) : (
                   <>
                     <select
@@ -77,8 +80,8 @@ export function MemberManagement({
                       }
                       value={member.role}
                     >
-                      <option value="member">Member</option>
-                      <option value="owner">Owner</option>
+                      <option value="member">{ROOM_ROLE_LABEL.member}</option>
+                      <option value="owner">{ROOM_ROLE_LABEL.owner}</option>
                     </select>
 
                     <Button

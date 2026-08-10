@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import type { RoomRole } from "@/lib/types/database";
+import { ROOM_ROLE_LABEL } from "@/lib/rooms/labels";
 import styles from "@/components/rooms/member-list.module.css";
 
 export type MemberListItem = {
@@ -22,7 +23,7 @@ export function MemberList({ members }: MemberListProps) {
             <p className={styles.name}>{member.displayName}</p>
             <p className={styles.username}>@{member.username}</p>
           </div>
-          <Badge>{member.role}</Badge>
+          <Badge>{ROOM_ROLE_LABEL[member.role]}</Badge>
         </li>
       ))}
     </ul>

@@ -161,7 +161,7 @@ export default async function RoomSettingsPage({
           ) : (
             <section className={styles.section}>
               <ErrorState
-                description="เฉพาะ Owner ของห้องเท่านั้นที่สามารถจัดการคำเชิญและสมาชิกได้"
+                description="เฉพาะเจ้าของห้องเท่านั้นที่สามารถจัดการคำเชิญและสมาชิกได้"
                 headingLevel={2}
                 title="การเข้าถึงจำกัด"
               />

@@ -36,8 +36,10 @@ export default async function CreateRoomPage() {
           <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
           <Panel className={styles.panel}>
             <div className={styles.intro}>
-              <p className={styles.eyebrow}>New room</p>
               <h1 className={styles.title}>สร้างห้อง</h1>
+              <p className={styles.subText}>
+                เลือกประเภทห้องแล้วตั้งชื่อให้รู้สึกเหมือนบ้านหลังค่ำของคุณ
+              </p>
             </div>
             <RoomForm />
           </Panel>

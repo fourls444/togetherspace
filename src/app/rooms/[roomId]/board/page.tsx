@@ -13,6 +13,7 @@ import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
 import { Panel } from "@/components/ui/panel";
 import { getRoomContext } from "@/lib/rooms/server";
+import { ROOM_TYPE_LABEL } from "@/lib/rooms/labels";
 
 export const dynamic = "force-dynamic";
 
@@ -166,13 +167,12 @@ export default async function RoomBoardPage({
         <Panel as="header" className={styles.headerPanel}>
           <div className={styles.headerContent}>
             <div>
-              <p className={styles.eyebrow}>Board</p>
               <h1 className={styles.title}>บอร์ดของ {room.name}</h1>
               <p className={styles.description}>
-                เก็บ note, checklist และ poll ของห้องไว้ในที่เดียว
+                เก็บโน้ต เช็คลิสต์ และโพลของห้องไว้ในที่เดียว
               </p>
             </div>
-            <Badge>{room.type}</Badge>
+            <Badge>{ROOM_TYPE_LABEL[room.type]}</Badge>
           </div>
         </Panel>
 

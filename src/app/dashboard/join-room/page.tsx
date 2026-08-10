@@ -36,17 +36,16 @@ export default async function JoinRoomPage() {
           <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
           <Panel className={styles.panel}>
             <div className={styles.intro}>
-              <p className={styles.eyebrow}>Join room</p>
               <h1 className={styles.title}>เข้าร่วมห้องด้วยรหัส</h1>
               <p className={styles.subText}>
-                กรอกรหัสห้อง (6 หลัก) หรือ รหัสคำเชิญที่ได้รับจากเจ้าของห้อง
+                กรอกรหัสห้อง (6 หลัก) หรือรหัสคำเชิญที่ได้รับจากเจ้าของห้อง
               </p>
             </div>
             <div className={styles.tips}>
               <p className={styles.tipsTitle}>ใช้รหัสแบบไหน?</p>
               <p className={styles.subText}>
-                Room Code เป็นรหัสถาวรจากหน้าตั้งค่าห้อง ส่วน Invite Code
-                เป็นรหัสจากคำเชิญที่อาจมีวันหมดอายุหรือจำกัดจำนวนครั้ง
+                รหัสห้องเป็นรหัสถาวรจากหน้าตั้งค่า ส่วนรหัสคำเชิญอาจมีวันหมดอายุ
+                หรือจำกัดจำนวนครั้งที่ใช้ได้
               </p>
             </div>
             <JoinForm />

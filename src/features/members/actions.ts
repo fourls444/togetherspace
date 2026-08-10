@@ -52,7 +52,7 @@ export async function changeMemberRole(
 
   if (error) {
     if (error.message?.includes("at least one owner")) {
-      return { error: "ห้องต้องมี Owner อย่างน้อย 1 คนเสมอ" };
+      return { error: "ห้องต้องมีเจ้าของอย่างน้อย 1 คนเสมอ" };
     }
     return { error: "เปลี่ยนบทบาทไม่สำเร็จ: " + error.message };
   }
@@ -72,7 +72,7 @@ export async function leaveRoom(roomId: string): Promise<MemberActionState> {
 
   if (error) {
     if (error.message?.includes("last owner")) {
-      return { error: "คุณเป็น Owner คนเดียวในห้อง ต้องโอนสิทธิ์ Owner ให้สมาชิกอื่นก่อนออกจากห้อง" };
+      return { error: "คุณเป็นเจ้าของคนเดียวในห้อง ต้องโอนสิทธิ์เจ้าของให้สมาชิกอื่นก่อนออกจากห้อง" };
     }
     return { error: "ออกจากห้องไม่สำเร็จ: " + error.message };
   }

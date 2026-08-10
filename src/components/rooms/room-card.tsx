@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import type { RoomRole, RoomType } from "@/lib/types/database";
-import { ROOM_TYPE_LABEL } from "@/lib/rooms/labels";
+import { ROOM_ROLE_LABEL, ROOM_TYPE_LABEL } from "@/lib/rooms/labels";
 import { getRoomPath } from "@/lib/rooms/room-path";
 import styles from "@/components/rooms/room-card.module.css";
 
@@ -24,7 +24,6 @@ function roomInitial(name: string) {
 
 export function RoomCard({ room, role }: RoomCardProps) {
   const avatar = room.avatar_url?.trim();
-  const roleLabel = role === "owner" ? "Owner" : "Member";
 
   return (
     <Link className={styles.card} href={getRoomPath(room.room_code)}>
@@ -42,7 +41,7 @@ export function RoomCard({ room, role }: RoomCardProps) {
           <p>{ROOM_TYPE_LABEL[room.type]}</p>
         </div>
       </div>
-      <Badge>{roleLabel}</Badge>
+      <Badge>{ROOM_ROLE_LABEL[role]}</Badge>
     </Link>
   );
 }

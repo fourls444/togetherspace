@@ -1,9 +1,14 @@
-import type { RoomType } from "@/lib/types/database";
+import type { RoomRole, RoomType } from "@/lib/types/database";
 
 export const ROOM_TYPE_LABEL: Record<RoomType, string> = {
   friend: "กลุ่มเพื่อน",
   couple: "คู่รัก",
   family: "ครอบครัว",
+};
+
+export const ROOM_ROLE_LABEL: Record<RoomRole, string> = {
+  owner: "เจ้าของ",
+  member: "สมาชิก",
 };
 
 export type RoomModule = {

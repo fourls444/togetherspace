@@ -33,9 +33,11 @@ export function Sidebar({ rooms }: SidebarProps) {
       <Link
         className={`${styles.homeItem} ${isHome ? styles.activeHome : ""}`}
         href="/dashboard"
-        title="หน้าหลัก"
       >
-        <span className={styles.homeLabel}>หน้าหลัก</span>
+        <span className={styles.homeGlyph} aria-hidden>
+          บ้าน
+        </span>
+        <span className={styles.itemLabel}>หน้าหลัก</span>
       </Link>
 
       <div className={styles.divider} aria-hidden />
@@ -53,7 +55,6 @@ export function Sidebar({ rooms }: SidebarProps) {
               }`}
               href={roomPath}
               key={room.id}
-              title={room.name}
             >
               <span className={styles.roomPill} aria-hidden />
               <span className={styles.roomAvatar}>
@@ -66,7 +67,7 @@ export function Sidebar({ rooms }: SidebarProps) {
                   </span>
                 )}
               </span>
-              <span className={styles.tooltip}>{room.name}</span>
+              <span className={styles.itemLabel}>{room.name}</span>
             </Link>
           );
         })}
@@ -77,20 +78,20 @@ export function Sidebar({ rooms }: SidebarProps) {
         <Link
           className={`${styles.actionItem} ${isCreate ? styles.activeAction : ""}`}
           href="/dashboard/create-room"
-          title="สร้างห้อง"
         >
           <span className={styles.actionGlyph} aria-hidden>
             +
           </span>
-          <span className={styles.tooltip}>สร้างห้อง</span>
+          <span className={styles.itemLabel}>สร้าง</span>
         </Link>
         <Link
           className={`${styles.actionItem} ${isJoin ? styles.activeAction : ""}`}
           href="/dashboard/join-room"
-          title="เข้าร่วม"
         >
-          <span className={styles.actionGlyphSmall}>เข้าร่วม</span>
-          <span className={styles.tooltip}>เข้าร่วมห้อง</span>
+          <span className={styles.actionGlyphSmall} aria-hidden>
+            เข้า
+          </span>
+          <span className={styles.itemLabel}>เข้าร่วม</span>
         </Link>
       </div>
     </aside>

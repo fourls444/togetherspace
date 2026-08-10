@@ -77,8 +77,8 @@ export function CreateInviteForm({ roomCode, roomId }: CreateInviteFormProps) {
       ) : null}
 
       {state.success ? (
-        <p style={{ color: "#10b981", margin: 0, fontSize: "0.875rem" }}>
-          ✓ สร้างลิงก์คำเชิญเรียบร้อยแล้ว
+        <p className={formStyles.serviceSuccess} role="status">
+          สร้างลิงก์คำเชิญเรียบร้อยแล้ว
         </p>
       ) : null}
 

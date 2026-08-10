@@ -3,7 +3,6 @@ import Link from "next/link";
 import styles from "@/app/rooms/[roomId]/room-detail.module.css";
 import { AppFrame } from "@/components/layout/app-frame";
 import { MemberList, type MemberListItem } from "@/components/rooms/member-list";
-import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
 import { getRoomHomeModules, ROOM_TYPE_LABEL } from "@/lib/rooms/labels";
@@ -97,6 +96,7 @@ export default async function RoomPage({
       role: membership.role,
     };
   });
+  const previewMembers = members.slice(0, 4);
 
   const modules = getRoomHomeModules(room.type);
   const avatar = room.avatar_url?.trim();
@@ -133,21 +133,12 @@ export default async function RoomPage({
               )}
             </div>
             <div>
-              <p className={styles.eyebrow}>{ROOM_TYPE_LABEL[room.type]}</p>
+              <p className={styles.typeLabel}>{ROOM_TYPE_LABEL[room.type]}</p>
               <h1 className={styles.title}>{room.name}</h1>
               <p className={styles.heroMeta}>
                 {memberships.length} สมาชิก · รหัสห้อง {roomCode}
               </p>
             </div>
-          </div>
-          <div className={styles.roomActions}>
-            <Badge>{memberships.length} สมาชิก</Badge>
-            <ButtonLink href={getRoomSubPath(roomCode, "members")}>
-              สมาชิก
-            </ButtonLink>
-            <ButtonLink href={getRoomSubPath(roomCode, "board")}>
-              บอร์ด
-            </ButtonLink>
           </div>
         </header>
 
@@ -166,12 +157,14 @@ export default async function RoomPage({
 
         <section className={styles.membersPanel} aria-label="สมาชิกในห้อง">
           <div className={styles.membersHeader}>
-            <h2 className={styles.membersTitle}>สมาชิกในห้อง</h2>
+            <h2 className={styles.membersTitle}>
+              คนในห้อง · {memberships.length}
+            </h2>
             <ButtonLink href={getRoomSubPath(roomCode, "members")}>
               ดูทั้งหมด
             </ButtonLink>
           </div>
-          <MemberList members={members} />
+          <MemberList members={previewMembers} />
         </section>
       </main>
     </AppFrame>

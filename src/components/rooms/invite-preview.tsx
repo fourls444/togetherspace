@@ -6,6 +6,7 @@ import { joinRoomByToken } from "@/features/invites/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
+import { ROOM_TYPE_LABEL } from "@/lib/rooms/labels";
 import { getRoomPath } from "@/lib/rooms/room-path";
 import type { RoomType } from "@/lib/types/database";
 import styles from "@/components/rooms/invite-preview.module.css";
@@ -50,10 +51,10 @@ export function InvitePreview({
             <span>{room.name.trim().slice(0, 2).toUpperCase()}</span>
           )}
         </div>
-        <p className={styles.eyebrow}>คำเชิญเข้าร่วมห้อง</p>
         <h1 className={styles.title}>{room.name}</h1>
+        <p className={styles.inviteHint}>คำเชิญเข้าร่วมห้อง</p>
         <div className={styles.badgeGroup}>
-          <Badge>{room.type}</Badge>
+          <Badge>{ROOM_TYPE_LABEL[room.type]}</Badge>
           <Badge>{room.memberCount} สมาชิก</Badge>
         </div>
       </div>

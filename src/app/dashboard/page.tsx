@@ -57,17 +57,18 @@ export default async function DashboardPage() {
       <main className={styles.shell}>
         <header className={styles.header}>
           <div>
-            <p className={styles.eyebrow}>TogetherSpace</p>
             <h1 className={styles.title}>ห้องของคุณ</h1>
-            <p className={styles.profileName}>{displayName}</p>
+            <p className={styles.profileName}>สวัสดี {displayName}</p>
           </div>
           <div className={styles.actions}>
             <ButtonLink href="/dashboard/create-room" variant="primary">
               สร้างห้อง
             </ButtonLink>
-            <ButtonLink href="/dashboard/join-room">เข้าร่วมห้อง</ButtonLink>
-            <ButtonLink href="/profile">แก้ไขโปรไฟล์</ButtonLink>
-            <LogoutForm />
+            <ButtonLink href="/dashboard/join-room">เข้าร่วม</ButtonLink>
+            <div className={styles.secondaryActions}>
+              <ButtonLink href="/profile">โปรไฟล์</ButtonLink>
+              <LogoutForm />
+            </div>
           </div>
         </header>
 
