@@ -28,6 +28,8 @@ export type GradientWavesProps = {
   parallaxStrength?: number;
   grain?: boolean;
   grainIntensity?: number;
+  /** จำกัด device pixel ratio ของ WebGL (แอป shell ใช้ 1 เพื่อเบาขึ้น) */
+  maxDpr?: number;
   className?: string;
 };
 
@@ -188,6 +190,7 @@ export default function GradientWaves({
   parallaxStrength = 0.5,
   grain = true,
   grainIntensity = 0.05,
+  maxDpr = 2,
   className = "",
 }: GradientWavesProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -202,7 +205,7 @@ export default function GradientWaves({
       alpha: true,
       premultipliedAlpha: true,
       antialias: false,
-      dpr: Math.min(window.devicePixelRatio || 1, 2),
+      dpr: Math.min(window.devicePixelRatio || 1, maxDpr),
     });
 
     const gl = renderer.gl;
@@ -403,6 +406,7 @@ export default function GradientWaves({
     opacity,
     grain,
     grainIntensity,
+    maxDpr,
     mouseInteraction,
     parallaxStrength,
   ]);

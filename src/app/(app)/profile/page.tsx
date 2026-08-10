@@ -1,20 +1,15 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { ProfileForm } from "@/app/profile/profile-form";
-import styles from "@/app/profile/profile.module.css";
+import { ProfileForm } from "@/app/(app)/profile/profile-form";
+import styles from "@/app/(app)/profile/profile.module.css";
 import { PageShell } from "@/components/layout/page-shell";
 import { Panel } from "@/components/ui/panel";
-import { createClient } from "@/lib/supabase/server";
-
-export const dynamic = "force-dynamic";
+import { requireAppUser } from "@/lib/rooms/sidebar";
 
 /** หน้าแก้ไขโปรไฟล์ — ชื่อที่แสดง, ชื่อผู้ใช้, รูปโปรไฟล์ */
 export default async function ProfilePage() {
-  const supabase = await createClient();
-  const { data: claimsData } = await supabase.auth.getClaims();
-  const userId = claimsData?.claims.sub;
-  if (!userId) redirect("/login");
+  const { supabase, userId } = await requireAppUser();
 
   const { data: profile, error } = await supabase
     .from("profiles")

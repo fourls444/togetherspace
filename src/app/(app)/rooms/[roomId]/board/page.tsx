@@ -1,21 +1,18 @@
 import Link from "next/link";
 
-import styles from "@/app/rooms/[roomId]/board/board.module.css";
+import styles from "@/app/(app)/rooms/[roomId]/board/board.module.css";
 import {
   BoardItemList,
   type BoardItemView,
 } from "@/components/boards/board-item-list";
 import { BoardCreateForms } from "@/components/boards/board-create-forms";
-import { AppFrame } from "@/components/layout/app-frame";
 import { PageShell } from "@/components/layout/page-shell";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
 import { Panel } from "@/components/ui/panel";
-import { getRoomContext } from "@/lib/rooms/server";
 import { ROOM_TYPE_LABEL } from "@/lib/rooms/labels";
-
-export const dynamic = "force-dynamic";
+import { getRoomContext } from "@/lib/rooms/server";
 
 /** หน้า Board MVP ของห้อง รองรับ note, checklist และ poll แบบยังไม่ realtime */
 export default async function RoomBoardPage({
@@ -28,22 +25,20 @@ export default async function RoomBoardPage({
 
   if (!context.isMember) {
     return (
-      <AppFrame rooms={context.sidebarRooms}>
-        <PageShell>
-          <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
-          <div className={styles.error}>
-            <ErrorState
-              description="ถ้าต้องการเปิดบอร์ดนี้ กรุณาเข้าร่วมห้องก่อน"
-              headingLevel={1}
-              title="คุณไม่ได้อยู่ในห้องนี้"
-            />
-          </div>
-        </PageShell>
-    </AppFrame>
+      <PageShell>
+        <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
+        <div className={styles.error}>
+          <ErrorState
+            description="ถ้าต้องการเปิดบอร์ดนี้ กรุณาเข้าร่วมห้องก่อน"
+            headingLevel={1}
+            title="คุณไม่ได้อยู่ในห้องนี้"
+          />
+        </div>
+      </PageShell>
     );
   }
 
-  const { currentUserId, room, roomCode, roomId, roomPath, sidebarRooms, supabase } =
+  const { currentUserId, room, roomCode, roomId, roomPath, supabase } =
     context;
 
   const { data: boardId, error: boardError } = await supabase.rpc(
@@ -55,17 +50,15 @@ export default async function RoomBoardPage({
 
   if (boardError || !boardId) {
     return (
-      <AppFrame rooms={sidebarRooms}>
-        <PageShell>
-          <div className={styles.error}>
-            <ErrorState
-              description="กรุณาตรวจสิทธิ์สมาชิกห้องและลองอีกครั้ง"
-              headingLevel={1}
-              title="เปิดบอร์ดไม่สำเร็จ"
-            />
-          </div>
-        </PageShell>
-    </AppFrame>
+      <PageShell>
+        <div className={styles.error}>
+          <ErrorState
+            description="กรุณาตรวจสิทธิ์สมาชิกห้องและลองอีกครั้ง"
+            headingLevel={1}
+            title="เปิดบอร์ดไม่สำเร็จ"
+          />
+        </div>
+      </PageShell>
     );
   }
 
@@ -82,21 +75,22 @@ export default async function RoomBoardPage({
   const rawItems = itemsResult.data ?? [];
   const itemIds = rawItems.map((item) => item.id);
 
-  const checklistResult = itemIds.length
-    ? await supabase
-        .from("board_checklist_items")
-        .select("id, board_item_id, text, is_done, sort_order")
-        .in("board_item_id", itemIds)
-        .order("sort_order")
-    : { data: [] };
-
-  const pollOptionsResult = itemIds.length
-    ? await supabase
-        .from("board_poll_options")
-        .select("id, board_item_id, label, sort_order")
-        .in("board_item_id", itemIds)
-        .order("sort_order")
-    : { data: [] };
+  const [checklistResult, pollOptionsResult] = await Promise.all([
+    itemIds.length
+      ? supabase
+          .from("board_checklist_items")
+          .select("id, board_item_id, text, is_done, sort_order")
+          .in("board_item_id", itemIds)
+          .order("sort_order")
+      : Promise.resolve({ data: [] as never[] }),
+    itemIds.length
+      ? supabase
+          .from("board_poll_options")
+          .select("id, board_item_id, label, sort_order")
+          .in("board_item_id", itemIds)
+          .order("sort_order")
+      : Promise.resolve({ data: [] as never[] }),
+  ]);
 
   const optionIds = pollOptionsResult.data?.map((option) => option.id) ?? [];
   const votesResult = optionIds.length
@@ -158,34 +152,32 @@ export default async function RoomBoardPage({
   }));
 
   return (
-    <AppFrame rooms={sidebarRooms}>
-      <PageShell>
-        <Link className={styles.backLink} href={roomPath}>
-          ← กลับไปหน้าห้อง ({room.name})
-        </Link>
+    <PageShell>
+      <Link className={styles.backLink} href={roomPath}>
+        ← กลับไปหน้าห้อง ({room.name})
+      </Link>
 
-        <Panel as="header" className={styles.headerPanel}>
-          <div className={styles.headerContent}>
-            <div>
-              <h1 className={styles.title}>บอร์ดของ {room.name}</h1>
-              <p className={styles.description}>
-                เก็บโน้ต เช็คลิสต์ และโพลของห้องไว้ในที่เดียว
-              </p>
-            </div>
-            <Badge>{ROOM_TYPE_LABEL[room.type]}</Badge>
+      <Panel as="header" className={styles.headerPanel}>
+        <div className={styles.headerContent}>
+          <div>
+            <h1 className={styles.title}>บอร์ดของ {room.name}</h1>
+            <p className={styles.description}>
+              เก็บโน้ต เช็คลิสต์ และโพลของห้องไว้ในที่เดียว
+            </p>
           </div>
-        </Panel>
+          <Badge>{ROOM_TYPE_LABEL[room.type]}</Badge>
+        </div>
+      </Panel>
 
-        <Panel className={styles.createPanel}>
-          <h2 className={styles.sectionTitle}>เพิ่มลงบอร์ด</h2>
-          <BoardCreateForms boardId={boardId} roomCode={roomCode} roomId={roomId} />
-        </Panel>
+      <Panel className={styles.createPanel}>
+        <h2 className={styles.sectionTitle}>เพิ่มลงบอร์ด</h2>
+        <BoardCreateForms boardId={boardId} roomCode={roomCode} roomId={roomId} />
+      </Panel>
 
-        <Panel className={styles.itemsPanel}>
-          <h2 className={styles.sectionTitle}>รายการบนบอร์ด</h2>
-          <BoardItemList items={items} roomCode={roomCode} roomId={roomId} />
-        </Panel>
-      </PageShell>
-    </AppFrame>
+      <Panel className={styles.itemsPanel}>
+        <h2 className={styles.sectionTitle}>รายการบนบอร์ด</h2>
+        <BoardItemList items={items} roomCode={roomCode} roomId={roomId} />
+      </Panel>
+    </PageShell>
   );
 }

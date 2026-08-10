@@ -1,15 +1,12 @@
 import Link from "next/link";
 
-import styles from "@/app/rooms/[roomId]/members/members.module.css";
-import { AppFrame } from "@/components/layout/app-frame";
+import styles from "@/app/(app)/rooms/[roomId]/members/members.module.css";
 import { PageShell } from "@/components/layout/page-shell";
 import { MemberList, type MemberListItem } from "@/components/rooms/member-list";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
 import { Panel } from "@/components/ui/panel";
 import { getRoomContext } from "@/lib/rooms/server";
-
-export const dynamic = "force-dynamic";
 
 /** แสดงสมาชิกทั้งหมดของห้อง โดย URL ใช้ room code แทน UUID */
 export default async function RoomMembersPage({
@@ -22,22 +19,20 @@ export default async function RoomMembersPage({
 
   if (!context.isMember) {
     return (
-      <AppFrame rooms={context.sidebarRooms}>
-        <PageShell>
-          <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
-          <div className={styles.error}>
-            <ErrorState
-              description="ถ้าต้องการดูสมาชิกห้องนี้ กรุณาเข้าร่วมห้องก่อน"
-              headingLevel={1}
-              title="คุณไม่ได้อยู่ในห้องนี้"
-            />
-          </div>
-        </PageShell>
-    </AppFrame>
+      <PageShell>
+        <ButtonLink href="/dashboard">กลับไปหน้าหลัก</ButtonLink>
+        <div className={styles.error}>
+          <ErrorState
+            description="ถ้าต้องการดูสมาชิกห้องนี้ กรุณาเข้าร่วมห้องก่อน"
+            headingLevel={1}
+            title="คุณไม่ได้อยู่ในห้องนี้"
+          />
+        </div>
+      </PageShell>
     );
   }
 
-  const { room, roomId, roomPath, sidebarRooms, supabase } = context;
+  const { room, roomId, roomPath, supabase } = context;
 
   const membershipsResult = await supabase
     .from("room_members")
@@ -68,16 +63,14 @@ export default async function RoomMembersPage({
   });
 
   return (
-    <AppFrame rooms={sidebarRooms}>
-      <PageShell>
-        <Link className={styles.backLink} href={roomPath}>
-          ← กลับไปหน้าห้อง ({room.name})
-        </Link>
-        <Panel className={styles.panel}>
-          <h1 className={styles.title}>สมาชิกในห้อง ({members.length})</h1>
-          <MemberList members={members} />
-        </Panel>
-      </PageShell>
-    </AppFrame>
+    <PageShell>
+      <Link className={styles.backLink} href={roomPath}>
+        ← กลับไปหน้าห้อง ({room.name})
+      </Link>
+      <Panel className={styles.panel}>
+        <h1 className={styles.title}>สมาชิกในห้อง ({members.length})</h1>
+        <MemberList members={members} />
+      </Panel>
+    </PageShell>
   );
 }

@@ -78,6 +78,7 @@ export async function leaveRoom(roomId: string): Promise<MemberActionState> {
   }
 
   revalidatePath("/dashboard");
+  revalidatePath("/", "layout");
   redirect("/dashboard");
 }
 

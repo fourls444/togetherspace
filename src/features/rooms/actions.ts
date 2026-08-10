@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { roomSchema } from "@/features/rooms/validation";
@@ -45,5 +46,7 @@ export async function createRoom(
     .eq("id", roomId)
     .single();
 
+  revalidatePath("/dashboard");
+  revalidatePath("/", "layout");
   redirect(getRoomPath(room?.room_code ?? roomId));
 }

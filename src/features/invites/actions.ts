@@ -149,6 +149,8 @@ export async function joinRoomByCode(
   }
 
   const roomCode = await getRoomCodeById(supabase, roomId);
+  revalidatePath("/dashboard");
+  revalidatePath("/", "layout");
   redirect(getRoomPath(roomCode));
 }
 
@@ -179,5 +181,7 @@ export async function joinRoomByToken(
   }
 
   const roomCode = await getRoomCodeById(supabase, roomId);
+  revalidatePath("/dashboard");
+  revalidatePath("/", "layout");
   redirect(getRoomPath(roomCode));
 }

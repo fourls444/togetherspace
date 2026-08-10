@@ -1,35 +1,19 @@
+import { cache } from "react";
 import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 
-import { createClient } from "@/lib/supabase/server";
 import { getRoomPath, isRoomCode } from "@/lib/rooms/room-path";
+import { requireAppUser } from "@/lib/rooms/sidebar";
 
 const roomUuidSchema = z.string().uuid();
 
 /** โหลดห้องจาก URL โดยรับได้ทั้ง room code และ UUID เก่า แต่บังคับ URL ให้แสดงเป็น room code */
-export async function getRoomContext(roomSlug: string) {
-  const supabase = await createClient();
-  const { data: claimsData } = await supabase.auth.getClaims();
-  const currentUserId = claimsData?.claims.sub;
-
-  if (!currentUserId) redirect("/login");
+export const getRoomContext = cache(async (roomSlug: string) => {
+  const { userId: currentUserId, supabase } = await requireAppUser();
 
   if (!isRoomCode(roomSlug) && !roomUuidSchema.safeParse(roomSlug).success) {
     notFound();
   }
-
-  const userMembershipsResult = await supabase
-    .from("room_members")
-    .select("room_id")
-    .eq("user_id", currentUserId);
-
-  const userRoomIds = userMembershipsResult.data?.map((m) => m.room_id) ?? [];
-  const sidebarRoomsResult = userRoomIds.length
-    ? await supabase
-        .from("rooms")
-        .select("id, name, avatar_url, room_code")
-        .in("id", userRoomIds)
-    : { data: [] };
 
   const roomQuery = supabase
     .from("rooms")
@@ -43,7 +27,6 @@ export async function getRoomContext(roomSlug: string) {
     return {
       currentUserId,
       isMember: false as const,
-      sidebarRooms: sidebarRoomsResult.data ?? [],
       supabase,
     };
   }
@@ -52,6 +35,7 @@ export async function getRoomContext(roomSlug: string) {
     redirect(getRoomPath(roomResult.data.room_code));
   }
 
+  // RLS ทำให้เห็นห้องได้เฉพาะสมาชิก — มีข้อมูลห้อง = เป็นสมาชิก
   return {
     currentUserId,
     isMember: true as const,
@@ -59,7 +43,6 @@ export async function getRoomContext(roomSlug: string) {
     roomCode: roomResult.data.room_code,
     roomId: roomResult.data.id,
     roomPath: getRoomPath(roomResult.data.room_code),
-    sidebarRooms: sidebarRoomsResult.data ?? [],
     supabase,
   };
-}
+});

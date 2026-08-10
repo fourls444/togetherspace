@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { FieldErrors } from "@/components/ui/field-errors";
 import formStyles from "@/components/ui/form.module.css";
-import styles from "@/app/profile/profile.module.css";
+import styles from "@/app/(app)/profile/profile.module.css";
 
 const initialState: UpdateProfileState = {};
 
