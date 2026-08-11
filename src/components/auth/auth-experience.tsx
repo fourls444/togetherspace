@@ -91,12 +91,14 @@ export function AuthExperience() {
   const isFirstRender = useRef(true);
   const visibleModeRef = useRef(visibleMode);
   const bentoSectionRef = useRef<HTMLDivElement>(null);
-  visibleModeRef.current = visibleMode;
+
+  useEffect(() => {
+    visibleModeRef.current = visibleMode;
+  }, [visibleMode]);
 
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
-      setVisibleMode(routeMode);
       return;
     }
 
@@ -108,29 +110,37 @@ export function AuthExperience() {
     ).matches;
 
     if (reduceMotion) {
-      setVisibleMode(routeMode);
-      setPanelAnim(styles.panelEnter);
-      setSloganAnim(styles.sloganEnter);
-      setSwitching(false);
-      return;
+      const timer = window.setTimeout(() => {
+        setVisibleMode(routeMode);
+        setPanelAnim(styles.panelEnter);
+        setSloganAnim(styles.sloganEnter);
+        setSwitching(false);
+      }, 0);
+      return () => window.clearTimeout(timer);
     }
 
-    setSwitching(true);
-    setPanelAnim(
-      goingToRegister ? styles.panelExitRight : styles.panelExitLeft,
-    );
-    setSloganAnim(styles.sloganExit);
-
-    const timer = window.setTimeout(() => {
-      setVisibleMode(routeMode);
+    let enterTimer: number | undefined;
+    const exitTimer = window.setTimeout(() => {
+      setSwitching(true);
       setPanelAnim(
-        goingToRegister ? styles.panelEnterExpand : styles.panelEnterFromRight,
+        goingToRegister ? styles.panelExitRight : styles.panelExitLeft,
       );
-      setSloganAnim(styles.sloganEnter);
-      setSwitching(false);
-    }, 320);
+      setSloganAnim(styles.sloganExit);
 
-    return () => window.clearTimeout(timer);
+      enterTimer = window.setTimeout(() => {
+        setVisibleMode(routeMode);
+        setPanelAnim(
+          goingToRegister ? styles.panelEnterExpand : styles.panelEnterFromRight,
+        );
+        setSloganAnim(styles.sloganEnter);
+        setSwitching(false);
+      }, 320);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(exitTimer);
+      if (enterTimer) window.clearTimeout(enterTimer);
+    };
   }, [routeMode]);
 
   const copy = COPY[visibleMode];

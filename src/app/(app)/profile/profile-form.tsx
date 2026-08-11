@@ -6,6 +6,7 @@ import {
   updateProfile,
   type UpdateProfileState,
 } from "@/features/profile/actions";
+import { ImageUploadField } from "@/components/uploads/image-upload-field";
 import { Button } from "@/components/ui/button";
 import { FieldErrors } from "@/components/ui/field-errors";
 import formStyles from "@/components/ui/form.module.css";
@@ -81,20 +82,12 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
       </div>
 
       <div className={formStyles.field}>
-        <label className={formStyles.label} htmlFor="avatarUrl">
-          URL รูปโปรไฟล์ (ไม่บังคับ)
-        </label>
-        <input
-          aria-describedby={
-            state.fieldErrors?.avatarUrl ? "avatar-url-errors" : undefined
-          }
-          aria-invalid={Boolean(state.fieldErrors?.avatarUrl)}
-          className={formStyles.control}
-          defaultValue={defaultValues.avatarUrl ?? ""}
-          id="avatarUrl"
-          name="avatarUrl"
-          placeholder="https://example.com/photo.png"
-          type="url"
+        <span className={formStyles.label}>รูปโปรไฟล์</span>
+        <ImageUploadField
+          helperText="เลือกรูปจากเครื่องแล้วครอปให้พอดีก่อนบันทึก"
+          initialUrl={defaultValues.avatarUrl}
+          kind="profile"
+          label="เลือกรูปโปรไฟล์"
         />
         <FieldErrors
           id="avatar-url-errors"

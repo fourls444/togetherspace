@@ -17,7 +17,7 @@ export default async function RoomMembersPage({
     return (
       <div className={styles.panel}>
         <ErrorState
-          description="ถ้าต้องการดูคนในห้องนี้ กรุณาเข้าร่วมห้องก่อน"
+          description="ถ้าต้องการดูสมาชิกในห้องนี้ กรุณาเข้าร่วมห้องก่อน"
           headingLevel={1}
           title="คุณไม่ได้อยู่ในห้องนี้"
         />
@@ -28,7 +28,7 @@ export default async function RoomMembersPage({
 
   const { currentUserId, roomCode, roomId, supabase } = context;
 
-  const [membershipsResult, meResult] = await Promise.all([
+  const [membershipsResult, meResult, roomProfilesResult] = await Promise.all([
     supabase
       .from("room_members")
       .select(
@@ -42,25 +42,35 @@ export default async function RoomMembersPage({
       .eq("room_id", roomId)
       .eq("user_id", currentUserId)
       .maybeSingle(),
+    supabase
+      .from("room_profiles")
+      .select("user_id, display_name, avatar_url")
+      .eq("room_id", roomId),
   ]);
 
   const memberships = membershipsResult.data ?? [];
+  const roomProfiles = new Map(
+    (roomProfilesResult.data ?? []).map((profile) => [profile.user_id, profile]),
+  );
   const isOwner = meResult.data?.role === "owner";
   const members: MemberListItem[] = memberships.map((m) => {
     const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles;
+    const roomProfile = roomProfiles.get(m.user_id);
     return {
+      avatarUrl: roomProfile?.avatar_url ?? profile?.avatar_url ?? null,
       userId: m.user_id,
-      displayName: profile?.display_name ?? "ไม่พบชื่อสมาชิก",
+      displayName:
+        roomProfile?.display_name ?? profile?.display_name ?? "ไม่พบชื่อสมาชิก",
       username: profile?.username ?? "unknown",
       role: m.role,
     };
   });
 
   return (
-    <section className={styles.panel} aria-label="คนในห้อง">
+    <section className={styles.panel} aria-label="สมาชิกในห้อง">
       <div className={styles.head}>
         <div>
-          <h2 className={styles.title}>คนในห้อง</h2>
+          <h2 className={styles.title}>สมาชิกในห้อง</h2>
           <p className={styles.meta}>{members.length} คน</p>
         </div>
         {isOwner ? (

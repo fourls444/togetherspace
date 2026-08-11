@@ -5,6 +5,7 @@ import { useActionState, useEffect, useId, useRef, useState } from "react";
 
 import { logout, type LogoutState } from "@/features/auth/actions";
 import { Button } from "@/components/ui/button";
+import { getDefaultImageUrl } from "@/lib/uploads/image-upload";
 import styles from "@/components/layout/account-menu.module.css";
 
 const initialState: LogoutState = {};
@@ -13,11 +14,6 @@ export type AccountMenuUser = {
   displayName: string;
   avatarUrl: string | null;
 };
-
-function avatarInitial(name: string) {
-  const trimmed = name.trim();
-  return trimmed ? trimmed.slice(0, 1).toUpperCase() : "?";
-}
 
 type AccountMenuProps = {
   user: AccountMenuUser;
@@ -28,7 +24,7 @@ export function AccountMenu({ user }: AccountMenuProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
   const [state, formAction, isPending] = useActionState(logout, initialState);
-  const avatar = user.avatarUrl?.trim();
+  const avatar = user.avatarUrl?.trim() || getDefaultImageUrl("profile");
 
   useEffect(() => {
     if (!open) return;
@@ -57,14 +53,8 @@ export function AccountMenu({ user }: AccountMenuProps) {
         onClick={() => setOpen((value) => !value)}
         type="button"
       >
-        {avatar ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img alt="" className={styles.avatarImage} src={avatar} />
-        ) : (
-          <span className={styles.avatarInitial} aria-hidden>
-            {avatarInitial(user.displayName)}
-          </span>
-        )}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img alt="" className={styles.avatarImage} src={avatar} />
       </button>
       {open ? (
         <div className={styles.menu} id={menuId} role="menu">

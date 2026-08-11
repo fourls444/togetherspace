@@ -6,6 +6,7 @@ import {
   MemberManagement,
   type ManageMemberItem,
 } from "@/components/rooms/member-management";
+import { RoomProfileForm } from "@/components/rooms/room-profile-form";
 import { ButtonLink } from "@/components/ui/button-link";
 import { CopyButton } from "@/components/ui/copy-button";
 import { ErrorState } from "@/components/ui/error-state";
@@ -35,7 +36,13 @@ export default async function RoomSettingsPage({
 
   const { currentUserId, roomCode, roomId, supabase } = context;
 
-  const [memberRecordResult, membershipsResult] = await Promise.all([
+  const [
+    memberRecordResult,
+    membershipsResult,
+    profileResult,
+    roomProfileResult,
+    roomProfilesResult,
+  ] = await Promise.all([
     supabase
       .from("room_members")
       .select("role")
@@ -49,10 +56,28 @@ export default async function RoomSettingsPage({
       )
       .eq("room_id", roomId)
       .order("joined_at"),
+    supabase
+      .from("profiles")
+      .select("display_name, avatar_url")
+      .eq("id", currentUserId)
+      .maybeSingle(),
+    supabase
+      .from("room_profiles")
+      .select("display_name, avatar_url")
+      .eq("room_id", roomId)
+      .eq("user_id", currentUserId)
+      .maybeSingle(),
+    supabase
+      .from("room_profiles")
+      .select("user_id, display_name")
+      .eq("room_id", roomId),
   ]);
 
   const isOwner = memberRecordResult.data?.role === "owner";
   const memberships = membershipsResult.data ?? [];
+  const roomProfiles = new Map(
+    (roomProfilesResult.data ?? []).map((profile) => [profile.user_id, profile]),
+  );
 
   const invitesResult = isOwner
     ? await supabase
@@ -66,9 +91,11 @@ export default async function RoomSettingsPage({
 
   const members: ManageMemberItem[] = memberships.map((m) => {
     const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles;
+    const roomProfile = roomProfiles.get(m.user_id);
     return {
       userId: m.user_id,
-      displayName: profile?.display_name ?? "ไม่พบชื่อสมาชิก",
+      displayName:
+        roomProfile?.display_name ?? profile?.display_name ?? "ไม่พบชื่อสมาชิก",
       username: profile?.username ?? "unknown",
       role: m.role,
     };
@@ -87,8 +114,26 @@ export default async function RoomSettingsPage({
 
   return (
     <div className={styles.stack}>
-      <section className={styles.panel}>
-        <h2 className={styles.title}>แชร์ห้องนี้</h2>
+      <div className={styles.settingsGrid}>
+        <section className={`${styles.panel} ${styles.profilePanel}`}>
+        <h2 className={styles.title}>โปรไฟล์ของฉันในห้องนี้</h2>
+        <p className={styles.lead}>
+          ตั้งชื่อเล่นหรือรูปที่ใช้เฉพาะห้องนี้ โดยไม่กระทบโปรไฟล์หลัก
+        </p>
+        <RoomProfileForm
+          defaultValues={{
+            avatarUrl: roomProfileResult.data?.avatar_url ?? null,
+            displayName: roomProfileResult.data?.display_name ?? null,
+          }}
+          mainDisplayName={profileResult.data?.display_name ?? "โปรไฟล์หลัก"}
+          roomCode={roomCode}
+          roomId={roomId}
+        />
+        </section>
+
+        <div className={styles.sideColumn}>
+          <section className={styles.panel}>
+        <h2 className={styles.title}>รหัสเข้าห้อง</h2>
         <p className={styles.lead}>
           ส่งรหัสห้องให้คนสำคัญ เพื่อเข้ามาอยู่ด้วยกัน
         </p>
@@ -100,7 +145,7 @@ export default async function RoomSettingsPage({
             text={roomCode}
           />
         </div>
-      </section>
+          </section>
 
       {isOwner ? (
         <>
@@ -123,7 +168,7 @@ export default async function RoomSettingsPage({
           </section>
 
           <section className={styles.panel}>
-            <h2 className={styles.title}>ดูแลคนในห้อง</h2>
+            <h2 className={styles.title}>ดูแลสมาชิกในห้อง</h2>
             <p className={styles.lead}>
               เปลี่ยนบทบาท หรือนำคนออกจากห้องถ้าจำเป็น
             </p>
@@ -150,6 +195,8 @@ export default async function RoomSettingsPage({
         <p className={styles.lead}>ออกแล้วจะเข้าอีกครั้งได้ด้วยรหัสหรือคำเชิญ</p>
         <LeaveRoomButton roomId={roomId} />
       </section>
+        </div>
+      </div>
     </div>
   );
 }

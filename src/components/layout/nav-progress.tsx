@@ -32,7 +32,8 @@ export function NavProgress() {
   }, [pathname]);
 
   useEffect(() => {
-    setPending(false);
+    const timer = window.setTimeout(() => setPending(false), 0);
+    return () => window.clearTimeout(timer);
   }, [pathname]);
 
   if (!pending) return null;

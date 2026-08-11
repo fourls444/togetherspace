@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import type { RoomRole, RoomType } from "@/lib/types/database";
 import { ROOM_ROLE_LABEL, ROOM_TYPE_LABEL } from "@/lib/rooms/labels";
 import { getRoomPath } from "@/lib/rooms/room-path";
+import { getDefaultImageUrl } from "@/lib/uploads/image-upload";
 import styles from "@/components/rooms/room-card.module.css";
 
 type RoomCardProps = {
@@ -17,24 +18,15 @@ type RoomCardProps = {
   role: RoomRole;
 };
 
-function roomInitial(name: string) {
-  const trimmed = name.trim();
-  return trimmed ? trimmed.slice(0, 1).toUpperCase() : "?";
-}
-
 export function RoomCard({ room, role }: RoomCardProps) {
-  const avatar = room.avatar_url?.trim();
+  const avatar = room.avatar_url?.trim() || getDefaultImageUrl("room");
 
   return (
     <Link className={styles.card} href={getRoomPath(room.room_code)} prefetch>
       <div className={styles.top}>
         <div className={styles.avatar} aria-hidden>
-          {avatar ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img alt="" className={styles.avatarImage} src={avatar} />
-          ) : (
-            <span className={styles.avatarInitial}>{roomInitial(room.name)}</span>
-          )}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img alt="" className={styles.avatarImage} src={avatar} />
         </div>
         <Badge>{ROOM_ROLE_LABEL[role]}</Badge>
       </div>

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { getRoomPath } from "@/lib/rooms/room-path";
+import { getDefaultImageUrl } from "@/lib/uploads/image-upload";
 import styles from "@/components/layout/sidebar.module.css";
 
 export type RoomSidebarItem = {
@@ -18,11 +19,6 @@ export type RoomSidebarItem = {
 type SidebarProps = {
   rooms: RoomSidebarItem[];
 };
-
-function roomInitial(name: string) {
-  const trimmed = name.trim();
-  return trimmed ? trimmed.slice(0, 1).toUpperCase() : "?";
-}
 
 function PendingMark() {
   const { pending } = useLinkStatus();
@@ -71,7 +67,7 @@ export function Sidebar({ rooms }: SidebarProps) {
         {rooms.map((room) => {
           const roomPath = getRoomPath(room.room_code);
           const isCurrentRoom = pathname.startsWith(roomPath);
-          const avatar = room.avatar_url?.trim();
+          const avatar = room.avatar_url?.trim() || getDefaultImageUrl("room");
 
           return (
             <NavLink
@@ -83,14 +79,8 @@ export function Sidebar({ rooms }: SidebarProps) {
             >
               <span className={styles.roomPill} aria-hidden />
               <span className={styles.roomAvatar}>
-                {avatar ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img alt="" className={styles.roomImage} src={avatar} />
-                ) : (
-                  <span className={styles.roomInitial}>
-                    {roomInitial(room.name)}
-                  </span>
-                )}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img alt="" className={styles.roomImage} src={avatar} />
               </span>
               <span className={styles.itemLabel}>{room.name}</span>
             </NavLink>

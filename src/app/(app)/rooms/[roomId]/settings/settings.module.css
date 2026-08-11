@@ -3,12 +3,27 @@
   gap: 1rem;
 }
 
+.settingsGrid {
+  display: grid;
+  gap: 1rem;
+}
+
+.sideColumn {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
 .panel {
   padding: 1.25rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-panel);
   background: color-mix(in srgb, var(--color-surface) 92%, transparent);
   box-shadow: var(--shadow-panel);
+}
+
+.profilePanel {
+  min-width: 0;
 }
 
 .danger {
@@ -43,6 +58,18 @@
   background: color-mix(in srgb, var(--color-muted-surface) 88%, transparent);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-control);
+}
+
+@media (min-width: 62rem) {
+  .settingsGrid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(19rem, 0.85fr);
+    align-items: start;
+  }
+
+  .profilePanel {
+    position: sticky;
+    top: 5.5rem;
+  }
 }
 
 .code {

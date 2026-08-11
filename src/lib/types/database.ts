@@ -89,6 +89,30 @@ export type Database = {
         };
         Relationships: [];
       };
+      room_profiles: {
+        Row: {
+          room_id: string;
+          user_id: string;
+          display_name: string | null;
+          avatar_url: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          room_id: string;
+          user_id: string;
+          display_name?: string | null;
+          avatar_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          display_name?: string | null;
+          avatar_url?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       room_invites: {
         Row: {
           id: string;
@@ -265,6 +289,73 @@ export type Database = {
         Update: Record<string, never>;
         Relationships: [];
       };
+      calendar_events: {
+        Row: {
+          id: string;
+          room_id: string;
+          title: string;
+          description: string | null;
+          event_date: string;
+          color: string;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          room_id: string;
+          title: string;
+          description?: string | null;
+          event_date: string;
+          color?: string;
+          created_by: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          title?: string;
+          description?: string | null;
+          event_date?: string;
+          color?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      album_photos: {
+        Row: {
+          id: string;
+          room_id: string;
+          uploaded_by: string;
+          image_url: string;
+          storage_path: string;
+          caption: string | null;
+          taken_at: string;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          room_id: string;
+          uploaded_by: string;
+          image_url: string;
+          storage_path: string;
+          caption?: string | null;
+          taken_at?: string;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          image_url?: string;
+          storage_path?: string;
+          caption?: string | null;
+          taken_at?: string;
+          sort_order?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -351,6 +442,14 @@ export type Database = {
           p_display_name?: string | null;
           p_avatar_url?: string | null;
           p_username?: string | null;
+        };
+        Returns: void;
+      };
+      update_room_profile: {
+        Args: {
+          p_room_id: string;
+          p_display_name?: string | null;
+          p_avatar_url?: string | null;
         };
         Returns: void;
       };

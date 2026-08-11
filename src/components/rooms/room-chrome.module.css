@@ -5,8 +5,8 @@
 
 .header {
   display: grid;
-  gap: 1.15rem;
-  padding: 1.35rem 1.35rem 1.25rem;
+  gap: 1.35rem;
+  padding: 1.55rem 1.55rem 1.35rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-room);
   background:
@@ -23,18 +23,26 @@
   width: fit-content;
 }
 
+.headerTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
 .identity {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 1rem;
+  gap: 1.15rem;
 }
 
 .avatar {
   display: grid;
   place-items: center;
-  width: 4.25rem;
-  height: 4.25rem;
+  width: 4.85rem;
+  height: 4.85rem;
   overflow: hidden;
   flex-shrink: 0;
   border-radius: var(--radius-panel);
@@ -62,7 +70,7 @@
 
 .type {
   color: var(--color-primary);
-  font-size: var(--font-size-label);
+  font-size: 0.92rem;
   font-weight: 600;
 }
 
@@ -71,17 +79,74 @@
   font-family: var(--font-display-thai), var(--font-display), serif;
   font-size: var(--font-size-display);
   font-weight: 600;
-  line-height: 1.15;
+  line-height: 1.08;
+}
+
+.overview {
+  max-width: 56ch;
+}
+
+.overviewKicker,
+.overviewText {
+  margin: 0;
+}
+
+.overviewKicker {
+  color: var(--color-primary);
+  font-size: var(--font-size-label);
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.overviewText {
+  margin-top: 0.25rem;
+  max-width: 56ch;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-body-sm);
+  line-height: 1.65;
+}
+
+.headerFacts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  min-width: min(100%, 17rem);
+}
+
+.headerFacts div {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--color-background) 24%, transparent);
+}
+
+.headerFacts span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-mark);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.headerFacts strong {
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: 0.98rem;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 
 .navLink {
-  padding: 0.5rem 0.85rem;
+  padding: 0.55rem 0.95rem;
   color: var(--color-text-muted);
   font-size: var(--font-size-label);
   font-weight: 600;
@@ -107,6 +172,6 @@
 
 @media (min-width: 40rem) {
   .header {
-    padding: 1.6rem 1.6rem 1.35rem;
+    padding: 1.85rem 1.85rem 1.5rem;
   }
 }

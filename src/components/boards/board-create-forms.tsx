@@ -54,8 +54,10 @@ export function BoardCreateForms({
 
   useEffect(() => {
     if (noteState.success || checklistState.success || pollState.success) {
-      setActiveForm(null);
+      const timer = window.setTimeout(() => setActiveForm(null), 0);
+      return () => window.clearTimeout(timer);
     }
+    return undefined;
   }, [noteState.success, checklistState.success, pollState.success]);
 
   return (

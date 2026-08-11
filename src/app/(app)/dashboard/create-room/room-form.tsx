@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 
 import { createRoom, type CreateRoomState } from "@/features/rooms/actions";
+import { ImageUploadField } from "@/components/uploads/image-upload-field";
 import { Button } from "@/components/ui/button";
 import { FieldErrors } from "@/components/ui/field-errors";
 import formStyles from "@/components/ui/form.module.css";
@@ -15,16 +16,22 @@ const ROOM_TYPES = [
     value: "friend",
     title: "กลุ่มเพื่อน",
     description: "คุยเล่น นัดเจอ เก็บโมเมนต์ด้วยกัน",
+    namePlaceholder: "เช่น แก๊งหลังเลิกงาน",
+    imageHelper: "เหมาะกับรูปกลุ่ม รูปทริป หรือสัญลักษณ์ของแก๊ง",
   },
   {
     value: "couple",
     title: "คู่รัก",
     description: "พื้นที่สองคน สำหรับเรื่องของเรา",
+    namePlaceholder: "เช่น บ้านเล็กของเรา",
+    imageHelper: "เหมาะกับรูปคู่ รูปสถานที่โปรด หรือภาพที่แทนความทรงจำของสองคน",
   },
   {
     value: "family",
     title: "ครอบครัว",
     description: "บ้านนี้ สำหรับคนในครอบครัว",
+    namePlaceholder: "เช่น บ้านมาชะเรือน",
+    imageHelper: "เหมาะกับรูปครอบครัว บ้าน หรือสิ่งที่ทุกคนจำได้ร่วมกัน",
   },
 ] as const;
 
@@ -36,6 +43,8 @@ export function RoomForm() {
   const [type, setType] = useState<(typeof ROOM_TYPES)[number]["value"]>(
     "friend",
   );
+  const selectedType =
+    ROOM_TYPES.find((option) => option.value === type) ?? ROOM_TYPES[0];
 
   return (
     <form action={formAction} className={formStyles.form}>
@@ -50,7 +59,7 @@ export function RoomForm() {
           id="name"
           maxLength={80}
           name="name"
-          placeholder="เช่น ห้องหลังเลิกงาน"
+          placeholder={selectedType.namePlaceholder}
           required
         />
         <FieldErrors id="name-errors" messages={state.fieldErrors?.name} />
@@ -80,19 +89,12 @@ export function RoomForm() {
       </fieldset>
 
       <div className={formStyles.field}>
-        <label className={formStyles.label} htmlFor="avatarUrl">
-          ลิงก์รูปห้อง (ไม่บังคับ)
-        </label>
-        <input
-          aria-describedby={
-            state.fieldErrors?.avatarUrl ? "avatar-url-errors" : undefined
-          }
-          aria-invalid={Boolean(state.fieldErrors?.avatarUrl)}
-          className={formStyles.control}
-          id="avatarUrl"
-          name="avatarUrl"
-          placeholder="วางลิงก์รูปถ้ามี"
-          type="url"
+        <span className={formStyles.label}>รูปห้อง</span>
+        <ImageUploadField
+          helperText={selectedType.imageHelper}
+          initialUrl={null}
+          kind="room"
+          label="เลือกรูปห้อง"
         />
         <FieldErrors
           id="avatar-url-errors"

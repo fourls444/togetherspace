@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Panel } from "@/components/ui/panel";
 import { ROOM_TYPE_LABEL } from "@/lib/rooms/labels";
 import { getRoomPath } from "@/lib/rooms/room-path";
+import { getDefaultImageUrl } from "@/lib/uploads/image-upload";
 import type { RoomType } from "@/lib/types/database";
 import styles from "@/components/rooms/invite-preview.module.css";
 
@@ -31,6 +32,7 @@ export function InvitePreview({
 }: InvitePreviewProps) {
   const [isPending, startTransition] = useTransition();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const avatar = room.avatarUrl?.trim() || getDefaultImageUrl("room");
 
   const handleJoin = () => {
     setErrorMsg(null);
@@ -44,12 +46,8 @@ export function InvitePreview({
     <Panel className={styles.container}>
       <div className={styles.header}>
         <div className={styles.avatar}>
-          {room.avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img alt="" src={room.avatarUrl} />
-          ) : (
-            <span>{room.name.trim().slice(0, 2).toUpperCase()}</span>
-          )}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img alt="" src={avatar} />
         </div>
         <h1 className={styles.title}>{room.name}</h1>
         <p className={styles.inviteHint}>คำเชิญเข้าร่วมห้อง</p>

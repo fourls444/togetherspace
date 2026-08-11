@@ -1,14 +1,14 @@
 import Link from "next/link";
 
-import { MemberList, type MemberListItem } from "@/components/rooms/member-list";
 import styles from "@/components/rooms/room-home.module.css";
+import { MemberList, type MemberListItem } from "@/components/rooms/member-list";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
 import { getRoomHomeModules } from "@/lib/rooms/labels";
 import { getRoomSubPath } from "@/lib/rooms/room-path";
 import { getRoomContext } from "@/lib/rooms/server";
 
-/** หน้าห้อง — คนที่อยู่ + ทางเข้าบอร์ดชัดๆ (แท็บด้านบนมีทางอื่นอยู่แล้ว) */
+/** หน้าแรกของห้อง แสดงทางลัดโมดูลหลักและสมาชิกในห้อง */
 export default async function RoomPage({
   params,
 }: {
@@ -25,81 +25,112 @@ export default async function RoomPage({
           headingLevel={1}
           title="คุณไม่ได้อยู่ในห้องนี้"
         />
-        <ButtonLink href="/dashboard">กลับหน้าแรก</ButtonLink>
+        <ButtonLink href="/dashboard">กลับหน้าหลัก</ButtonLink>
       </div>
     );
   }
 
-  const { currentUserId, room, roomCode, roomId, supabase } = context;
-
-  const membershipsResult = await supabase
-    .from("room_members")
-    .select(
-      "user_id, role, joined_at, profiles(username, display_name, avatar_url)",
-    )
-    .eq("room_id", roomId)
-    .order("joined_at");
+  const { room, roomCode, roomId, supabase } = context;
+  const [membershipsResult, roomProfilesResult] = await Promise.all([
+    supabase
+      .from("room_members")
+      .select(
+        "user_id, role, joined_at, profiles(username, display_name, avatar_url)",
+      )
+      .eq("room_id", roomId)
+      .order("joined_at"),
+    supabase
+      .from("room_profiles")
+      .select("user_id, display_name, avatar_url")
+      .eq("room_id", roomId),
+  ]);
 
   if (membershipsResult.error) {
     return (
-      <ErrorState
-        description="กรุณารีเฟรชหน้าและลองอีกครั้ง"
-        headingLevel={1}
-        title="โหลดรายชื่อไม่สำเร็จ"
-      />
+      <div className={styles.panel}>
+        <ErrorState
+          description="ลองรีเฟรชหน้าอีกครั้ง ถ้ายังไม่ได้ให้ตรวจการเชื่อมต่อกับ Supabase"
+          headingLevel={1}
+          title="โหลดข้อมูลสมาชิกไม่สำเร็จ"
+        />
+      </div>
     );
   }
 
-  const memberships = membershipsResult.data ?? [];
-  const currentMember = memberships.find((m) => m.user_id === currentUserId);
-  const isOwner = currentMember?.role === "owner";
+  const roomProfiles = new Map(
+    (roomProfilesResult.data ?? []).map((profile) => [profile.user_id, profile]),
+  );
+  const members: MemberListItem[] = (membershipsResult.data ?? []).map(
+    (membership) => {
+      const profile = Array.isArray(membership.profiles)
+        ? membership.profiles[0]
+        : membership.profiles;
+      const roomProfile = roomProfiles.get(membership.user_id);
 
-  const members: MemberListItem[] = memberships.map((membership) => {
-    const profile = Array.isArray(membership.profiles)
-      ? membership.profiles[0]
-      : membership.profiles;
-    return {
-      userId: membership.user_id,
-      displayName: profile?.display_name ?? "ไม่พบชื่อสมาชิก",
-      username: profile?.username ?? "unknown",
-      role: membership.role,
-    };
-  });
+      return {
+        avatarUrl: roomProfile?.avatar_url ?? profile?.avatar_url ?? null,
+        displayName:
+          roomProfile?.display_name ??
+          profile?.display_name ??
+          "ไม่พบชื่อสมาชิก",
+        role: membership.role,
+        userId: membership.user_id,
+        username: profile?.username ?? "unknown",
+      };
+    },
+  );
   const previewMembers = members.slice(0, 4);
-  const boardModule =
-    getRoomHomeModules(room.type).find((module) => module.key === "board") ??
-    getRoomHomeModules(room.type)[0];
+  const modules = getRoomHomeModules(room.type).filter((module) =>
+    ["calendar", "album", "board"].includes(module.key),
+  );
 
   return (
     <div className={styles.stack}>
-      <Link
-        className={styles.spotlight}
-        href={getRoomSubPath(roomCode, boardModule.href)}
-        prefetch
-      >
-        <p className={styles.spotlightKicker}>มุมหลักของห้อง</p>
-        <h2 className={styles.spotlightTitle}>{boardModule.title}</h2>
-        <p className={styles.spotlightText}>{boardModule.description}</p>
-        <span className={styles.spotlightCta}>เปิดบอร์ด →</span>
-      </Link>
-
-      <section className={styles.presence} aria-label="คนในห้อง">
-        <div className={styles.presenceHead}>
-          <h2 className={styles.blockTitle}>ใครอยู่ในห้อง</h2>
-          <p className={styles.blockMeta}>
-            {memberships.length} คน · รหัส {roomCode}
-          </p>
+      <section className={styles.modulePanel} aria-label="พื้นที่ในห้อง">
+        <div className={styles.modulePanelHead}>
+          <div>
+            <p className={styles.kicker}>พื้นที่ในห้อง</p>
+            <h2 className={styles.blockTitle}>เลือกสิ่งที่อยากทำต่อ</h2>
+          </div>
         </div>
-        <MemberList members={previewMembers} />
+        <div className={styles.moduleGrid}>
+          {modules.map((module) => (
+            <Link
+              className={styles.moduleCard}
+              href={getRoomSubPath(roomCode, module.href)}
+              key={module.key}
+              prefetch
+            >
+              <span className={styles.moduleBadge}>{module.key}</span>
+              <h3>{module.title}</h3>
+              <p>{module.description}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.presence} aria-label="สมาชิกในห้อง">
+        <div className={styles.presenceHead}>
+          <div>
+            <p className={styles.kicker}>สมาชิก</p>
+            <h2 className={styles.blockTitle}>สมาชิกในห้อง</h2>
+          </div>
+          <p className={styles.presenceMeta}>{members.length} คน</p>
+        </div>
+        <div className={styles.memberFrame}>
+          {previewMembers.length > 0 ? (
+            <MemberList members={previewMembers} />
+          ) : (
+            <p className={styles.emptyText}>ยังไม่มีรายชื่อสมาชิกให้แสดง</p>
+          )}
+        </div>
         <div className={styles.presenceActions}>
           <ButtonLink href={getRoomSubPath(roomCode, "members")}>
-            ดูทุกคน
+            ดูสมาชิกทั้งหมด
           </ButtonLink>
-          {isOwner ? (
-            <ButtonLink href={getRoomSubPath(roomCode, "settings")}>
-              เชิญคนเข้ามา
-            </ButtonLink>
-          ) : null}
+          <ButtonLink href={getRoomSubPath(roomCode, "settings")}>
+            ตั้งค่าห้อง
+          </ButtonLink>
         </div>
       </section>
     </div>
