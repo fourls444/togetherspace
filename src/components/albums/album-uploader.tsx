@@ -1,19 +1,15 @@
 "use client";
 
 import {
-  startTransition,
-  useActionState,
-  useEffect,
   useRef,
   useState,
+  useTransition,
   type FormEvent,
 } from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  saveAlbumPhotos,
-  type AlbumActionState,
-} from "@/features/albums/actions";
+import { Toast } from "@/components/ui/toast";
+import { saveAlbumPhotos } from "@/features/albums/actions";
 import { createClient } from "@/lib/supabase/client";
 import {
   createImageObjectPath,
@@ -62,35 +58,23 @@ export function AlbumUploader({
 }: AlbumUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [clientError, setClientError] = useState<string | null>(null);
+  const [isSaving, startSavingTransition] = useTransition();
+  const [isUploadingStorage, setIsUploadingStorage] = useState(false);
   const [open, setOpen] = useState(false);
   const [selectedFileCount, setSelectedFileCount] = useState(0);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [state, formAction, pending] = useActionState<
-    AlbumActionState,
-    FormData
-  >(saveAlbumPhotos, {});
-
-  useEffect(() => {
-    if (!state.success) return;
-
-    if (fileInputRef.current) fileInputRef.current.value = "";
-    const closeTimer = window.setTimeout(() => {
-      setOpen(false);
-      setShowSuccess(true);
-      setSelectedFileCount(0);
-    }, 250);
-    const successTimer = window.setTimeout(() => setShowSuccess(false), 2600);
-
-    return () => {
-      window.clearTimeout(closeTimer);
-      window.clearTimeout(successTimer);
-    };
-  }, [state.success]);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<{
+    completed: number;
+    total: number;
+  } | null>(null);
+  const pending = isUploadingStorage || isSaving;
 
   /** อัปโหลดไฟล์ขึ้น Storage ก่อน แล้วส่ง metadata ไปบันทึกในฐานข้อมูล */
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setClientError(null);
+    setServerError(null);
 
     const form = event.currentTarget;
     const formData = new FormData(form);
@@ -98,6 +82,11 @@ export function AlbumUploader({
 
     if (!files.length) {
       setClientError("กรุณาเลือกรูปอย่างน้อย 1 รูป");
+      return;
+    }
+
+    if (files.length > 20) {
+      setClientError("อัปโหลดได้สูงสุดครั้งละ 20 รูป");
       return;
     }
 
@@ -110,6 +99,8 @@ export function AlbumUploader({
     const supabase = createClient();
     const bucket = getImageUploadBucket("album");
     const uploadedPhotos: UploadedPhoto[] = [];
+    setIsUploadingStorage(true);
+    setUploadProgress({ completed: 0, total: files.length });
 
     for (const [index, file] of files.entries()) {
       const storagePath = createImageObjectPath({
@@ -132,6 +123,8 @@ export function AlbumUploader({
             .from(bucket)
             .remove(uploadedPhotos.map((photo) => photo.storagePath));
         }
+        setIsUploadingStorage(false);
+        setUploadProgress(null);
         return;
       }
 
@@ -140,7 +133,10 @@ export function AlbumUploader({
         imageUrl: data.publicUrl,
         storagePath,
       });
+      setUploadProgress({ completed: index + 1, total: files.length });
     }
+
+    setIsUploadingStorage(false);
 
     const payload = new FormData();
     payload.set("roomId", roomId);
@@ -149,7 +145,29 @@ export function AlbumUploader({
     payload.set("takenAt", String(formData.get("takenAt") ?? ""));
     payload.set("photosJson", JSON.stringify(uploadedPhotos));
 
-    startTransition(() => formAction(payload));
+    startSavingTransition(async () => {
+      const result = await saveAlbumPhotos({}, payload);
+      if (result.error || result.fieldErrors) {
+        await supabase.storage
+          .from(bucket)
+          .remove(uploadedPhotos.map((photo) => photo.storagePath));
+        setServerError(
+          result.error ??
+            result.fieldErrors?.photosJson?.[0] ??
+            result.fieldErrors?.takenAt?.[0] ??
+            result.fieldErrors?.caption?.[0] ??
+            "บันทึกรูปไม่สำเร็จ",
+        );
+        setUploadProgress(null);
+        return;
+      }
+
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      setOpen(false);
+      setSelectedFileCount(0);
+      setUploadProgress(null);
+      setToast("อัปโหลดรูปเรียบร้อยแล้ว");
+    });
   }
 
   return (
@@ -157,14 +175,13 @@ export function AlbumUploader({
       <Button onClick={() => setOpen(true)} type="button" variant="primary">
         อัปโหลดภาพ
       </Button>
-      {showSuccess ? (
-        <p className={styles.successToast}>อัปโหลดรูปเรียบร้อยแล้ว</p>
-      ) : null}
 
       {open ? (
         <div
           className={styles.modalOverlay}
-          onClick={() => setOpen(false)}
+          onClick={() => {
+            if (!pending) setOpen(false);
+          }}
           role="presentation"
         >
           <form
@@ -183,6 +200,7 @@ export function AlbumUploader({
               <button
                 aria-label="ปิดหน้าต่างอัปโหลด"
                 className={styles.closeButton}
+                disabled={pending}
                 onClick={() => setOpen(false)}
                 type="button"
               >
@@ -231,14 +249,15 @@ export function AlbumUploader({
               />
             </label>
 
-            {clientError || state.error ? (
-              <p className={styles.error}>{clientError ?? state.error}</p>
-            ) : null}
-            {state.fieldErrors?.photosJson ? (
-              <p className={styles.error}>{state.fieldErrors.photosJson[0]}</p>
+            {clientError || serverError ? (
+              <p className={styles.error}>{clientError ?? serverError}</p>
             ) : null}
             {pending ? (
-              <p className={styles.uploadStatus}>กำลังอัปโหลดรูป...</p>
+              <p className={styles.uploadStatus}>
+                {isUploadingStorage && uploadProgress
+                  ? `กำลังอัปโหลด ${uploadProgress.completed} / ${uploadProgress.total} รูป`
+                  : "กำลังบันทึกรูปลงอัลบั้ม…"}
+              </p>
             ) : null}
 
             <Button
@@ -252,6 +271,11 @@ export function AlbumUploader({
           </form>
         </div>
       ) : null}
+      <Toast
+        message={toast}
+        onDismiss={() => setToast(null)}
+        tone="success"
+      />
     </div>
   );
 }

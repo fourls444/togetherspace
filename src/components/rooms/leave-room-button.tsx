@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 
 import { leaveRoom } from "@/features/members/actions";
 import { Button } from "@/components/ui/button";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { Toast } from "@/components/ui/toast";
 
 type LeaveRoomButtonProps = {
   roomId: string;
@@ -11,44 +13,45 @@ type LeaveRoomButtonProps = {
 
 export function LeaveRoomButton({ roomId }: LeaveRoomButtonProps) {
   const [isPending, startTransition] = useTransition();
+  const [open, setOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  /** ออกจากห้องหลังยืนยันและแสดงข้อผิดพลาดหากระบบไม่อนุญาต */
   const handleLeave = () => {
-    if (!confirm("คุณแน่ใจหรือไม่ว่าต้องการออกจากห้องนี้?")) return;
     setErrorMsg(null);
     startTransition(async () => {
       const res = await leaveRoom(roomId);
-      if (res?.error) setErrorMsg(res.error);
+      if (res?.error) {
+        setOpen(false);
+        setErrorMsg(res.error);
+      }
     });
   };
 
   return (
     <div>
-      {errorMsg ? (
-        <p
-          style={{
-            color: "var(--color-error-text)",
-            background: "var(--color-error-surface)",
-            border: "1px solid var(--color-error-border)",
-            padding: "0.75rem",
-            borderRadius: "var(--radius-control)",
-            marginBottom: "1rem",
-            fontSize: "0.875rem",
-          }}
-        >
-          {errorMsg}
-        </p>
-      ) : null}
       <Button
-        disabled={isPending}
-        onClick={handleLeave}
-        pending={isPending}
-        pendingText="กำลังออกจากห้อง…"
+        onClick={() => setOpen(true)}
         type="button"
         variant="danger"
       >
         ออกจากห้อง
       </Button>
+      <ConfirmationDialog
+        confirmLabel="ออกจากห้อง"
+        description="คุณจะเข้าถึงข้อมูลในห้องนี้ไม่ได้จนกว่าจะเข้าร่วมอีกครั้งด้วยรหัสหรือคำเชิญ"
+        isPending={isPending}
+        onCancel={() => setOpen(false)}
+        onConfirm={handleLeave}
+        open={open}
+        title="ออกจากห้องนี้?"
+        variant="danger"
+      />
+      <Toast
+        message={errorMsg}
+        onDismiss={() => setErrorMsg(null)}
+        tone="error"
+      />
     </div>
   );
 }

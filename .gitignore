@@ -46,3 +46,6 @@ next-env.d.ts
 
 # Impeccable (local tooling — เพื่อนในทีมไม่ได้ใช้)
 .impeccable/
+
+# Superpowers local planning notes
+.superpowers/

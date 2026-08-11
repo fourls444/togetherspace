@@ -81,7 +81,7 @@ export default async function RoomPage({
   );
   const previewMembers = members.slice(0, 4);
   const modules = getRoomHomeModules(room.type).filter((module) =>
-    ["calendar", "album", "board"].includes(module.key),
+    ["calendar", "map", "album", "board"].includes(module.key),
   );
 
   return (

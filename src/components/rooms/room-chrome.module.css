@@ -113,7 +113,7 @@
   min-width: min(100%, 17rem);
 }
 
-.headerFacts div {
+.factCard {
   display: grid;
   gap: 0.15rem;
   min-width: 0;
@@ -123,7 +123,7 @@
   background: color-mix(in srgb, var(--color-background) 24%, transparent);
 }
 
-.headerFacts span {
+.factCard > span:first-child {
   color: var(--color-text-muted);
   font-size: var(--font-size-mark);
   font-weight: 800;

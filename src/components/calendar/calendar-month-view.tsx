@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useState } from "react";
 
 import { CalendarEventModal } from "@/components/calendar/calendar-event-modal";
 import { CalendarEventEditor } from "@/components/calendar/calendar-event-editor";
 import styles from "@/components/calendar/calendar.module.css";
 import {
+  formatEventCountLabel,
   formatThaiCalendarPanelDate,
-  getCalendarEventForeground,
   type CalendarDayMarkers,
   type CalendarEventMarker,
 } from "@/lib/calendar/calendar";
@@ -33,13 +33,6 @@ type CalendarMonthViewProps = {
   weekdays: string[];
   weeks: CalendarMonthDayView[][];
 };
-
-function markerStyle(color: string) {
-  return {
-    "--event-color": color,
-    "--event-foreground": getCalendarEventForeground(color),
-  } as CSSProperties;
-}
 
 function findSelectedMarkers(
   weeks: CalendarMonthDayView[][],
@@ -146,14 +139,7 @@ export function CalendarMonthView({
 
                     return (
                       <li className={styles.listItem} key={event.id}>
-                        <div className={styles.itemHead}>
-                          <span
-                            aria-hidden
-                            className={styles.dot}
-                            style={markerStyle(event.color)}
-                          />
-                          <p className={styles.itemTitle}>{event.title}</p>
-                        </div>
+                        <p className={styles.itemTitle}>{event.title}</p>
                         {detail?.description ? (
                           <p className={styles.itemText}>
                             {detail.description}
@@ -199,22 +185,19 @@ function MonthDayButton({
   onSelect: (dateKey: string) => void;
   selected: boolean;
 }) {
-  const visibleEvents = day.markers.events.slice(0, 5);
   const visibleHoliday = day.markers.holidays.at(0);
   const hiddenHolidayCount = Math.max(
     0,
     day.markers.holidays.length - (visibleHoliday ? 1 : 0),
   );
-  const hiddenEventCount = Math.max(
-    0,
-    day.markers.events.length - visibleEvents.length,
-  );
+  const eventCountLabel = formatEventCountLabel(day.markers.events.length);
 
   return (
     <button
       className={[
         styles.day,
         day.isCurrentMonth ? "" : styles.dayMuted,
+        eventCountLabel ? styles.dayHasEvents : "",
         selected ? styles.daySelected : "",
         day.isToday ? styles.dayToday : "",
       ]
@@ -233,18 +216,9 @@ function MonthDayButton({
             {hiddenHolidayCount > 0 ? ` +${hiddenHolidayCount}` : ""}
           </span>
         ) : null}
-        <span className={styles.monthEventDots}>
-          {visibleEvents.map((event) => (
-            <span
-              className={styles.monthEventDot}
-              key={event.id}
-              style={markerStyle(event.color)}
-            />
-          ))}
-          {hiddenEventCount > 0 ? (
-            <span className={styles.monthMoreDot}>+{hiddenEventCount}</span>
-          ) : null}
-        </span>
+        {eventCountLabel ? (
+          <span className={styles.monthEventCount}>{eventCountLabel}</span>
+        ) : null}
       </span>
     </button>
   );

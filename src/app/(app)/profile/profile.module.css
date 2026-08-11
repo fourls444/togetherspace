@@ -1,10 +1,10 @@
 .wrap {
-  width: min(100%, 32rem);
+  width: min(100%, 52rem);
   margin-inline: auto;
 }
 
 .backButton {
-  display: inline-block;
+  display: inline-flex;
   margin-bottom: 1rem;
 }
 
@@ -55,4 +55,42 @@
   background: color-mix(in srgb, var(--color-primary-soft) 70%, var(--color-surface));
   border: 1px solid color-mix(in srgb, var(--color-primary) 40%, var(--color-border));
   border-radius: var(--radius-control);
+}
+
+.editorForm {
+  display: grid;
+  grid-template-columns: minmax(9rem, 11rem) minmax(0, 1fr);
+  gap: 1.35rem 1.75rem;
+  align-items: start;
+}
+
+.avatarColumn,
+.identityFields {
+  min-width: 0;
+}
+
+.identityFields {
+  display: grid;
+  width: min(100%, 28rem);
+  gap: 1.25rem;
+}
+
+.formMessage,
+.saveButton {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 40rem) {
+  .editorForm {
+    grid-template-columns: 1fr;
+  }
+
+  .avatarColumn {
+    width: min(100%, 12rem);
+  }
+
+  .formMessage,
+  .saveButton {
+    grid-column: auto;
+  }
 }

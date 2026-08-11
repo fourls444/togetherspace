@@ -296,7 +296,6 @@ export type Database = {
           title: string;
           description: string | null;
           event_date: string;
-          color: string;
           created_by: string;
           created_at: string;
           updated_at: string;
@@ -307,7 +306,6 @@ export type Database = {
           title: string;
           description?: string | null;
           event_date: string;
-          color?: string;
           created_by: string;
           created_at?: string;
           updated_at?: string;
@@ -316,7 +314,41 @@ export type Database = {
           title?: string;
           description?: string | null;
           event_date?: string;
-          color?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      room_places: {
+        Row: {
+          id: string;
+          room_id: string;
+          name: string;
+          description: string | null;
+          latitude: number;
+          longitude: number;
+          place_date: string | null;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          room_id: string;
+          name: string;
+          description?: string | null;
+          latitude: number;
+          longitude: number;
+          place_date?: string | null;
+          created_by: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          name?: string;
+          description?: string | null;
+          latitude?: number;
+          longitude?: number;
+          place_date?: string | null;
           updated_at?: string;
         };
         Relationships: [];

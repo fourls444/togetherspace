@@ -6,3 +6,4 @@ export * from "./room-invites";
 export * from "./boards";
 export * from "./calendar";
 export * from "./albums";
+export * from "./places";

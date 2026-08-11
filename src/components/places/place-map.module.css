@@ -1,0 +1,328 @@
+.page {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.hero {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  background:
+    radial-gradient(
+      circle at right top,
+      color-mix(in srgb, var(--color-primary) 16%, transparent),
+      transparent 38%
+    ),
+    color-mix(in srgb, var(--color-surface) 94%, transparent);
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-display), var(--font-display-thai), serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 500;
+  line-height: 1.05;
+}
+
+.description {
+  max-width: 52rem;
+  margin: 0.55rem 0 0;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(20rem, 0.65fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.mapPanel,
+.sidePanel {
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  box-shadow: var(--shadow-panel);
+}
+
+.mapPanel {
+  overflow: hidden;
+}
+
+.mapFrame {
+  position: relative;
+}
+
+.map {
+  width: 100%;
+  min-height: min(64vh, 38rem);
+  background: var(--color-muted-surface);
+}
+
+.mapLoading {
+  display: grid;
+  min-height: min(64vh, 38rem);
+  place-items: center;
+  color: var(--color-text-muted);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-panel);
+  background: var(--color-muted-surface);
+}
+
+.placeMarker {
+  display: grid;
+  place-items: center;
+}
+
+.placeMarker span {
+  display: block;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 3px solid var(--color-primary-text);
+  border-radius: 999px 999px 999px 0;
+  background: var(--color-primary);
+  box-shadow: 0 8px 18px rgb(8 10 24 / 0.35);
+  transform: rotate(-45deg);
+}
+
+.draftMarker {
+  display: grid;
+  place-items: center;
+}
+
+.draftMarker span {
+  display: block;
+  width: 1.3rem;
+  height: 1.3rem;
+  border: 3px solid var(--color-text);
+  border-radius: 999px 999px 999px 0;
+  background: var(--color-primary-hover);
+  box-shadow:
+    0 0 0 5px color-mix(in srgb, var(--color-primary) 24%, transparent),
+    0 10px 22px rgb(8 10 24 / 0.38);
+  transform: rotate(-45deg);
+}
+
+.userMarker {
+  display: grid;
+  place-items: center;
+}
+
+.userMarker span {
+  display: block;
+  width: 1rem;
+  height: 1rem;
+  border: 3px solid var(--color-text);
+  border-radius: 999px;
+  background: #62a7ff;
+  box-shadow:
+    0 0 0 6px rgb(98 167 255 / 0.24),
+    0 8px 18px rgb(8 10 24 / 0.34);
+}
+
+.mapControls {
+  position: absolute;
+  z-index: 450;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  max-width: calc(100% - 2rem);
+  pointer-events: none;
+}
+
+.mapControls span {
+  display: grid;
+  width: 2.45rem;
+  height: 2.45rem;
+  place-items: center;
+  color: var(--color-primary-text);
+  font-size: 1.05rem;
+  font-weight: 700;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--color-muted-surface) 94%, transparent);
+  box-shadow: 0 8px 20px rgb(8 10 24 / 0.24);
+  pointer-events: none;
+}
+
+.mapControlButton,
+.locationButton {
+  min-height: 2.4rem;
+  padding: 0.55rem 0.85rem;
+  cursor: pointer;
+  color: var(--color-primary-text);
+  font: inherit;
+  font-weight: 800;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-control);
+  background: var(--color-primary);
+}
+
+.mapControlButton {
+  display: grid;
+  width: 2.45rem;
+  min-height: 2.45rem;
+  padding: 0;
+  place-items: center;
+  font-size: 1.25rem;
+  line-height: 1;
+  pointer-events: auto;
+}
+
+.mapControlButton:hover,
+.locationButton:hover {
+  background: var(--color-primary-hover);
+}
+
+.locationButton:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.sidePanel {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.25rem;
+}
+
+.sectionHeader {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.25rem;
+}
+
+.sectionHeader p {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.65;
+}
+
+.placeForm {
+  display: grid;
+  gap: 1rem;
+}
+
+.locationActions {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.locationMessage {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.selectedPinBox {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 30%, var(--color-border));
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--color-primary-soft) 48%, transparent);
+}
+
+.selectedPinBox span {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.selectedPinBox strong {
+  color: var(--color-text);
+}
+
+.selectedPinBox p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.placeList {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.placeItem {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--color-muted-surface) 72%, transparent);
+}
+
+.placeItem h3,
+.placeItem p {
+  margin: 0;
+}
+
+.placeItem h3 {
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.placeItem p,
+.placeMeta {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.emptyState {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+  .hero {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .map {
+    min-height: 28rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .mapControls {
+    right: 0.75rem;
+    left: 0.75rem;
+  }
+
+  .mapControls span {
+    width: 100%;
+  }
+}

@@ -3,6 +3,7 @@ import { Anuphan, DM_Sans, Instrument_Serif, Taviraj } from "next/font/google";
 
 import "@/styles/tokens.css";
 import "@/styles/base.css";
+import "leaflet/dist/leaflet.css";
 
 const dmSans = DM_Sans({
   variable: "--font-sans",

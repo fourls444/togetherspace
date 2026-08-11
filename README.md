@@ -1,6 +1,6 @@
 # TogetherSpace
 
-เว็บสำหรับสร้างพื้นที่ร่วมกันและจัดการสมาชิกในห้อง ปัจจุบันรองรับ Supabase Signup/Login, Dashboard, การสร้างห้อง, การเข้าร่วมห้อง, คำเชิญ, การจัดการสมาชิกขั้นพื้นฐาน และ Board MVP
+เว็บพื้นที่ร่วมสำหรับกลุ่มเพื่อน คู่รัก และครอบครัว รองรับการจัดการห้อง สมาชิก คำเชิญ บอร์ด ปฏิทิน และอัลบั้มรูป
 
 ## Requirements
 
@@ -34,10 +34,12 @@ Copy-Item .env.example .env.local
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 DATABASE_URL=
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 - Project URL และ Publishable key อยู่ใน Supabase Dashboard → Settings → API Keys
 - Database URL อยู่ในปุ่ม Connect ของ Supabase Dashboard
+- App URL ใช้ `http://localhost:3000` สำหรับเครื่องนักพัฒนา และเปลี่ยนเป็นโดเมนจริงตอนนำขึ้นใช้งาน
 - ห้าม commit `.env.local`
 
 นำ database migrations ไปใช้:
@@ -104,7 +106,20 @@ docs/         design specs และ implementation plans
 - เข้าร่วมห้องด้วย Room Code หรือ Invite Code
 - สร้าง/ยกเลิกคำเชิญ และเปิดลิงก์คำเชิญพร้อมหน้า Preview ก่อนเข้าร่วม
 - จัดการสมาชิกขั้นพื้นฐาน เช่น เปลี่ยน role, ลบสมาชิก และออกจากห้อง
-- Board MVP สำหรับ note, checklist และ poll
+- แก้ชื่อและรูปห้อง โดยประเภทห้องเปลี่ยนไม่ได้หลังสร้าง
+- อัปโหลดและครอปรูปโปรไฟล์ รูปประจำห้อง และรูปอัลบั้ม
+- Board สำหรับ note, checklist และ poll พร้อมแก้ไข เก็บบอร์ด และตั้งโหมดโหวต
+- Calendar รายเดือน/รายปี วันสำคัญของไทย และจัดการกิจกรรมของห้อง
+- Album อัปโหลดหลายรูป แก้ข้อมูล ลบ ดูรูปขนาดใหญ่ และลากเรียงลำดับ
+- กล่องยืนยันและข้อความแจ้งผลแบบเดียวกันในหน้าจัดการสำคัญ
 - Row Level Security
 
-ยังไม่รวม Upload, Realtime, Notification, Calendar, Album, Map, Finance, Chat, drag-and-drop board และ UI ตาม Figma ฉบับสมบูรณ์
+ยังไม่รวม Realtime, Notification, Map, Finance, Chat, การเชื่อมรูปอัลบั้มกับปฏิทิน, drag-and-drop board และหน้ากู้คืนบอร์ดที่เก็บไว้
+
+### Storage buckets
+
+สร้าง bucket ต่อไปนี้ใน Supabase และใช้นโยบายสิทธิ์ตาม migrations ของโปรเจกต์:
+
+- `togetherspace-profile-images`
+- `togetherspace-room-images`
+- `togetherspace-album-images`

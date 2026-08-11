@@ -5,13 +5,18 @@ import { redirect } from "next/navigation";
 
 import {
   archiveBoardItemSchema,
+  createChecklistItemSchema,
   createChecklistSchema,
   createNoteSchema,
+  createPollOptionSchema,
   createPollSchema,
+  deleteChecklistItemSchema,
+  deletePollOptionSchema,
   toggleChecklistSchema,
   updateBoardItemSchema,
   updateChecklistItemSchema,
   updatePollOptionSchema,
+  updatePollSettingsSchema,
   votePollSchema,
 } from "@/features/boards/validation";
 import { getRoomSubPath, isRoomCode } from "@/lib/rooms/room-path";
@@ -26,6 +31,11 @@ export type BoardActionState = {
     pollVoteMode?: string[];
     pollOptions?: string[];
   };
+  success?: boolean;
+};
+
+export type BoardMutationState = {
+  error?: string;
   success?: boolean;
 };
 
@@ -70,11 +80,7 @@ async function archivePartialBoardItem(boardItemId: string) {
 /** สร้าง card หลักของ board แล้วคืน id สำหรับสร้างข้อมูลย่อยตามประเภท */
 async function createBoardItem(payload: BoardItemInsert) {
   const supabase = await createClient();
-  return supabase
-    .from("board_items")
-    .insert(payload)
-    .select("id")
-    .single();
+  return supabase.from("board_items").insert(payload).select("id").single();
 }
 
 /** เพิ่ม note card แบบข้อความธรรมดาลงใน board */
@@ -150,7 +156,9 @@ export async function createChecklist(
 
   if (checklistError) {
     await archivePartialBoardItem(item.id);
-    return { error: "เพิ่มรายการ checklist ไม่สำเร็จ: " + checklistError.message };
+    return {
+      error: "เพิ่มรายการ checklist ไม่สำเร็จ: " + checklistError.message,
+    };
   }
 
   revalidatePath(getBoardPath(formData, result.data.roomId));
@@ -208,33 +216,39 @@ export async function createPoll(
 }
 
 /** เปลี่ยนสถานะเสร็จ/ไม่เสร็จของ checklist item */
-export async function toggleChecklistItem(formData: FormData) {
+export async function toggleChecklistItem(
+  formData: FormData,
+): Promise<BoardMutationState> {
   const result = toggleChecklistSchema.safeParse({
     roomId: formData.get("roomId"),
     checklistItemId: formData.get("checklistItemId"),
     isDone: formData.get("isDone"),
   });
 
-  if (!result.success) return;
+  if (!result.success) return { error: "ข้อมูล checklist ไม่ถูกต้อง" };
 
   const { supabase } = await requireUserId();
-  await supabase
+  const { error } = await supabase
     .from("board_checklist_items")
     .update({ is_done: result.data.isDone })
     .eq("id", result.data.checklistItemId);
 
-  revalidatePath(getBoardPath(formData, result.data.roomId));
+  if (error) return { error: "เปลี่ยนสถานะไม่สำเร็จ: " + error.message };
+
+  return { success: true };
 }
 
 /** บันทึกหรือยกเลิกคะแนนโหวต โดยยกเลิกโหวตได้เสมอและเคารพจำนวนโหวตสูงสุดของ poll card */
-export async function votePollOption(formData: FormData) {
+export async function votePollOption(
+  formData: FormData,
+): Promise<BoardMutationState> {
   const result = votePollSchema.safeParse({
     roomId: formData.get("roomId"),
     boardItemId: formData.get("boardItemId"),
     optionId: formData.get("optionId"),
   });
 
-  if (!result.success) return;
+  if (!result.success) return { error: "ข้อมูลการโหวตไม่ถูกต้อง" };
 
   const { supabase, userId } = await requireUserId();
 
@@ -245,7 +259,7 @@ export async function votePollOption(formData: FormData) {
     .eq("item_type", "poll")
     .maybeSingle();
 
-  if (!poll) return;
+  if (!poll) return { error: "ไม่พบโพลที่ต้องการโหวต" };
 
   const { data: options } = await supabase
     .from("board_poll_options")
@@ -253,7 +267,9 @@ export async function votePollOption(formData: FormData) {
     .eq("board_item_id", result.data.boardItemId);
 
   const optionIds = options?.map((option) => option.id) ?? [];
-  if (!optionIds.includes(result.data.optionId)) return;
+  if (!optionIds.includes(result.data.optionId)) {
+    return { error: "ไม่พบตัวเลือกที่ต้องการโหวต" };
+  }
 
   const { data: currentVotes } = await supabase
     .from("board_poll_votes")
@@ -261,19 +277,19 @@ export async function votePollOption(formData: FormData) {
     .eq("user_id", userId)
     .in("option_id", optionIds);
 
-  const votedOptionIds =
-    currentVotes?.map((vote) => vote.option_id) ?? [];
+  const votedOptionIds = currentVotes?.map((vote) => vote.option_id) ?? [];
   const hasVotedThisOption = votedOptionIds.includes(result.data.optionId);
 
   if (hasVotedThisOption) {
-    await supabase
+    const { error } = await supabase
       .from("board_poll_votes")
       .delete()
       .eq("option_id", result.data.optionId)
       .eq("user_id", userId);
 
-    revalidatePath(getBoardPath(formData, result.data.roomId));
-    return;
+    if (error) return { error: "ยกเลิกโหวตไม่สำเร็จ: " + error.message };
+
+    return { success: true };
   }
 
   if (poll.poll_max_votes_per_user <= 1 && votedOptionIds.length) {
@@ -288,40 +304,48 @@ export async function votePollOption(formData: FormData) {
     poll.poll_max_votes_per_user > 1 &&
     votedOptionIds.length >= poll.poll_max_votes_per_user
   ) {
-    revalidatePath(getBoardPath(formData, result.data.roomId));
-    return;
+    return { error: "คุณใช้จำนวนโหวตครบแล้ว" };
   }
 
-  await supabase
+  const { error } = await supabase
     .from("board_poll_votes")
     .upsert(
       { option_id: result.data.optionId, user_id: userId },
       { ignoreDuplicates: true },
     );
 
-  revalidatePath(getBoardPath(formData, result.data.roomId));
+  if (error) return { error: "บันทึกโหวตไม่สำเร็จ: " + error.message };
+
+  return { success: true };
 }
 
 /** Archive board item แทนการลบจริง เพื่อให้กู้แนวคิดกลับมาได้ในอนาคต */
-export async function archiveBoardItem(formData: FormData) {
+export async function archiveBoardItem(
+  formData: FormData,
+): Promise<BoardMutationState> {
   const result = archiveBoardItemSchema.safeParse({
     roomId: formData.get("roomId"),
     boardItemId: formData.get("boardItemId"),
   });
 
-  if (!result.success) return;
+  if (!result.success) return { error: "ข้อมูลรายการไม่ถูกต้อง" };
 
   const { supabase } = await requireUserId();
-  await supabase
+  const { error } = await supabase
     .from("board_items")
     .update({ archived_at: new Date().toISOString() })
     .eq("id", result.data.boardItemId);
 
+  if (error) return { error: "เก็บรายการไม่สำเร็จ: " + error.message };
+
   revalidatePath(getBoardPath(formData, result.data.roomId));
+  return { success: true };
 }
 
 /** แก้หัวข้อและรายละเอียดของ card หลักโดยไม่เปลี่ยนประเภทของ card */
-export async function updateBoardItem(formData: FormData) {
+export async function updateBoardItem(
+  formData: FormData,
+): Promise<BoardMutationState> {
   const result = updateBoardItemSchema.safeParse({
     roomId: formData.get("roomId"),
     boardItemId: formData.get("boardItemId"),
@@ -329,54 +353,221 @@ export async function updateBoardItem(formData: FormData) {
     body: formData.get("body"),
   });
 
-  if (!result.success) return;
+  if (!result.success) {
+    return { error: result.error.issues[0]?.message ?? "ข้อมูลไม่ถูกต้อง" };
+  }
 
   const { supabase } = await requireUserId();
-  await supabase
+  const { error } = await supabase
     .from("board_items")
     .update({
       title: result.data.title,
       body: result.data.body,
+      updated_at: new Date().toISOString(),
     })
     .eq("id", result.data.boardItemId);
 
+  if (error) return { error: "บันทึกรายการไม่สำเร็จ: " + error.message };
+
   revalidatePath(getBoardPath(formData, result.data.roomId));
+  return { success: true };
 }
 
 /** แก้ข้อความของ checklist item รายการเดียว */
-export async function updateChecklistItem(formData: FormData) {
+export async function updateChecklistItem(
+  formData: FormData,
+): Promise<BoardMutationState> {
   const result = updateChecklistItemSchema.safeParse({
     roomId: formData.get("roomId"),
     checklistItemId: formData.get("checklistItemId"),
     text: formData.get("text"),
   });
 
-  if (!result.success) return;
+  if (!result.success) {
+    return { error: result.error.issues[0]?.message ?? "ข้อมูลไม่ถูกต้อง" };
+  }
 
   const { supabase } = await requireUserId();
-  await supabase
+  const { error } = await supabase
     .from("board_checklist_items")
     .update({ text: result.data.text })
     .eq("id", result.data.checklistItemId);
 
+  if (error) return { error: "บันทึกรายการไม่สำเร็จ: " + error.message };
+
   revalidatePath(getBoardPath(formData, result.data.roomId));
+  return { success: true };
 }
 
 /** แก้ label ของ poll option รายการเดียว */
-export async function updatePollOption(formData: FormData) {
+export async function updatePollOption(
+  formData: FormData,
+): Promise<BoardMutationState> {
   const result = updatePollOptionSchema.safeParse({
     roomId: formData.get("roomId"),
     optionId: formData.get("optionId"),
     label: formData.get("label"),
   });
 
-  if (!result.success) return;
+  if (!result.success) {
+    return { error: result.error.issues[0]?.message ?? "ข้อมูลไม่ถูกต้อง" };
+  }
 
   const { supabase } = await requireUserId();
-  await supabase
+  const { error } = await supabase
     .from("board_poll_options")
     .update({ label: result.data.label })
     .eq("id", result.data.optionId);
 
+  if (error) return { error: "บันทึกตัวเลือกไม่สำเร็จ: " + error.message };
+
   revalidatePath(getBoardPath(formData, result.data.roomId));
+  return { success: true };
+}
+
+/** เพิ่มรายการย่อยใหม่ต่อท้าย checklist เดิม */
+export async function createChecklistItem(
+  formData: FormData,
+): Promise<BoardMutationState> {
+  const result = createChecklistItemSchema.safeParse({
+    roomId: formData.get("roomId"),
+    boardItemId: formData.get("boardItemId"),
+    text: formData.get("text"),
+  });
+  if (!result.success) {
+    return { error: result.error.issues[0]?.message ?? "ข้อมูลไม่ถูกต้อง" };
+  }
+
+  const { supabase } = await requireUserId();
+  const { data: items, error: readError } = await supabase
+    .from("board_checklist_items")
+    .select("sort_order")
+    .eq("board_item_id", result.data.boardItemId)
+    .order("sort_order", { ascending: false });
+  if (readError) return { error: "อ่านรายการเดิมไม่สำเร็จ" };
+  if ((items?.length ?? 0) >= 30) {
+    return { error: "Checklist ใส่ได้ไม่เกิน 30 รายการ" };
+  }
+
+  const { error } = await supabase.from("board_checklist_items").insert({
+    board_item_id: result.data.boardItemId,
+    text: result.data.text,
+    sort_order: (items?.[0]?.sort_order ?? -1) + 1,
+  });
+  if (error) return { error: "เพิ่มรายการไม่สำเร็จ: " + error.message };
+
+  revalidatePath(getBoardPath(formData, result.data.roomId));
+  return { success: true };
+}
+
+/** ลบรายการย่อยออกจาก checklist */
+export async function deleteChecklistItem(
+  formData: FormData,
+): Promise<BoardMutationState> {
+  const result = deleteChecklistItemSchema.safeParse({
+    roomId: formData.get("roomId"),
+    checklistItemId: formData.get("checklistItemId"),
+  });
+  if (!result.success) return { error: "ข้อมูลรายการไม่ถูกต้อง" };
+
+  const { supabase } = await requireUserId();
+  const { error } = await supabase
+    .from("board_checklist_items")
+    .delete()
+    .eq("id", result.data.checklistItemId);
+  if (error) return { error: "ลบรายการไม่สำเร็จ: " + error.message };
+
+  revalidatePath(getBoardPath(formData, result.data.roomId));
+  return { success: true };
+}
+
+/** เพิ่มตัวเลือกใหม่ต่อท้าย poll โดยจำกัดไม่เกิน 10 ตัวเลือก */
+export async function createPollOption(
+  formData: FormData,
+): Promise<BoardMutationState> {
+  const result = createPollOptionSchema.safeParse({
+    roomId: formData.get("roomId"),
+    boardItemId: formData.get("boardItemId"),
+    label: formData.get("label"),
+  });
+  if (!result.success) {
+    return { error: result.error.issues[0]?.message ?? "ข้อมูลไม่ถูกต้อง" };
+  }
+
+  const { supabase } = await requireUserId();
+  const { data: options, error: readError } = await supabase
+    .from("board_poll_options")
+    .select("sort_order")
+    .eq("board_item_id", result.data.boardItemId)
+    .order("sort_order", { ascending: false });
+  if (readError) return { error: "อ่านตัวเลือกเดิมไม่สำเร็จ" };
+  if ((options?.length ?? 0) >= 10) {
+    return { error: "Poll ใส่ได้ไม่เกิน 10 ตัวเลือก" };
+  }
+
+  const { error } = await supabase.from("board_poll_options").insert({
+    board_item_id: result.data.boardItemId,
+    label: result.data.label,
+    sort_order: (options?.[0]?.sort_order ?? -1) + 1,
+  });
+  if (error) return { error: "เพิ่มตัวเลือกไม่สำเร็จ: " + error.message };
+
+  revalidatePath(getBoardPath(formData, result.data.roomId));
+  return { success: true };
+}
+
+/** ลบตัวเลือก poll โดยต้องเหลืออย่างน้อยสองตัวเลือก */
+export async function deletePollOption(
+  formData: FormData,
+): Promise<BoardMutationState> {
+  const result = deletePollOptionSchema.safeParse({
+    roomId: formData.get("roomId"),
+    boardItemId: formData.get("boardItemId"),
+    optionId: formData.get("optionId"),
+  });
+  if (!result.success) return { error: "ข้อมูลตัวเลือกไม่ถูกต้อง" };
+
+  const { supabase } = await requireUserId();
+  const { count, error: countError } = await supabase
+    .from("board_poll_options")
+    .select("id", { count: "exact", head: true })
+    .eq("board_item_id", result.data.boardItemId);
+  if (countError) return { error: "ตรวจจำนวนตัวเลือกไม่สำเร็จ" };
+  if ((count ?? 0) <= 2) return { error: "Poll ต้องเหลืออย่างน้อย 2 ตัวเลือก" };
+
+  const { error } = await supabase
+    .from("board_poll_options")
+    .delete()
+    .eq("id", result.data.optionId)
+    .eq("board_item_id", result.data.boardItemId);
+  if (error) return { error: "ลบตัวเลือกไม่สำเร็จ: " + error.message };
+
+  revalidatePath(getBoardPath(formData, result.data.roomId));
+  return { success: true };
+}
+
+/** เปลี่ยนโหมด poll ระหว่างโหวตข้อเดียวกับโหวตได้หลายข้อ */
+export async function updatePollSettings(
+  formData: FormData,
+): Promise<BoardMutationState> {
+  const result = updatePollSettingsSchema.safeParse({
+    roomId: formData.get("roomId"),
+    boardItemId: formData.get("boardItemId"),
+    pollVoteMode: formData.get("pollVoteMode"),
+  });
+  if (!result.success) return { error: "โหมดการโหวตไม่ถูกต้อง" };
+
+  const { supabase } = await requireUserId();
+  const { error } = await supabase
+    .from("board_items")
+    .update({
+      poll_max_votes_per_user: result.data.pollVoteMode === "single" ? 1 : 10,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", result.data.boardItemId)
+    .eq("item_type", "poll");
+  if (error) return { error: "บันทึกโหมดโหวตไม่สำเร็จ: " + error.message };
+
+  revalidatePath(getBoardPath(formData, result.data.roomId));
+  return { success: true };
 }

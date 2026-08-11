@@ -10,6 +10,7 @@ import {
 } from "@/features/boards/actions";
 import { Button } from "@/components/ui/button";
 import { FieldErrors } from "@/components/ui/field-errors";
+import { Toast } from "@/components/ui/toast";
 import formStyles from "@/components/ui/form.module.css";
 import styles from "@/components/boards/board-create-forms.module.css";
 
@@ -30,6 +31,7 @@ export function BoardCreateForms({
   roomId,
 }: BoardCreateFormsProps) {
   const [activeForm, setActiveForm] = useState<ActiveForm>(null);
+  const [toast, setToast] = useState<string | null>(null);
   const [noteState, noteAction, isNotePending] = useActionState(
     createNote,
     initialState,
@@ -54,7 +56,10 @@ export function BoardCreateForms({
 
   useEffect(() => {
     if (noteState.success || checklistState.success || pollState.success) {
-      const timer = window.setTimeout(() => setActiveForm(null), 0);
+      const timer = window.setTimeout(() => {
+        setActiveForm(null);
+        setToast("เพิ่มรายการลงบอร์ดแล้ว");
+      }, 0);
       return () => window.clearTimeout(timer);
     }
     return undefined;
@@ -87,17 +92,12 @@ export function BoardCreateForms({
       </div>
 
       {activeForm ? (
-        <div
-          className={styles.overlay}
-          onClick={() => setActiveForm(null)}
-          role="presentation"
-        >
+        <div className={styles.overlay} role="presentation">
           <div
             aria-modal="true"
             className={styles.modal}
             role="dialog"
             aria-labelledby="board-create-modal-title"
-            onClick={(event) => event.stopPropagation()}
           >
             <div className={styles.modalHeader}>
               <h2 className={styles.title} id="board-create-modal-title">
@@ -148,6 +148,11 @@ export function BoardCreateForms({
           </div>
         </div>
       ) : null}
+      <Toast
+        message={toast}
+        onDismiss={() => setToast(null)}
+        tone="success"
+      />
     </div>
   );
 }
@@ -264,7 +269,7 @@ function PollForm({
       <BoardTitleField idPrefix="poll" state={state} />
       <BoardBodyField idPrefix="poll" state={state} />
       <div className={formStyles.field}>
-        <span className={formStyles.label}>จำนวนโหวตต่อคน</span>
+        <span className={formStyles.label}>ตัวเลือกสำหรับโหวต</span>
         <div
           aria-describedby={
             state.fieldErrors?.pollVoteMode

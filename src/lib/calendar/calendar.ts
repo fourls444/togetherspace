@@ -10,7 +10,6 @@ export type CalendarEventMarker = {
   id: string;
   title: string;
   date: string;
-  color: string;
 };
 
 export type HolidayMarker = {
@@ -41,18 +40,6 @@ const THAI_PANEL_DATE_FORMATTER = new Intl.DateTimeFormat("th-TH", {
 });
 
 /** เลือกสีตัวอักษรอ่อนหรือเข้มตามความสว่างของสีพื้นกิจกรรม */
-export function getCalendarEventForeground(color: string) {
-  const hex = color.replace("#", "");
-  if (!/^[0-9a-f]{6}$/i.test(hex)) return "#111827";
-
-  const red = Number.parseInt(hex.slice(0, 2), 16);
-  const green = Number.parseInt(hex.slice(2, 4), 16);
-  const blue = Number.parseInt(hex.slice(4, 6), 16);
-  const luminance = (red * 299 + green * 587 + blue * 114) / 1000;
-
-  return luminance >= 150 ? "#111827" : "#F8FAFC";
-}
-
 /** แปลง Date เป็น key แบบ YYYY-MM-DD โดยใช้ UTC เพื่อลดปัญหา timezone บน server */
 export function formatDateKey(date: Date) {
   return date.toISOString().slice(0, 10);
@@ -70,6 +57,11 @@ export function formatThaiCalendarPanelDate(dateKey: string) {
 }
 
 /** เลือกวันที่เริ่มต้นของปฏิทิน โดยให้เดือนปัจจุบันเริ่มที่วันนี้ และเดือนอื่นเริ่มที่วันแรก */
+/** คืนข้อความจำนวนกิจกรรมแบบสั้นสำหรับแสดงบนช่องวันที่มีพื้นที่จำกัด */
+export function formatEventCountLabel(count: number) {
+  return count > 0 ? `${count} กิจกรรม` : "";
+}
+
 export function resolveSelectedCalendarDate({
   monthStart,
   requestedDate,
@@ -230,7 +222,7 @@ export function getDayMarkerPreview(
   markers: CalendarDayMarkers,
   options: { eventLimit?: number; holidayLimit?: number } = {},
 ): CalendarDayPreview {
-  const eventLimit = options.eventLimit ?? 2;
+  const eventLimit = options.eventLimit ?? 0;
   const holidayLimit = options.holidayLimit ?? 1;
   const events = markers.events.slice(0, eventLimit);
   const holidays = markers.holidays.slice(0, holidayLimit);

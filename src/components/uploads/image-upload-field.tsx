@@ -15,11 +15,13 @@ import { createClient } from "@/lib/supabase/client";
 import styles from "@/components/uploads/image-upload-field.module.css";
 
 type ImageUploadFieldProps = {
-  helperText: string;
+  helperText?: string;
   hiddenInputName?: string;
   initialUrl: string | null;
   kind: ImageUploadKind;
   label: string;
+  layout?: "inline" | "stacked";
+  removeOldOnUpload?: boolean;
   roomId?: string;
 };
 
@@ -76,6 +78,8 @@ export function ImageUploadField({
   initialUrl,
   kind,
   label,
+  layout = "inline",
+  removeOldOnUpload = true,
   roomId,
 }: ImageUploadFieldProps) {
   const fieldId = useId();
@@ -170,7 +174,7 @@ export function ImageUploadField({
 
       const { data } = supabase.storage.from(bucket).getPublicUrl(objectPath);
       setUrl(data.publicUrl);
-      await removeStoredImage(oldUrl);
+      if (removeOldOnUpload) await removeStoredImage(oldUrl);
       setStatus("อัปโหลดรูปแล้ว กดบันทึกเพื่อใช้รูปนี้");
       closeCropper();
     } catch (uploadError) {
@@ -185,7 +189,9 @@ export function ImageUploadField({
   }
 
   return (
-    <div className={styles.field}>
+    <div
+      className={`${styles.field} ${layout === "stacked" ? styles.stacked : ""}`}
+    >
       <input name={hiddenInputName} type="hidden" value={url} />
       <div className={styles.previewRow}>
         <div
@@ -209,9 +215,13 @@ export function ImageUploadField({
             <Button
               onClick={async () => {
                 setStatus("กำลังเอารูปออก…");
-                await removeStoredImage(url);
+                if (removeOldOnUpload) await removeStoredImage(url);
                 setUrl("");
-                setStatus("เอารูปออกแล้ว กดบันทึกเพื่อใช้รูป default");
+                setStatus(
+                  removeOldOnUpload
+                    ? "เอารูปออกแล้ว กดบันทึกเพื่อใช้รูป default"
+                    : "เลือกลบรูปแล้ว กดบันทึกเพื่อยืนยัน",
+                );
               }}
               type="button"
             >
@@ -220,7 +230,7 @@ export function ImageUploadField({
           ) : null}
         </div>
       </div>
-      <p className={styles.hint}>{helperText}</p>
+      {helperText ? <p className={styles.hint}>{helperText}</p> : null}
       {status ? <p className={styles.status}>{status}</p> : null}
       {error ? (
         <p className={styles.error} role="alert">

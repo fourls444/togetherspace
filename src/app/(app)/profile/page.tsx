@@ -19,7 +19,7 @@ export default async function ProfilePage() {
   return (
     <div className={styles.wrap}>
       <ButtonLink className={styles.backButton} href="/dashboard">
-        กลับหน้าแรก
+        ← กลับหน้าแรก
       </ButtonLink>
       <div className={styles.panel}>
         <div className={styles.intro}>

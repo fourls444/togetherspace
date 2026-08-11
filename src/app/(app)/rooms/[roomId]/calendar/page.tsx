@@ -1,5 +1,3 @@
-import type { CSSProperties } from "react";
-
 import {
   CalendarMonthView,
   type CalendarEventDetailView,
@@ -13,7 +11,6 @@ import {
   buildMonthCalendar,
   fetchThaiHolidays,
   formatDateKey,
-  getCalendarEventForeground,
   groupCalendarMarkersByDate,
   resolveSelectedCalendarDate,
   type CalendarDayMarkers,
@@ -88,13 +85,6 @@ function formatYearTitle(year: number) {
 
 function formatMonthName(year: number, monthIndex: number) {
   return MONTH_FORMATTER.format(createUtcDate(year, monthIndex, 1));
-}
-
-function markerStyle(color: string) {
-  return {
-    "--event-color": color,
-    "--event-foreground": getCalendarEventForeground(color),
-  } as CSSProperties;
 }
 
 function markerTooltip(marker: CalendarDayMarkers | undefined) {
@@ -203,7 +193,7 @@ export default async function RoomCalendarPage({
     fetchThaiHolidays(),
     context.supabase
       .from("calendar_events")
-      .select("id, title, description, event_date, color")
+      .select("id, title, description, event_date")
       .eq("room_id", context.roomId)
       .gte("event_date", rangeStart)
       .lte("event_date", rangeEnd)
@@ -216,7 +206,6 @@ export default async function RoomCalendarPage({
       id: event.id,
       title: event.title,
       date: event.event_date,
-      color: event.color,
     }),
   );
   const eventDetails: CalendarEventDetailView[] = (eventsResult.data ?? []).map(
@@ -224,7 +213,6 @@ export default async function RoomCalendarPage({
       id: event.id,
       title: event.title,
       date: event.event_date,
-      color: event.color,
       description: event.description,
     }),
   );
@@ -280,7 +268,7 @@ export default async function RoomCalendarPage({
             <ButtonLink
               href={`${getRoomSubPath(context.roomCode, "calendar")}/list?month=${getMonthKey(year, monthIndex)}`}
             >
-              รายการทั้งเดือน
+              กิจกรรมและวันสำคัญเดือนนี้
             </ButtonLink>
           ) : null}
           <div className={styles.viewSwitch} aria-label="สลับมุมมองปฏิทิน">
@@ -416,6 +404,7 @@ function YearOverview({
                     className={[
                       styles.yearDay,
                       day.isCurrentMonth ? "" : styles.yearDayMuted,
+                      hasEvent ? styles.yearDayHasEvents : "",
                       dateKey === selectedDate ? styles.yearDaySelected : "",
                       dateKey === todayKey ? styles.yearDayToday : "",
                     ]
@@ -427,17 +416,6 @@ function YearOverview({
                     title={tooltip}
                   >
                     <span>{day.date.getUTCDate()}</span>
-                    {hasEvent ? (
-                      <span className={styles.yearEventDots} aria-hidden>
-                        {marker?.events.slice(0, 3).map((event) => (
-                          <i
-                            className={styles.yearEventDot}
-                            key={event.id}
-                            style={markerStyle(event.color)}
-                          />
-                        ))}
-                      </span>
-                    ) : null}
                     {hasHoliday ? (
                       <i className={styles.yearHolidayLine} aria-hidden />
                     ) : null}

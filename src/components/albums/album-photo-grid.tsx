@@ -19,14 +19,14 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { useMemo, useState, useTransition } from "react";
 
-import { Button } from "@/components/ui/button";
+import { Toast } from "@/components/ui/toast";
 import {
-  deleteAlbumPhoto,
   saveAlbumPhotoOrder,
 } from "@/features/albums/actions";
 import type { RoomRole } from "@/lib/types/database";
 
 import styles from "./album.module.css";
+import { AlbumPhotoDialog } from "./album-photo-dialog";
 
 export type AlbumPhotoView = {
   caption: string | null;
@@ -49,11 +49,8 @@ type AlbumPhotoGridProps = {
 
 type SortableAlbumPhotoProps = {
   canDrag: boolean;
-  currentUserId: string;
+  onOpen: () => void;
   photo: AlbumPhotoView;
-  roomCode: string;
-  roomId: string;
-  roomRole: RoomRole;
 };
 
 const DATE_FORMATTER = new Intl.DateTimeFormat("th-TH", {
@@ -114,11 +111,8 @@ function canDragDateGroup({
 /** แสดงการ์ดรูปที่ลากวางได้ด้วย dnd-kit */
 function SortableAlbumPhoto({
   canDrag,
-  currentUserId,
+  onOpen,
   photo,
-  roomCode,
-  roomId,
-  roomRole,
 }: SortableAlbumPhotoProps) {
   const {
     attributes,
@@ -153,39 +147,13 @@ function SortableAlbumPhoto({
       >
         ⋮⋮
       </button>
-      <a className={styles.photoLink} href={`#photo-${photo.id}`}>
+      <button className={styles.photoLink} onClick={onOpen} type="button">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img alt={photo.caption ?? "รูปในอัลบั้ม"} src={photo.image_url} />
-      </a>
+      </button>
       <div className={styles.photoMeta}>
         <p>{formatAlbumDate(photo.taken_at)}</p>
         {photo.caption ? <strong>{photo.caption}</strong> : null}
-      </div>
-
-      <div className={styles.modal} id={`photo-${photo.id}`}>
-        <a aria-label="ปิดรูป" className={styles.modalBackdrop} href="#album" />
-        <div className={styles.modalPanel}>
-          <a className={styles.closeLink} href="#album">
-            ปิด
-          </a>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img alt={photo.caption ?? "รูปในอัลบั้ม"} src={photo.image_url} />
-          <div className={styles.modalCaption}>
-            <p>{formatAlbumDate(photo.taken_at)}</p>
-            {photo.caption ? <h3>{photo.caption}</h3> : null}
-          </div>
-          {canManagePhoto({ currentUserId, photo, roomRole }) ? (
-            <form action={deleteAlbumPhoto} className={styles.deleteForm}>
-              <input name="roomId" type="hidden" value={roomId} />
-              <input name="roomCode" type="hidden" value={roomCode} />
-              <input name="photoId" type="hidden" value={photo.id} />
-              <input name="storagePath" type="hidden" value={photo.storage_path} />
-              <Button type="submit" variant="danger">
-                ลบรูปนี้
-              </Button>
-            </form>
-          ) : null}
-        </div>
       </div>
     </article>
   );
@@ -200,7 +168,12 @@ export function AlbumPhotoGrid({
   roomRole,
 }: AlbumPhotoGridProps) {
   const [orderedPhotos, setOrderedPhotos] = useState(photos);
+  const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null);
   const [savingDate, setSavingDate] = useState<string | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    tone: "success" | "error";
+  } | null>(null);
   const [, startSavingTransition] = useTransition();
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -212,6 +185,19 @@ export function AlbumPhotoGrid({
   );
 
   const groups = useMemo(() => groupPhotosByDate(orderedPhotos), [orderedPhotos]);
+  const selectedPhotoIndex = orderedPhotos.findIndex(
+    (photo) => photo.id === selectedPhotoId,
+  );
+  const selectedPhoto = orderedPhotos[selectedPhotoIndex] ?? null;
+
+  /** เลื่อนไปยังรูปก่อนหน้าหรือถัดไปแบบวนกลับเมื่อถึงปลายรายการ */
+  function moveSelectedPhoto(direction: "next" | "previous") {
+    if (!orderedPhotos.length || selectedPhotoIndex < 0) return;
+    const offset = direction === "next" ? 1 : -1;
+    const nextIndex =
+      (selectedPhotoIndex + offset + orderedPhotos.length) % orderedPhotos.length;
+    setSelectedPhotoId(orderedPhotos[nextIndex].id);
+  }
 
   /** บันทึกลำดับรูปใหม่หลังปล่อยรูปที่ลาก */
   function handleDragEnd(event: DragEndEvent) {
@@ -248,6 +234,7 @@ export function AlbumPhotoGrid({
         : photo,
     );
 
+    const previousPhotos = orderedPhotos;
     setOrderedPhotos(nextPhotos);
     setSavingDate(activePhoto.taken_at);
 
@@ -260,8 +247,15 @@ export function AlbumPhotoGrid({
       JSON.stringify(reorderedGroup.map((photo) => photo.id)),
     );
 
-    startSavingTransition(() => {
-      void saveAlbumPhotoOrder(formData).finally(() => setSavingDate(null));
+    startSavingTransition(async () => {
+      const result = await saveAlbumPhotoOrder(formData);
+      if (result.error) {
+        setOrderedPhotos(previousPhotos);
+        setToast({ message: result.error, tone: "error" });
+      } else {
+        setToast({ message: "บันทึกลำดับรูปแล้ว", tone: "success" });
+      }
+      setSavingDate(null);
     });
   }
 
@@ -315,12 +309,9 @@ export function AlbumPhotoGrid({
                     {group.photos.map((photo) => (
                       <SortableAlbumPhoto
                         canDrag={canDragGroup}
-                        currentUserId={currentUserId}
                         key={photo.id}
+                        onOpen={() => setSelectedPhotoId(photo.id)}
                         photo={photo}
-                        roomCode={roomCode}
-                        roomId={roomId}
-                        roomRole={roomRole}
                       />
                     ))}
                   </div>
@@ -330,6 +321,47 @@ export function AlbumPhotoGrid({
           })}
         </div>
       </DndContext>
+      <AlbumPhotoDialog
+        canManage={
+          selectedPhoto
+            ? canManagePhoto({ currentUserId, photo: selectedPhoto, roomRole })
+            : false
+        }
+        key={selectedPhoto?.id ?? "closed-photo-dialog"}
+        onClose={() => setSelectedPhotoId(null)}
+        onDeleted={(photoId) =>
+          setOrderedPhotos((current) =>
+            current.filter((photo) => photo.id !== photoId),
+          )
+        }
+        onMove={moveSelectedPhoto}
+        onUpdated={(updatedPhoto) =>
+          setOrderedPhotos((current) =>
+            current
+              .map((photo) =>
+                photo.id === updatedPhoto.id ? updatedPhoto : photo,
+              )
+              .sort(
+                (left, right) =>
+                  left.taken_at.localeCompare(right.taken_at) ||
+                  left.sort_order - right.sort_order ||
+                  left.created_at.localeCompare(right.created_at),
+              ),
+          )
+        }
+        open={Boolean(selectedPhoto)}
+        photo={selectedPhoto}
+        photoPosition={
+          selectedPhoto ? `${selectedPhotoIndex + 1} / ${orderedPhotos.length}` : ""
+        }
+        roomCode={roomCode}
+        roomId={roomId}
+      />
+      <Toast
+        message={toast?.message ?? null}
+        onDismiss={() => setToast(null)}
+        tone={toast?.tone}
+      />
     </section>
   );
 }

@@ -75,7 +75,7 @@ export default async function RoomMembersPage({
         </div>
         {isOwner ? (
           <ButtonLink href={getRoomSubPath(roomCode, "settings")}>
-            แชร์ห้อง / เชิญเพื่อน
+            ตั้งค่าห้อง
           </ButtonLink>
         ) : null}
       </div>

@@ -1,5 +1,3 @@
-import type { CSSProperties } from "react";
-
 import { CalendarEventEditor } from "@/components/calendar/calendar-event-editor";
 import styles from "@/components/calendar/calendar.module.css";
 import { ButtonLink } from "@/components/ui/button-link";
@@ -7,7 +5,6 @@ import { ErrorState } from "@/components/ui/error-state";
 import {
   fetchThaiHolidays,
   formatDateKey,
-  getCalendarEventForeground,
 } from "@/lib/calendar/calendar";
 import { getRoomSubPath } from "@/lib/rooms/room-path";
 import { getRoomContext } from "@/lib/rooms/server";
@@ -51,13 +48,6 @@ function formatFullDate(dateKey: string) {
   return FULL_DATE_FORMATTER.format(createUtcDate(year, month - 1, day));
 }
 
-function markerStyle(color: string) {
-  return {
-    "--event-color": color,
-    "--event-foreground": getCalendarEventForeground(color),
-  } as CSSProperties;
-}
-
 /** รายการกิจกรรมและวันสำคัญของเดือนที่เลือก */
 export default async function CalendarMonthListPage({
   params,
@@ -98,7 +88,7 @@ export default async function CalendarMonthListPage({
     fetchThaiHolidays(),
     context.supabase
       .from("calendar_events")
-      .select("id, title, description, event_date, color")
+      .select("id, title, description, event_date")
       .eq("room_id", context.roomId)
       .gte("event_date", monthStart)
       .lte("event_date", monthEnd)
@@ -131,11 +121,6 @@ export default async function CalendarMonthListPage({
               {events.map((event) => (
                 <li className={styles.listItem} key={event.id}>
                   <div className={styles.itemHead}>
-                    <span
-                      aria-hidden
-                      className={styles.dot}
-                      style={markerStyle(event.color)}
-                    />
                     <div>
                       <p className={styles.itemTitle}>{event.title}</p>
                       <p className={styles.itemText}>
@@ -151,7 +136,6 @@ export default async function CalendarMonthListPage({
                       id: event.id,
                       title: event.title,
                       date: event.event_date,
-                      color: event.color,
                       description: event.description,
                     }}
                     roomCode={context.roomCode}

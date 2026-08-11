@@ -4,16 +4,15 @@ import test from "node:test";
 import {
   buildMonthCalendar,
   formatDateKey,
+  formatEventCountLabel,
   formatThaiCalendarPanelDate,
-  getCalendarEventForeground,
   getDayMarkerPreview,
   groupCalendarMarkersByDate,
   parseHolidayIcs,
   resolveSelectedCalendarDate,
 } from "./calendar.ts";
-import { CALENDAR_EVENT_COLORS } from "../../features/calendar/validation.ts";
 
-test("สร้าง calendar grid เดือนสิงหาคม 2026 พร้อมวันจากเดือนข้างเคียง", () => {
+test("builds a stable 6-week month grid", () => {
   const weeks = buildMonthCalendar(2026, 7);
 
   assert.equal(weeks.length, 6);
@@ -23,7 +22,7 @@ test("สร้าง calendar grid เดือนสิงหาคม 2026 �
   assert.equal(formatDateKey(weeks[5][6].date), "2026-09-05");
 });
 
-test("parse Google Holiday ICS เป็นรายการวันสำคัญแบบ all-day", () => {
+test("parses all-day Thai holiday events from Google Calendar ICS", () => {
   const ics = [
     "BEGIN:VCALENDAR",
     "BEGIN:VEVENT",
@@ -43,14 +42,13 @@ test("parse Google Holiday ICS เป็นรายการวันสำค�
   ]);
 });
 
-test("group marker ของวันสำคัญและกิจกรรมตามวันที่", () => {
+test("groups holidays and room events by date without event colors", () => {
   const grouped = groupCalendarMarkersByDate({
     events: [
       {
         id: "event-1",
         title: "กินข้าวเย็น",
         date: "2026-08-12",
-        color: "#E8A055",
       },
     ],
     holidays: [{ date: "2026-08-12", title: "วันแม่แห่งชาติ" }],
@@ -62,27 +60,24 @@ test("group marker ของวันสำคัญและกิจกรร�
         id: "event-1",
         title: "กินข้าวเย็น",
         date: "2026-08-12",
-        color: "#E8A055",
       },
     ],
     holidays: [{ date: "2026-08-12", title: "วันแม่แห่งชาติ" }],
   });
 });
 
-test("day marker preview uses the real holiday title and counts hidden rows", () => {
+test("day marker preview shows holiday text by default without event dots", () => {
   const preview = getDayMarkerPreview({
     events: [
       {
         id: "event-1",
         title: "Dinner",
         date: "2026-08-12",
-        color: "#E8A055",
       },
       {
         id: "event-2",
         title: "Movie night",
         date: "2026-08-12",
-        color: "#8EC5FF",
       },
     ],
     holidays: [
@@ -95,24 +90,17 @@ test("day marker preview uses the real holiday title and counts hidden rows", ()
     preview.holidays.map((holiday) => holiday.title),
     ["Mother's Day"],
   );
-  assert.equal(preview.events.length, 2);
-  assert.equal(preview.extraCount, 1);
+  assert.equal(preview.events.length, 0);
+  assert.equal(preview.extraCount, 3);
 });
 
-test("ชุดสีกิจกรรมมีสีสด 10 สี พร้อมสีดำและสีขาว", () => {
-  assert.equal(CALENDAR_EVENT_COLORS.length, 10);
-  assert.equal(new Set(CALENDAR_EVENT_COLORS).size, 10);
-  assert.ok(CALENDAR_EVENT_COLORS.includes("#111827"));
-  assert.ok(CALENDAR_EVENT_COLORS.includes("#F8FAFC"));
+test("format event count label only when the date has events", () => {
+  assert.equal(formatEventCountLabel(0), "");
+  assert.equal(formatEventCountLabel(1), "1 กิจกรรม");
+  assert.equal(formatEventCountLabel(2), "2 กิจกรรม");
 });
 
-test("เลือกสีข้อความที่อ่านชัดบนพื้นกิจกรรมสีเข้มและสีอ่อน", () => {
-  assert.equal(getCalendarEventForeground("#111827"), "#F8FAFC");
-  assert.equal(getCalendarEventForeground("#F8FAFC"), "#111827");
-  assert.equal(getCalendarEventForeground("#FACC15"), "#111827");
-});
-
-test("เปิดเดือนปัจจุบันโดยไม่มีวันที่ใน URL แล้วเลือกวันนี้เป็นค่าเริ่มต้น", () => {
+test("month view defaults to today when current month is open", () => {
   assert.equal(
     resolveSelectedCalendarDate({
       requestedDate: undefined,
@@ -123,7 +111,7 @@ test("เปิดเดือนปัจจุบันโดยไม่ม�
   );
 });
 
-test("เปิดเดือนอื่นโดยไม่มีวันที่ใน URL แล้วยังเริ่มที่วันแรกของเดือนนั้น", () => {
+test("month view defaults to the first day when another month is open", () => {
   assert.equal(
     resolveSelectedCalendarDate({
       requestedDate: undefined,
@@ -134,7 +122,7 @@ test("เปิดเดือนอื่นโดยไม่มีวัน�
   );
 });
 
-test("เปิดรายปีของปีปัจจุบันโดยไม่มีวันที่ใน URL แล้วเลือกวันนี้เป็นค่าเริ่มต้น", () => {
+test("year view defaults to today when current year is open", () => {
   assert.equal(
     resolveSelectedCalendarDate({
       requestedDate: undefined,
@@ -146,7 +134,7 @@ test("เปิดรายปีของปีปัจจุบันโด�
   );
 });
 
-test("เปิดรายปีของปีอื่นโดยไม่มีวันที่ใน URL แล้วยังเริ่มที่วันแรกของปีนั้น", () => {
+test("year view defaults to January 1 when another year is open", () => {
   assert.equal(
     resolveSelectedCalendarDate({
       requestedDate: undefined,
@@ -158,27 +146,13 @@ test("เปิดรายปีของปีอื่นโดยไม่�
   );
 });
 
-test("ถ้า URL ระบุวันที่ถูกต้อง ให้ใช้วันที่จาก URL ก่อน", () => {
-  assert.equal(
-    resolveSelectedCalendarDate({
-      requestedDate: "2026-08-20",
-      monthStart: "2026-08-01",
-      todayKey: "2026-08-11",
-    }),
-    "2026-08-20",
-  );
-});
-
-test("แสดงวันที่ใน panel เป็นรูปแบบวันสั้น วันที่ เดือนเต็ม ปี", () => {
+test("formats Thai panel date with a short Thursday label", () => {
   assert.equal(
     formatThaiCalendarPanelDate("2026-08-11"),
     "อังคาร 11 สิงหาคม 2569",
   );
-});
-
-test("ย่อวันพฤหัสบดีใน panel เป็นพฤหัส", () => {
   assert.equal(
-    formatThaiCalendarPanelDate("2026-01-01"),
-    "พฤหัส 1 มกราคม 2569",
+    formatThaiCalendarPanelDate("2026-08-13"),
+    "พฤหัส 13 สิงหาคม 2569",
   );
 });

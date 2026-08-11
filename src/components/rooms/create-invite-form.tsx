@@ -8,6 +8,7 @@ import {
 } from "@/features/invites/actions";
 import { Button } from "@/components/ui/button";
 import { FieldErrors } from "@/components/ui/field-errors";
+import styles from "@/components/rooms/create-invite-form.module.css";
 import formStyles from "@/components/ui/form.module.css";
 
 const initialState: CreateInviteState = {};
@@ -24,7 +25,7 @@ export function CreateInviteForm({ roomCode, roomId }: CreateInviteFormProps) {
   );
 
   return (
-    <form action={formAction} className={formStyles.form}>
+    <form action={formAction} className={`${formStyles.form} ${styles.form}`}>
       <input name="roomCode" type="hidden" value={roomCode} />
       <input name="roomId" type="hidden" value={roomId} />
 
@@ -76,15 +77,16 @@ export function CreateInviteForm({ roomCode, roomId }: CreateInviteFormProps) {
         </p>
       ) : null}
 
+      <div className={styles.submit}>
+        <Button pending={isPending} pendingText="กำลังสร้างลิงก์…" variant="primary">
+          สร้างคำเชิญใหม่
+        </Button>
+      </div>
       {state.success ? (
         <p className={formStyles.serviceSuccess} role="status">
           สร้างลิงก์คำเชิญเรียบร้อยแล้ว
         </p>
       ) : null}
-
-      <Button pending={isPending} pendingText="กำลังสร้างลิงก์…" variant="primary">
-        สร้างคำเชิญใหม่
-      </Button>
     </form>
   );
 }

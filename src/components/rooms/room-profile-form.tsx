@@ -10,6 +10,7 @@ import { ImageUploadField } from "@/components/uploads/image-upload-field";
 import { Button } from "@/components/ui/button";
 import { FieldErrors } from "@/components/ui/field-errors";
 import formStyles from "@/components/ui/form.module.css";
+import styles from "@/components/rooms/room-profile-form.module.css";
 
 const initialState: UpdateRoomProfileState = {};
 
@@ -36,11 +37,26 @@ export function RoomProfileForm({
   );
 
   return (
-    <form action={formAction} className={formStyles.form}>
+    <form action={formAction} className={styles.editorForm}>
       <input name="roomCode" type="hidden" value={roomCode} />
       <input name="roomId" type="hidden" value={roomId} />
 
-      <div className={formStyles.field}>
+      <div className={`${formStyles.field} ${styles.avatarColumn}`}>
+        <span className={formStyles.label}>รูปที่ใช้ในห้องนี้</span>
+        <ImageUploadField
+          initialUrl={defaultValues.avatarUrl}
+          kind="roomProfile"
+          label="เลือกรูปในห้องนี้"
+          layout="stacked"
+          roomId={roomId}
+        />
+        <FieldErrors
+          id="room-profile-avatar-errors"
+          messages={state.fieldErrors?.avatarUrl}
+        />
+      </div>
+
+      <div className={`${formStyles.field} ${styles.identityField}`}>
         <label className={formStyles.label} htmlFor="roomDisplayName">
           ชื่อที่ใช้ในห้องนี้
         </label>
@@ -67,35 +83,20 @@ export function RoomProfileForm({
         />
       </div>
 
-      <div className={formStyles.field}>
-        <span className={formStyles.label}>รูปที่ใช้ในห้องนี้</span>
-        <ImageUploadField
-          helperText="ถ้าไม่เลือกรูป ระบบจะใช้รูปจากโปรไฟล์หลัก"
-          initialUrl={defaultValues.avatarUrl}
-          kind="roomProfile"
-          label="เลือกรูปในห้องนี้"
-          roomId={roomId}
-        />
-        <FieldErrors
-          id="room-profile-avatar-errors"
-          messages={state.fieldErrors?.avatarUrl}
-        />
-      </div>
-
       {state.error ? (
-        <p className={formStyles.serviceError} role="alert">
+        <p className={`${formStyles.serviceError} ${styles.fullRow}`} role="alert">
           {state.error}
         </p>
       ) : null}
 
       {state.success ? (
-        <p className={formStyles.serviceSuccess} role="status">
+        <p className={`${formStyles.serviceSuccess} ${styles.fullRow}`} role="status">
           บันทึกโปรไฟล์ในห้องนี้แล้ว
         </p>
       ) : null}
 
       <Button
-        className={formStyles.fullWidth}
+        className={`${formStyles.fullWidth} ${styles.fullRow}`}
         pending={isPending}
         pendingText="กำลังบันทึก…"
         variant="primary"

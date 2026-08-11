@@ -1,18 +1,20 @@
 "use client";
 
+import { useState, useTransition, type FormEvent } from "react";
+
 import { Button } from "@/components/ui/button";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { Toast } from "@/components/ui/toast";
 import {
   deleteCalendarEvent,
   updateCalendarEvent,
 } from "@/features/calendar/actions";
-import { CALENDAR_EVENT_COLORS } from "@/features/calendar/validation";
 import styles from "@/components/calendar/calendar.module.css";
 
 export type EditableCalendarEvent = {
   id: string;
   title: string;
   date: string;
-  color: string;
   description: string | null;
 };
 
@@ -28,10 +30,46 @@ export function CalendarEventEditor({
   roomCode,
   roomId,
 }: CalendarEventEditorProps) {
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [toast, setToast] = useState<{
+    message: string;
+    tone: "success" | "error";
+  } | null>(null);
+
+  /** บันทึกการแก้ไขกิจกรรมโดยไม่ต้องออกจากหน้าปัจจุบัน */
+  function handleUpdate(submitEvent: FormEvent<HTMLFormElement>) {
+    submitEvent.preventDefault();
+    const formData = new FormData(submitEvent.currentTarget);
+    startTransition(async () => {
+      const result = await updateCalendarEvent(formData);
+      setToast({
+        message: result.error ?? "บันทึกกิจกรรมแล้ว",
+        tone: result.error ? "error" : "success",
+      });
+    });
+  }
+
+  /** ลบกิจกรรมหลังผู้ใช้ยืนยัน */
+  function handleDelete() {
+    const formData = new FormData();
+    formData.set("roomId", roomId);
+    formData.set("roomCode", roomCode);
+    formData.set("eventId", event.id);
+    startTransition(async () => {
+      const result = await deleteCalendarEvent(formData);
+      setConfirmDelete(false);
+      setToast({
+        message: result.error ?? "ลบกิจกรรมแล้ว",
+        tone: result.error ? "error" : "success",
+      });
+    });
+  }
+
   return (
     <details className={styles.editBox}>
       <summary>แก้ไขกิจกรรม</summary>
-      <form action={updateCalendarEvent} className={styles.eventEditForm}>
+      <form className={styles.eventEditForm} onSubmit={handleUpdate}>
         <input name="roomId" type="hidden" value={roomId} />
         <input name="roomCode" type="hidden" value={roomCode} />
         <input name="eventId" type="hidden" value={event.id} />
@@ -59,47 +97,35 @@ export function CalendarEventEditor({
           name="description"
           rows={3}
         />
-        <fieldset className={styles.compactColorField}>
-          <legend>สี</legend>
-          <div className={styles.colorOptions}>
-            {CALENDAR_EVENT_COLORS.map((color, index) => (
-              <label className={styles.colorOption} key={color}>
-                <input
-                  aria-label={`สีที่ ${index + 1}`}
-                  defaultChecked={event.color === color}
-                  name="color"
-                  type="radio"
-                  value={color}
-                />
-                <span
-                  aria-hidden
-                  className={styles.colorSwatch}
-                  style={{ backgroundColor: color }}
-                />
-              </label>
-            ))}
-          </div>
-        </fieldset>
         <div className={styles.editActions}>
-          <Button type="submit">บันทึก</Button>
+          <Button pending={isPending} type="submit" variant="primary">
+            บันทึกแก้ไข
+          </Button>
+          <Button
+            disabled={isPending}
+            onClick={() => setConfirmDelete(true)}
+            type="button"
+            variant="danger"
+          >
+            ลบกิจกรรม
+          </Button>
         </div>
       </form>
-      <form
-        action={deleteCalendarEvent}
-        className={styles.deleteForm}
-        onSubmit={(submitEvent) => {
-          if (!window.confirm("ลบกิจกรรมนี้ใช่ไหม")) {
-            submitEvent.preventDefault();
-          }
-        }}
-      >
-        <input name="roomId" type="hidden" value={roomId} />
-        <input name="roomCode" type="hidden" value={roomCode} />
-        <input name="eventId" type="hidden" value={event.id} />
-        <Button type="submit" variant="danger">
-          ลบกิจกรรม
-        </Button>
-      </form>
+      <ConfirmationDialog
+        confirmLabel="ลบกิจกรรม"
+        description={`“${event.title}” จะถูกลบจากปฏิทินและไม่สามารถกู้คืนได้`}
+        isPending={isPending}
+        onCancel={() => setConfirmDelete(false)}
+        onConfirm={handleDelete}
+        open={confirmDelete}
+        title="ลบกิจกรรมนี้?"
+        variant="danger"
+      />
+      <Toast
+        message={toast?.message ?? null}
+        onDismiss={() => setToast(null)}
+        tone={toast?.tone}
+      />
     </details>
   );
 }

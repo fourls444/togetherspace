@@ -11,11 +11,13 @@ export const ROOM_ROLE_LABEL: Record<RoomRole, string> = {
   member: "สมาชิก",
 };
 
+type RoomModuleKey = "album" | "board" | "calendar" | "map" | "members";
+
 export type RoomModule = {
-  key: "album" | "board" | "calendar" | "members";
+  key: RoomModuleKey;
   title: string;
   description: string;
-  href: "album" | "board" | "calendar" | "members";
+  href: RoomModuleKey;
 };
 
 const COUPLE_MODULES: RoomModule[] = [
@@ -28,7 +30,7 @@ const COUPLE_MODULES: RoomModule[] = [
   {
     key: "album",
     title: "อัลบั้มของเรา",
-    description: "รวมรูปเดต ทริป และโมเมนต์เล็กๆ ของสองคน",
+    description: "รวมรูปเดต ทริป และโมเมนต์เล็ก ๆ ของสองคน",
     href: "album",
   },
   {
@@ -36,6 +38,12 @@ const COUPLE_MODULES: RoomModule[] = [
     title: "บอร์ดของเรา",
     description: "จดไอเดีย เช็คลิสต์ และโพลที่ช่วยตัดสินใจด้วยกัน",
     href: "board",
+  },
+  {
+    key: "map",
+    title: "แผนที่ความทรงจำ",
+    description: "ปักหมุดร้านโปรด ที่เที่ยว และสถานที่ที่มีเรื่องราวของเรา",
+    href: "map",
   },
   {
     key: "members",
@@ -65,6 +73,12 @@ const FAMILY_MODULES: RoomModule[] = [
     href: "board",
   },
   {
+    key: "map",
+    title: "แผนที่บ้านและทริป",
+    description: "เก็บสถานที่สำคัญ ร้านประจำ และจุดหมายของครอบครัว",
+    href: "map",
+  },
+  {
     key: "members",
     title: "คนในบ้าน",
     description: "ดูรายชื่อคนในครอบครัวที่อยู่ในห้อง",
@@ -76,7 +90,7 @@ const FRIEND_MODULES: RoomModule[] = [
   {
     key: "calendar",
     title: "ปฏิทินกลุ่ม",
-    description: "นัดเจอ วันเกิด และแผนเที่ยวของเพื่อนๆ ในที่เดียว",
+    description: "นัดเจอ วันเกิด และแผนเที่ยวของเพื่อน ๆ ในที่เดียว",
     href: "calendar",
   },
   {
@@ -90,6 +104,12 @@ const FRIEND_MODULES: RoomModule[] = [
     title: "บอร์ดเพื่อน",
     description: "โยนไอเดีย โหวตแผน และทำเช็คลิสต์ของแก๊ง",
     href: "board",
+  },
+  {
+    key: "map",
+    title: "แผนที่แก๊ง",
+    description: "ปักหมุดร้านนัดเจอ คาเฟ่ ที่เที่ยว และจุดหมายรอบหน้า",
+    href: "map",
   },
   {
     key: "members",

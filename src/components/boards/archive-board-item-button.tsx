@@ -1,13 +1,17 @@
 "use client";
 
+import { useState, useTransition } from "react";
+
 import { archiveBoardItem } from "@/features/boards/actions";
 import { Button } from "@/components/ui/button";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 
 type ArchiveBoardItemButtonProps = {
   boardItemId: string;
   roomCode: string;
   roomId: string;
   title: string;
+  onResult: (message: string, tone: "success" | "error") => void;
 };
 
 /** ปุ่มเก็บรายการออกจากบอร์ด — ต้องยืนยันก่อน */
@@ -16,23 +20,46 @@ export function ArchiveBoardItemButton({
   roomCode,
   roomId,
   title,
+  onResult,
 }: ArchiveBoardItemButtonProps) {
+  const [open, setOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  /** เก็บรายการหลังผู้ใช้ยืนยันและส่งผลลัพธ์กลับไปแสดงบนหน้าบอร์ด */
+  function handleArchive() {
+    const formData = new FormData();
+    formData.set("roomId", roomId);
+    formData.set("roomCode", roomCode);
+    formData.set("boardItemId", boardItemId);
+
+    startTransition(async () => {
+      const result = await archiveBoardItem(formData);
+      if (result.error) {
+        setOpen(false);
+        onResult(result.error, "error");
+        return;
+      }
+
+      setOpen(false);
+      onResult("จัดเก็บรายการเรียบร้อยแล้ว", "success");
+    });
+  }
+
   return (
-    <form
-      action={archiveBoardItem}
-      onSubmit={(event) => {
-        const ok = window.confirm(
-          `เก็บ “${title}” ออกจากบอร์ด?\nรายการจะไม่โชว์บนบอร์ดอีก`,
-        );
-        if (!ok) event.preventDefault();
-      }}
-    >
-      <input name="roomId" type="hidden" value={roomId} />
-      <input name="roomCode" type="hidden" value={roomCode} />
-      <input name="boardItemId" type="hidden" value={boardItemId} />
-      <Button type="submit" variant="danger">
-        เก็บออก
+    <>
+      <Button onClick={() => setOpen(true)} type="button" variant="primary">
+        จัดเก็บ
       </Button>
-    </form>
+      <ConfirmationDialog
+        confirmLabel="จัดเก็บ"
+        description={`“${title}” จะไม่แสดงบนบอร์ด แต่ข้อมูลยังไม่ถูกลบถาวร`}
+        isPending={isPending}
+        onCancel={() => setOpen(false)}
+        onConfirm={handleArchive}
+        open={open}
+        title="จัดเก็บรายการนี้?"
+        variant="primary"
+      />
+    </>
   );
 }

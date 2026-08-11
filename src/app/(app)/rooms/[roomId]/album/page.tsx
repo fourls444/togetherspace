@@ -65,10 +65,6 @@ export default async function RoomAlbumPage({
       </section>
 
       <div className={styles.albumToolbar}>
-        <div>
-          <p className={styles.kicker}>จัดการอัลบั้ม</p>
-          <p className={styles.muted}>เพิ่มรูปใหม่หรือจัดลำดับรูปในแต่ละวัน</p>
-        </div>
         <AlbumUploader
           currentUserId={context.currentUserId}
           roomCode={context.roomCode}

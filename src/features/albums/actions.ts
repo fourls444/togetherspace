@@ -9,6 +9,7 @@ import {
   reorderAlbumPhotoSchema,
   saveAlbumPhotoOrderSchema,
   saveAlbumPhotosSchema,
+  updateAlbumPhotoSchema,
 } from "@/features/albums/validation";
 import { getRoomSubPath } from "@/lib/rooms/room-path";
 import { createClient } from "@/lib/supabase/server";
@@ -21,6 +22,11 @@ export type AlbumActionState = {
     photosJson?: string[];
     takenAt?: string[];
   };
+  success?: boolean;
+};
+
+export type AlbumMutationState = {
+  error?: string;
   success?: boolean;
 };
 
@@ -115,7 +121,9 @@ export async function saveAlbumPhotos(
 }
 
 /** ลบรูปออกจากตารางและ Storage โดยให้ RLS ตรวจสิทธิ์จริงอีกชั้น */
-export async function deleteAlbumPhoto(formData: FormData) {
+export async function deleteAlbumPhoto(
+  formData: FormData,
+): Promise<AlbumMutationState> {
   const result = deleteAlbumPhotoSchema.safeParse({
     roomId: formData.get("roomId"),
     roomCode: formData.get("roomCode"),
@@ -123,13 +131,13 @@ export async function deleteAlbumPhoto(formData: FormData) {
     storagePath: formData.get("storagePath"),
   });
 
-  if (!result.success) return;
+  if (!result.success) return { error: "ข้อมูลรูปไม่ถูกต้อง" };
 
   const { role, supabase, userId } = await getRoomMemberRole(
     result.data.roomId,
   );
 
-  if (!role) return;
+  if (!role) return { error: "คุณไม่ได้อยู่ในห้องนี้" };
 
   const { data: photo } = await supabase
     .from("album_photos")
@@ -138,19 +146,78 @@ export async function deleteAlbumPhoto(formData: FormData) {
     .eq("room_id", result.data.roomId)
     .maybeSingle();
 
-  if (!photo) return;
-  if (photo.uploaded_by !== userId && role !== "owner") return;
+  if (!photo) return { error: "ไม่พบรูปที่ต้องการลบ" };
+  if (photo.uploaded_by !== userId && role !== "owner") {
+    return { error: "คุณไม่มีสิทธิ์ลบรูปนี้" };
+  }
 
-  await supabase
+  const { error: deleteError } = await supabase
     .from("album_photos")
     .delete()
     .eq("id", result.data.photoId)
     .eq("room_id", result.data.roomId);
-  await supabase.storage
+  if (deleteError) return { error: "ลบรูปไม่สำเร็จ: " + deleteError.message };
+
+  const { error: storageError } = await supabase.storage
     .from(getImageUploadBucket("album"))
     .remove([photo.storage_path]);
 
   revalidatePath(getAlbumPath(result.data.roomCode));
+  if (storageError) {
+    return {
+      error: "ลบรูปออกจากอัลบั้มแล้ว แต่ลบไฟล์ใน Storage ไม่สำเร็จ",
+    };
+  }
+  return { success: true };
+}
+
+/** แก้วันที่และคำบรรยายของรูป โดยให้เจ้าของรูปหรือเจ้าของห้องจัดการได้ */
+export async function updateAlbumPhoto(
+  formData: FormData,
+): Promise<AlbumMutationState> {
+  const result = updateAlbumPhotoSchema.safeParse({
+    roomId: formData.get("roomId"),
+    roomCode: formData.get("roomCode"),
+    photoId: formData.get("photoId"),
+    caption: formData.get("caption"),
+    takenAt: formData.get("takenAt"),
+  });
+
+  if (!result.success) {
+    return { error: result.error.issues[0]?.message ?? "ข้อมูลรูปไม่ถูกต้อง" };
+  }
+
+  const { role, supabase, userId } = await getRoomMemberRole(
+    result.data.roomId,
+  );
+  if (!role) return { error: "คุณไม่ได้อยู่ในห้องนี้" };
+
+  const { data: photo } = await supabase
+    .from("album_photos")
+    .select("uploaded_by")
+    .eq("id", result.data.photoId)
+    .eq("room_id", result.data.roomId)
+    .maybeSingle();
+
+  if (!photo) return { error: "ไม่พบรูปที่ต้องการแก้ไข" };
+  if (photo.uploaded_by !== userId && role !== "owner") {
+    return { error: "คุณไม่มีสิทธิ์แก้ไขรูปนี้" };
+  }
+
+  const { error } = await supabase
+    .from("album_photos")
+    .update({
+      caption: result.data.caption,
+      taken_at: result.data.takenAt,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", result.data.photoId)
+    .eq("room_id", result.data.roomId);
+
+  if (error) return { error: "บันทึกรูปไม่สำเร็จ: " + error.message };
+
+  revalidatePath(getAlbumPath(result.data.roomCode));
+  return { success: true };
 }
 
 /** เลื่อนลำดับรูปภายในวันที่เดียวกัน โดยสลับ sort_order กับรูปข้างเคียง */
@@ -221,7 +288,9 @@ export async function reorderAlbumPhoto(formData: FormData) {
 }
 
 /** บันทึกลำดับรูปจาก drag and drop โดยเรียงใหม่เฉพาะรูปในวันที่เดียวกัน */
-export async function saveAlbumPhotoOrder(formData: FormData) {
+export async function saveAlbumPhotoOrder(
+  formData: FormData,
+): Promise<AlbumMutationState> {
   const result = saveAlbumPhotoOrderSchema.safeParse({
     roomId: formData.get("roomId"),
     roomCode: formData.get("roomCode"),
@@ -229,13 +298,13 @@ export async function saveAlbumPhotoOrder(formData: FormData) {
     photoIdsJson: formData.get("photoIdsJson"),
   });
 
-  if (!result.success) return;
+  if (!result.success) return { error: "ลำดับรูปไม่ถูกต้อง" };
 
   const { role, supabase, userId } = await getRoomMemberRole(
     result.data.roomId,
   );
 
-  if (!role) return;
+  if (!role) return { error: "คุณไม่ได้อยู่ในห้องนี้" };
 
   const { data: photos } = await supabase
     .from("album_photos")
@@ -245,15 +314,17 @@ export async function saveAlbumPhotoOrder(formData: FormData) {
     .in("id", result.data.photoIds);
   const dbPhotos = photos ?? [];
 
-  if (dbPhotos.length !== result.data.photoIds.length) return;
+  if (dbPhotos.length !== result.data.photoIds.length) {
+    return { error: "ไม่พบรูปบางรายการที่ต้องการจัดลำดับ" };
+  }
   if (
     role !== "owner" &&
     dbPhotos.some((photo) => photo.uploaded_by !== userId)
   ) {
-    return;
+    return { error: "คุณไม่มีสิทธิ์จัดลำดับรูปบางรายการ" };
   }
 
-  await Promise.all(
+  const updates = await Promise.all(
     result.data.photoIds.map((photoId, index) =>
       supabase
         .from("album_photos")
@@ -267,5 +338,11 @@ export async function saveAlbumPhotoOrder(formData: FormData) {
     ),
   );
 
+  const updateError = updates.find((update) => update.error)?.error;
+  if (updateError) {
+    return { error: "บันทึกลำดับรูปไม่สำเร็จ: " + updateError.message };
+  }
+
   revalidatePath(getAlbumPath(result.data.roomCode));
+  return { success: true };
 }

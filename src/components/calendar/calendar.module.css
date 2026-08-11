@@ -181,6 +181,28 @@
   background: var(--color-hover);
 }
 
+.dayHasEvents:not(.dayToday) {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-primary-soft) 30%, transparent),
+      transparent 68%
+    ),
+    color-mix(in srgb, var(--color-sidebar) 58%, var(--color-muted-surface));
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--color-primary) 24%, transparent);
+}
+
+.dayHasEvents:not(.dayToday):hover {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-primary-soft) 38%, transparent),
+      transparent 68%
+    ),
+    var(--color-hover);
+}
+
 .day[data-tooltip]:hover::after,
 .day[data-tooltip]:focus-visible::after {
   position: absolute;
@@ -253,64 +275,6 @@
   background: color-mix(in srgb, var(--color-primary-soft) 82%, transparent);
 }
 
-.markers {
-  display: grid;
-  gap: 0.35rem;
-  margin-top: 0.45rem;
-}
-
-.holidayMarker,
-.eventMarker {
-  position: relative;
-  min-width: 0;
-  overflow: hidden;
-  padding: 0.18rem 0.4rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  line-height: 1.25;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  border-radius: var(--radius-control);
-}
-
-.holidayMarker:hover::after,
-.holidayMarker:focus-visible::after,
-.eventMarker:hover::after,
-.eventMarker:focus-visible::after {
-  position: absolute;
-  z-index: 5;
-  left: 0;
-  bottom: calc(100% + 0.35rem);
-  max-width: min(16rem, 70vw);
-  padding: 0.45rem 0.55rem;
-  color: var(--color-text);
-  font-size: 0.75rem;
-  font-weight: 700;
-  white-space: normal;
-  content: attr(data-tooltip);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-control);
-  background: var(--color-sidebar);
-  box-shadow: var(--shadow-panel);
-}
-
-.holidayMarker {
-  color: var(--color-primary);
-  background: color-mix(in srgb, var(--color-primary-soft) 80%, transparent);
-  border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
-}
-
-.eventMarker {
-  color: var(--event-foreground, var(--color-primary-text));
-  background: var(--event-color, var(--color-primary));
-}
-
-.moreMarker {
-  color: var(--color-text-muted);
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
 .monthMarkers {
   display: grid;
   min-width: 0;
@@ -339,26 +303,22 @@
   background: color-mix(in srgb, var(--color-primary-soft) 84%, transparent);
 }
 
-.monthEventDots {
-  display: flex;
-  min-height: 0.7rem;
+.monthEventCount {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
   align-items: center;
+  padding: 0.16rem 0.45rem;
   overflow: hidden;
-  gap: 0.25rem;
-}
-
-.monthEventDot {
-  width: 0.52rem;
-  height: 0.52rem;
-  border: 1px solid color-mix(in srgb, var(--event-foreground) 22%, transparent);
-  border-radius: 999px;
-  background: var(--event-color, var(--color-primary));
-}
-
-.monthMoreDot {
-  color: var(--color-text-muted);
+  color: var(--color-text);
   font-size: 0.72rem;
   font-weight: 800;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border: 1px solid color-mix(in srgb, var(--color-border-strong) 86%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-muted-surface) 86%, transparent);
 }
 
 .panel {
@@ -427,20 +387,6 @@
   background: color-mix(in srgb, var(--color-muted-surface) 55%, transparent);
 }
 
-.itemHead {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.45rem;
-}
-
-.dot {
-  width: 0.7rem;
-  height: 0.7rem;
-  flex: 0 0 auto;
-  border-radius: 999px;
-  background: var(--event-color, var(--color-primary));
-}
-
 .itemTitle,
 .itemText {
   margin: 0;
@@ -477,8 +423,7 @@
   gap: 0.55rem;
 }
 
-.eventEditForm label,
-.compactColorField legend {
+.eventEditForm label {
   color: var(--color-text);
   font-size: 0.82rem;
   font-weight: 700;
@@ -495,67 +440,10 @@
   background: var(--color-surface);
 }
 
-.compactColorField {
-  display: grid;
-  gap: 0.5rem;
-  min-width: 0;
-  padding: 0;
-  border: 0;
-}
-
-.editActions,
-.deleteForm {
+.editActions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-}
-
-.textDangerButton {
-  width: fit-content;
-  padding: 0;
-  cursor: pointer;
-  color: var(--color-error-text);
-  font: inherit;
-  font-size: 0.875rem;
-  font-weight: 700;
-  border: 0;
-  background: transparent;
-}
-
-.colorField {
-  display: grid;
-  gap: 0.55rem;
-  min-width: 0;
-  padding: 0;
-  border: 0;
-}
-
-.colorOptions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.colorOption {
-  cursor: pointer;
-}
-
-.colorOption input {
-  position: absolute;
-  opacity: 0;
-}
-
-.colorSwatch {
-  display: block;
-  width: 2rem;
-  height: 2rem;
-  border: 2px solid var(--color-border-strong);
-  border-radius: var(--radius-control);
-}
-
-.colorOption input:checked + .colorSwatch {
-  border-color: var(--color-text);
-  box-shadow: 0 0 0 2px var(--color-focus);
 }
 
 .modalOverlay {
@@ -611,7 +499,7 @@
 
 .yearGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
 }
 
@@ -685,25 +573,20 @@
   box-shadow: 0 0 0 1px var(--color-primary);
 }
 
+.yearDayHasEvents:not(.yearDayToday) {
+  border-color: color-mix(in srgb, var(--color-primary) 26%, transparent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-primary-soft) 24%, transparent),
+      transparent 70%
+    ),
+    color-mix(in srgb, var(--color-muted-surface) 58%, transparent);
+}
+
 .yearDayToday {
   color: var(--color-primary-text);
   background: var(--color-primary);
-}
-
-.yearEventDots {
-  position: absolute;
-  top: 0.18rem;
-  right: 0.18rem;
-  display: flex;
-  align-items: center;
-  gap: 0.12rem;
-}
-
-.yearEventDot {
-  width: 0.28rem;
-  height: 0.28rem;
-  border-radius: 999px;
-  background: var(--event-color, #3b82f6);
 }
 
 .yearHolidayLine {
@@ -771,9 +654,20 @@
     font-size: 0.68rem;
   }
 
+  .calendarShellOpen .monthEventCount {
+    padding: 0.14rem 0.36rem;
+    font-size: 0.66rem;
+  }
+
   .monthListLayout {
     grid-template-columns: minmax(0, 1fr) 22rem;
     align-items: start;
+  }
+}
+
+@media (max-width: 68rem) {
+  .yearGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -815,9 +709,7 @@
     padding: 0.35rem;
   }
 
-  .holidayMarker,
-  .eventMarker {
-    max-width: 2.4rem;
-    padding-inline: 0.25rem;
+  .yearGrid {
+    grid-template-columns: 1fr;
   }
 }

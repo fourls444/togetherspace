@@ -1,18 +1,21 @@
 import styles from "@/app/(app)/rooms/[roomId]/settings/settings.module.css";
 import { CreateInviteForm } from "@/components/rooms/create-invite-form";
-import { InviteList, type InviteListItem } from "@/components/rooms/invite-list";
+import {
+  InviteList,
+  type InviteListItem,
+} from "@/components/rooms/invite-list";
 import { LeaveRoomButton } from "@/components/rooms/leave-room-button";
 import {
   MemberManagement,
   type ManageMemberItem,
 } from "@/components/rooms/member-management";
+import { RoomDetailsForm } from "@/components/rooms/room-details-form";
 import { RoomProfileForm } from "@/components/rooms/room-profile-form";
 import { ButtonLink } from "@/components/ui/button-link";
-import { CopyButton } from "@/components/ui/copy-button";
 import { ErrorState } from "@/components/ui/error-state";
 import { getRoomContext } from "@/lib/rooms/server";
 
-/** แชร์ห้อง — รหัส/คำเชิญ ดูแลสมาชิก และออกจากห้อง */
+/** แสดงการตั้งค่าห้องตามลำดับการใช้งานในคอลัมน์เดียว */
 export default async function RoomSettingsPage({
   params,
 }: {
@@ -25,7 +28,7 @@ export default async function RoomSettingsPage({
     return (
       <div className={styles.stack}>
         <ErrorState
-          description="ถ้าต้องการดูแลห้องนี้ กรุณาเข้าร่วมห้องก่อน"
+          description="หากต้องการดูแลห้องนี้ กรุณาเข้าร่วมห้องก่อน"
           headingLevel={1}
           title="คุณไม่ได้อยู่ในห้องนี้"
         />
@@ -34,7 +37,7 @@ export default async function RoomSettingsPage({
     );
   }
 
-  const { currentUserId, roomCode, roomId, supabase } = context;
+  const { currentUserId, room, roomCode, roomId, supabase } = context;
 
   const [
     memberRecordResult,
@@ -69,134 +72,155 @@ export default async function RoomSettingsPage({
       .maybeSingle(),
     supabase
       .from("room_profiles")
-      .select("user_id, display_name")
+      .select("user_id, display_name, avatar_url")
       .eq("room_id", roomId),
   ]);
 
   const isOwner = memberRecordResult.data?.role === "owner";
   const memberships = membershipsResult.data ?? [];
   const roomProfiles = new Map(
-    (roomProfilesResult.data ?? []).map((profile) => [profile.user_id, profile]),
+    (roomProfilesResult.data ?? []).map((profile) => [
+      profile.user_id,
+      profile,
+    ]),
   );
 
   const invitesResult = isOwner
     ? await supabase
         .from("room_invites")
         .select(
-          "id, invite_code, invite_token, uses_count, max_uses, expires_at, created_at, revoked_at",
+          "id, invite_code, invite_token, created_by, uses_count, max_uses, expires_at, created_at, revoked_at",
         )
         .eq("room_id", roomId)
         .order("created_at", { ascending: false })
     : { data: [] as never[] };
 
-  const members: ManageMemberItem[] = memberships.map((m) => {
-    const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles;
-    const roomProfile = roomProfiles.get(m.user_id);
+  const inviteRows = invitesResult.data ?? [];
+  const creatorIds = [
+    ...new Set(inviteRows.map((invite) => invite.created_by)),
+  ];
+  const inviteCreatorsResult = creatorIds.length
+    ? await supabase
+        .from("profiles")
+        .select("id, display_name, username")
+        .in("id", creatorIds)
+    : { data: [] as { id: string; display_name: string; username: string }[] };
+
+  const members: ManageMemberItem[] = memberships.map((membership) => {
+    const profile = Array.isArray(membership.profiles)
+      ? membership.profiles[0]
+      : membership.profiles;
+    const roomProfile = roomProfiles.get(membership.user_id);
+
     return {
-      userId: m.user_id,
+      userId: membership.user_id,
       displayName:
         roomProfile?.display_name ?? profile?.display_name ?? "ไม่พบชื่อสมาชิก",
       username: profile?.username ?? "unknown",
-      role: m.role,
+      avatarUrl: roomProfile?.avatar_url ?? profile?.avatar_url ?? null,
+      role: membership.role,
     };
   });
 
-  const invites: InviteListItem[] = (invitesResult.data ?? []).map((inv) => ({
-    id: inv.id,
-    inviteCode: inv.invite_code,
-    inviteToken: inv.invite_token,
-    usesCount: inv.uses_count,
-    maxUses: inv.max_uses,
-    expiresAt: inv.expires_at,
-    createdAt: inv.created_at,
-    revokedAt: inv.revoked_at,
+  const memberNames = new Map(
+    members.map((member) => [member.userId, member.displayName]),
+  );
+  const creatorNames = new Map(
+    (inviteCreatorsResult.data ?? []).map((profile) => [
+      profile.id,
+      profile.display_name || `@${profile.username}`,
+    ]),
+  );
+  const invites: InviteListItem[] = inviteRows.map((invite) => ({
+    id: invite.id,
+    inviteCode: invite.invite_code,
+    inviteToken: invite.invite_token,
+    usesCount: invite.uses_count,
+    maxUses: invite.max_uses,
+    expiresAt: invite.expires_at,
+    createdAt: invite.created_at,
+    revokedAt: invite.revoked_at,
+    createdByName:
+      memberNames.get(invite.created_by) ??
+      creatorNames.get(invite.created_by) ??
+      "ไม่พบชื่อผู้สร้าง",
   }));
 
   return (
     <div className={styles.stack}>
-      <div className={styles.settingsGrid}>
+      <div className={`${styles.primaryGrid} ${isOwner ? "" : styles.single}`}>
         <section className={`${styles.panel} ${styles.profilePanel}`}>
-        <h2 className={styles.title}>โปรไฟล์ของฉันในห้องนี้</h2>
-        <p className={styles.lead}>
-          ตั้งชื่อเล่นหรือรูปที่ใช้เฉพาะห้องนี้ โดยไม่กระทบโปรไฟล์หลัก
-        </p>
-        <RoomProfileForm
-          defaultValues={{
-            avatarUrl: roomProfileResult.data?.avatar_url ?? null,
-            displayName: roomProfileResult.data?.display_name ?? null,
-          }}
-          mainDisplayName={profileResult.data?.display_name ?? "โปรไฟล์หลัก"}
-          roomCode={roomCode}
-          roomId={roomId}
-        />
+          <h2 className={styles.title}>โปรไฟล์ของฉันในห้องนี้</h2>
+          <p className={styles.lead}>
+            ตั้งชื่อเล่นหรือรูปที่ใช้เฉพาะห้องนี้ โดยไม่กระทบโปรไฟล์หลัก
+          </p>
+          <RoomProfileForm
+            defaultValues={{
+              avatarUrl: roomProfileResult.data?.avatar_url ?? null,
+              displayName: roomProfileResult.data?.display_name ?? null,
+            }}
+            mainDisplayName={profileResult.data?.display_name ?? "โปรไฟล์หลัก"}
+            roomCode={roomCode}
+            roomId={roomId}
+          />
         </section>
 
-        <div className={styles.sideColumn}>
+        {isOwner ? (
           <section className={styles.panel}>
-        <h2 className={styles.title}>รหัสเข้าห้อง</h2>
-        <p className={styles.lead}>
-          ส่งรหัสห้องให้คนสำคัญ เพื่อเข้ามาอยู่ด้วยกัน
-        </p>
-        <div className={styles.codeRow}>
-          <code className={styles.code}>{roomCode}</code>
-          <CopyButton
-            copiedLabel="คัดลอกแล้ว"
-            label="คัดลอกรหัส"
-            text={roomCode}
-          />
-        </div>
-          </section>
-
-      {isOwner ? (
-        <>
-          <section className={styles.panel}>
-            <h2 className={styles.title}>คำเชิญชั่วคราว</h2>
+            <h2 className={styles.title}>ข้อมูลห้อง</h2>
             <p className={styles.lead}>
-              สร้างลิงก์ที่กำหนดวันหมดอายุ หรือจำกัดจำนวนครั้งได้
+              แก้ชื่อและรูปที่สมาชิกทุกคนเห็นร่วมกัน
             </p>
-            <CreateInviteForm roomCode={roomCode} roomId={roomId} />
-            <div className={styles.inviteList}>
-              <h3 className={styles.subTitle}>
-                ที่สร้างไว้แล้ว ({invites.length})
-              </h3>
-              <InviteList
-                invites={invites}
-                roomCode={roomCode}
-                roomId={roomId}
-              />
-            </div>
-          </section>
-
-          <section className={styles.panel}>
-            <h2 className={styles.title}>ดูแลสมาชิกในห้อง</h2>
-            <p className={styles.lead}>
-              เปลี่ยนบทบาท หรือนำคนออกจากห้องถ้าจำเป็น
-            </p>
-            <MemberManagement
-              currentUserId={currentUserId}
-              members={members}
+            <RoomDetailsForm
+              avatarUrl={room.avatar_url}
+              name={room.name}
               roomCode={roomCode}
               roomId={roomId}
+              roomType={room.type}
             />
+
+            <div className={styles.sectionDivider}>
+              <h3 className={styles.subTitle}>สร้างคำเชิญชั่วคราว</h3>
+              <p className={styles.lead}>
+                สร้างลิงก์ที่จำกัดจำนวนการใช้หรือกำหนดวันหมดอายุได้
+              </p>
+              <CreateInviteForm roomCode={roomCode} roomId={roomId} />
+
+              <details className={styles.inviteHistory}>
+                <summary>ดูคำเชิญที่สร้างไว้ ({invites.length})</summary>
+                <InviteList
+                  invites={invites}
+                  roomCode={roomCode}
+                  roomId={roomId}
+                />
+              </details>
+            </div>
           </section>
-        </>
-      ) : (
+        ) : null}
+      </div>
+
+      {isOwner ? (
         <section className={styles.panel}>
-          <h2 className={styles.title}>เชิญเพื่อนเข้าห้อง</h2>
+          <h2 className={styles.title}>ดูแลสมาชิกในห้อง</h2>
           <p className={styles.lead}>
-            ส่งรหัสห้องด้านบนให้เพื่อนได้เลย — การสร้างลิงก์เชิญและจัดการบทบาท
-            เป็นของเจ้าของห้อง
+            เปลี่ยนบทบาทหรือนำสมาชิกออก โดยแสดงครั้งละ 20 คน
           </p>
+          <MemberManagement
+            currentUserId={currentUserId}
+            members={members}
+            roomCode={roomCode}
+            roomId={roomId}
+          />
         </section>
-      )}
+      ) : null}
 
       <section className={`${styles.panel} ${styles.danger}`}>
         <h2 className={styles.title}>ออกจากห้อง</h2>
-        <p className={styles.lead}>ออกแล้วจะเข้าอีกครั้งได้ด้วยรหัสหรือคำเชิญ</p>
+        <p className={styles.lead}>
+          หลังออกจากห้อง คุณจะกลับเข้ามาได้อีกด้วยรหัสห้องหรือคำเชิญ
+        </p>
         <LeaveRoomButton roomId={roomId} />
       </section>
-        </div>
-      </div>
     </div>
   );
 }

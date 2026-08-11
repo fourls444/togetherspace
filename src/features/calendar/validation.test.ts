@@ -13,10 +13,9 @@ const validEvent = {
   title: "Dinner",
   description: "",
   eventDate: "2026-08-11",
-  color: "#F97316",
 };
 
-test("update calendar event validates event id and trims optional description", () => {
+test("update calendar event validates without requiring a color", () => {
   const result = updateCalendarEventSchema.safeParse(validEvent);
 
   assert.equal(result.success, true);

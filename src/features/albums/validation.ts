@@ -87,6 +87,18 @@ export const deleteAlbumPhotoSchema = z.object({
   storagePath: z.string().trim().min(1),
 });
 
+export const updateAlbumPhotoSchema = z.object({
+  roomId: z.string().uuid(),
+  roomCode: z.string().regex(/^\d{6}$/),
+  photoId: z.string().uuid(),
+  caption: z
+    .string()
+    .trim()
+    .max(280, "คำบรรยายต้องไม่เกิน 280 ตัวอักษร")
+    .transform((value) => value || null),
+  takenAt: dateKeySchema,
+});
+
 export const reorderAlbumPhotoSchema = z.object({
   roomId: z.string().uuid(),
   roomCode: z.string().regex(/^\d{6}$/),
@@ -111,6 +123,7 @@ export const saveAlbumPhotoOrderSchema = z
 
 export type SaveAlbumPhotosInput = z.infer<typeof saveAlbumPhotosSchema>;
 export type DeleteAlbumPhotoInput = z.infer<typeof deleteAlbumPhotoSchema>;
+export type UpdateAlbumPhotoInput = z.infer<typeof updateAlbumPhotoSchema>;
 export type ReorderAlbumPhotoInput = z.infer<typeof reorderAlbumPhotoSchema>;
 export type SaveAlbumPhotoOrderInput = z.infer<
   typeof saveAlbumPhotoOrderSchema

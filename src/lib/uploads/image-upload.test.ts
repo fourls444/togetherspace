@@ -44,6 +44,18 @@ test("สร้าง path รูปห้องที่ยังไม่ส�
   );
 });
 
+test("สร้าง path รูปห้องเดิมโดยแยกตาม room id", () => {
+  assert.equal(
+    createImageObjectPath({
+      kind: "room",
+      roomId: "room-1",
+      userId: "user-1",
+      timestamp: 457,
+    }),
+    "user-1/rooms/room-1-457.webp",
+  );
+});
+
 test("สร้าง path รูปโปรไฟล์เฉพาะห้องโดยมี room id ใน path", () => {
   assert.equal(
     createImageObjectPath({

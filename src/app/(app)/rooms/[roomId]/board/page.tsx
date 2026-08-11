@@ -49,9 +49,7 @@ export default async function RoomBoardPage({
 
   const itemsResult = await supabase
     .from("board_items")
-    .select(
-      "id, item_type, title, body, created_at, poll_max_votes_per_user",
-    )
+    .select("id, item_type, title, body, created_at, poll_max_votes_per_user")
     .eq("board_id", boardId)
     .is("archived_at", null)
     .order("z_index")
@@ -107,8 +105,7 @@ export default async function RoomBoardPage({
       currentUser: false,
     };
     current.count += 1;
-    current.currentUser =
-      current.currentUser || vote.user_id === currentUserId;
+    current.currentUser = current.currentUser || vote.user_id === currentUserId;
     votesByOption.set(vote.option_id, current);
   }
 
@@ -147,11 +144,20 @@ export default async function RoomBoardPage({
         <p className={styles.lead}>
           เก็บโน้ต เช็คลิสต์ และโพลไว้ด้วยกันในห้องนี้
         </p>
-        <BoardCreateForms boardId={boardId} roomCode={roomCode} roomId={roomId} />
+        <BoardCreateForms
+          boardId={boardId}
+          roomCode={roomCode}
+          roomId={roomId}
+        />
       </section>
       <section className={styles.panel}>
         <h2 className={styles.title}>บนบอร์ดตอนนี้</h2>
-        <BoardItemList items={items} roomCode={roomCode} roomId={roomId} />
+        <BoardItemList
+          items={items}
+          key={JSON.stringify(items)}
+          roomCode={roomCode}
+          roomId={roomId}
+        />
       </section>
     </div>
   );

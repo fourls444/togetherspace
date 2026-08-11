@@ -17,7 +17,6 @@ export type CalendarActionState = {
     title?: string[];
     description?: string[];
     eventDate?: string[];
-    color?: string[];
   };
   success?: boolean;
 };
@@ -55,7 +54,6 @@ export async function createCalendarEvent(
     title: formData.get("title"),
     description: formData.get("description"),
     eventDate: formData.get("eventDate"),
-    color: formData.get("color"),
   });
 
   if (!result.success) {
@@ -69,7 +67,6 @@ export async function createCalendarEvent(
     title: result.data.title,
     description: result.data.description,
     event_date: result.data.eventDate,
-    color: result.data.color,
     created_by: userId,
   });
 
@@ -82,7 +79,9 @@ export async function createCalendarEvent(
 }
 
 /** แก้ไขกิจกรรมเดิมของห้อง โดยให้ RLS ในฐานข้อมูลคุมสิทธิ์จริง */
-export async function updateCalendarEvent(formData: FormData) {
+export async function updateCalendarEvent(
+  formData: FormData,
+): Promise<CalendarActionState> {
   const result = updateCalendarEventSchema.safeParse({
     roomId: formData.get("roomId"),
     roomCode: formData.get("roomCode"),
@@ -90,43 +89,51 @@ export async function updateCalendarEvent(formData: FormData) {
     title: formData.get("title"),
     description: formData.get("description"),
     eventDate: formData.get("eventDate"),
-    color: formData.get("color"),
   });
 
-  if (!result.success) return;
+  if (!result.success) {
+    return { error: result.error.issues[0]?.message ?? "ข้อมูลกิจกรรมไม่ถูกต้อง" };
+  }
 
   const { supabase } = await requireCalendarUser();
-  await supabase
+  const { error } = await supabase
     .from("calendar_events")
     .update({
       title: result.data.title,
       description: result.data.description,
       event_date: result.data.eventDate,
-      color: result.data.color,
       updated_at: new Date().toISOString(),
     })
     .eq("id", result.data.eventId)
     .eq("room_id", result.data.roomId);
 
+  if (error) return { error: "แก้ไขกิจกรรมไม่สำเร็จ: " + error.message };
+
   revalidateCalendarPaths(result.data.roomCode);
+  return { success: true };
 }
 
 /** ลบกิจกรรมออกจากปฏิทินห้อง */
-export async function deleteCalendarEvent(formData: FormData) {
+export async function deleteCalendarEvent(
+  formData: FormData,
+): Promise<CalendarActionState> {
   const result = deleteCalendarEventSchema.safeParse({
     roomId: formData.get("roomId"),
     roomCode: formData.get("roomCode"),
     eventId: formData.get("eventId"),
   });
 
-  if (!result.success) return;
+  if (!result.success) return { error: "ข้อมูลกิจกรรมไม่ถูกต้อง" };
 
   const { supabase } = await requireCalendarUser();
-  await supabase
+  const { error } = await supabase
     .from("calendar_events")
     .delete()
     .eq("id", result.data.eventId)
     .eq("room_id", result.data.roomId);
 
+  if (error) return { error: "ลบกิจกรรมไม่สำเร็จ: " + error.message };
+
   revalidateCalendarPaths(result.data.roomCode);
+  return { success: true };
 }

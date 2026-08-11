@@ -30,6 +30,7 @@
 
 .primary {
   color: var(--color-primary-text);
+  font-weight: 700;
   background: var(--color-primary);
   border-color: var(--color-primary);
 }

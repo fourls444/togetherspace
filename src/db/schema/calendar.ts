@@ -21,7 +21,6 @@ export const calendarEvents = pgTable(
     title: text("title").notNull(),
     description: text("description"),
     eventDate: date("event_date").notNull(),
-    color: text("color").notNull().default("#E8A055"),
     createdBy: uuid("created_by")
       .notNull()
       .references(() => profiles.id),
@@ -36,10 +35,6 @@ export const calendarEvents = pgTable(
     check(
       "calendar_events_title_length",
       sql`length(btrim(${table.title})) BETWEEN 1 AND 120`,
-    ),
-    check(
-      "calendar_events_color_hex",
-      sql`${table.color} ~ '^#[0-9A-Fa-f]{6}$'`,
     ),
   ],
 );

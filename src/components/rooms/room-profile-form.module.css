@@ -1,0 +1,29 @@
+.editorForm {
+  display: grid;
+  grid-template-columns: minmax(9rem, 11rem) minmax(0, 1fr);
+  gap: 1.35rem 1.75rem;
+  align-items: start;
+}
+
+.avatarColumn,
+.identityField {
+  min-width: 0;
+}
+
+.fullRow {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 40rem) {
+  .editorForm {
+    grid-template-columns: 1fr;
+  }
+
+  .avatarColumn {
+    width: min(100%, 12rem);
+  }
+
+  .fullRow {
+    grid-column: auto;
+  }
+}

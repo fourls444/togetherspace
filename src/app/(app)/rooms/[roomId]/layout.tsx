@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from "react";
 
 import styles from "@/components/rooms/room-chrome.module.css";
+import { RoomCodeCopy } from "@/components/rooms/room-code-copy";
 import { RoomNav } from "@/components/rooms/room-nav";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ROOM_TYPE_LABEL } from "@/lib/rooms/labels";
@@ -8,7 +9,7 @@ import { getRoomPath, getRoomSubPath } from "@/lib/rooms/room-path";
 import { getRoomContext } from "@/lib/rooms/server";
 import { getDefaultImageUrl } from "@/lib/uploads/image-upload";
 
-/** โครงห้อง — เข้าอยู่สถานที่ ไม่ใช่สลับเซิร์ฟเวอร์ */
+/** โครงห้องหลัก ใช้ room code ใน URL และแสดงเมนูของแต่ละโมดูล */
 export default async function RoomLayout({
   children,
   params,
@@ -33,7 +34,7 @@ export default async function RoomLayout({
   return (
     <div className={styles.place}>
       <ButtonLink className={styles.backButton} href="/dashboard">
-        กลับหน้าแรก
+        ← กลับหน้าแรก
       </ButtonLink>
       <header className={styles.header}>
         <div className={styles.headerTop}>
@@ -48,20 +49,17 @@ export default async function RoomLayout({
             </div>
           </div>
           <div className={styles.headerFacts}>
-            <div>
+            <div className={styles.factCard}>
               <span>สมาชิก</span>
               <strong>{memberCount ?? 0} คน</strong>
             </div>
-            <div>
-              <span>รหัสห้อง</span>
-              <strong>{roomCode}</strong>
-            </div>
+            <RoomCodeCopy className={styles.factCard} roomCode={roomCode} />
           </div>
         </div>
         <div className={styles.overview} aria-label="มุมหลักของห้อง">
           <p className={styles.overviewKicker}>มุมหลักของห้อง</p>
           <p className={styles.overviewText}>
-            รวมทางเข้าไปยังปฏิทิน อัลบั้ม บอร์ด และสมาชิกของห้องนี้
+            รวมทางเข้าไปยังปฏิทิน แผนที่ อัลบั้ม บอร์ด และสมาชิกของห้องนี้
           </p>
         </div>
         <RoomNav
@@ -69,9 +67,16 @@ export default async function RoomLayout({
             { href: roomPath, label: "หน้าหลัก", exact: true },
             { href: getRoomSubPath(roomCode, "board"), label: "บอร์ด" },
             { href: getRoomSubPath(roomCode, "calendar"), label: "ปฏิทิน" },
+            { href: getRoomSubPath(roomCode, "map"), label: "แผนที่" },
             { href: getRoomSubPath(roomCode, "album"), label: "อัลบั้ม" },
-            { href: getRoomSubPath(roomCode, "members"), label: "สมาชิกในห้อง" },
-            { href: getRoomSubPath(roomCode, "settings"), label: "ตั้งค่าห้อง" },
+            {
+              href: getRoomSubPath(roomCode, "members"),
+              label: "สมาชิกในห้อง",
+            },
+            {
+              href: getRoomSubPath(roomCode, "settings"),
+              label: "ตั้งค่าห้อง",
+            },
           ]}
         />
       </header>

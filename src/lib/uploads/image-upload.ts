@@ -46,6 +46,10 @@ export function createImageObjectPath({
     return `${safeUserId}/albums/${safeRoomId}/${timestamp}.webp`;
   }
 
+  if (kind === "room" && safeRoomId) {
+    return `${safeUserId}/rooms/${safeRoomId}-${timestamp}.webp`;
+  }
+
   return `${safeUserId}/room-draft-${timestamp}.webp`;
 }
 

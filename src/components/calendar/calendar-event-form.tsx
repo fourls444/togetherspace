@@ -6,11 +6,9 @@ import {
   createCalendarEvent,
   type CalendarActionState,
 } from "@/features/calendar/actions";
-import { CALENDAR_EVENT_COLORS } from "@/features/calendar/validation";
 import { Button } from "@/components/ui/button";
 import { FieldErrors } from "@/components/ui/field-errors";
 import formStyles from "@/components/ui/form.module.css";
-import styles from "@/components/calendar/calendar.module.css";
 
 const initialState: CalendarActionState = {};
 
@@ -20,7 +18,7 @@ type CalendarEventFormProps = {
   roomId: string;
 };
 
-/** ฟอร์มเพิ่มกิจกรรมลงวันที่ที่เลือก พร้อมสี marker บนปฏิทิน */
+/** ฟอร์มเพิ่มกิจกรรมลงวันที่ที่เลือก */
 export function CalendarEventForm({
   defaultDate,
   roomCode,
@@ -99,32 +97,6 @@ export function CalendarEventForm({
           messages={state.fieldErrors?.description}
         />
       </div>
-
-      <fieldset className={styles.colorField}>
-        <legend className={formStyles.label}>สีบนปฏิทิน</legend>
-        <div className={styles.colorOptions}>
-          {CALENDAR_EVENT_COLORS.map((color, index) => (
-            <label className={styles.colorOption} key={color}>
-              <input
-                aria-label={`สีที่ ${index + 1}`}
-                defaultChecked={index === 0}
-                name="color"
-                type="radio"
-                value={color}
-              />
-              <span
-                aria-hidden
-                className={styles.colorSwatch}
-                style={{ backgroundColor: color }}
-              />
-            </label>
-          ))}
-        </div>
-        <FieldErrors
-          id="event-color-errors"
-          messages={state.fieldErrors?.color}
-        />
-      </fieldset>
 
       {state.error ? (
         <p className={formStyles.serviceError} role="alert">
