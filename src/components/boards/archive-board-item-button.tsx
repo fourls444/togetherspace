@@ -12,6 +12,7 @@ type ArchiveBoardItemButtonProps = {
   roomCode: string;
   roomId: string;
   title: string;
+  onArchived?: () => void;
   onResult: (message: string, tone: "success" | "error") => void;
 };
 
@@ -21,6 +22,7 @@ export function ArchiveBoardItemButton({
   roomCode,
   roomId,
   title,
+  onArchived,
   onResult,
 }: ArchiveBoardItemButtonProps) {
   const [open, setOpen] = useState(false);
@@ -42,6 +44,7 @@ export function ArchiveBoardItemButton({
       }
 
       setOpen(false);
+      onArchived?.();
       onResult("จัดเก็บรายการเรียบร้อยแล้ว", "success");
     });
   }

@@ -91,6 +91,10 @@
   gap: 1rem;
 }
 
+.form > button:last-child {
+  justify-self: end;
+}
+
 .hint,
 .success {
   margin: 0;
@@ -123,5 +127,9 @@
 @media (max-width: 48rem) {
   .presets {
     grid-template-columns: 1fr;
+  }
+
+  .form > button:last-child {
+    justify-self: stretch;
   }
 }

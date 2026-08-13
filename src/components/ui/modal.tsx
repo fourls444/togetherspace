@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useId, useRef, type PropsWithChildren } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type PropsWithChildren,
+} from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 import styles from "./modal.module.css";
@@ -35,8 +42,13 @@ export function Modal({
 }: ModalProps) {
   const titleId = useId();
   const descriptionId = useId();
+  const [mounted, setMounted] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -86,9 +98,9 @@ export function Modal({
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
+  return createPortal(
     <div
       className={styles.backdrop}
       onMouseDown={(event) => {
@@ -128,6 +140,7 @@ export function Modal({
         </header>
         <div className={styles.body}>{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

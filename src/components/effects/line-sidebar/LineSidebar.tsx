@@ -102,14 +102,17 @@ export default function LineSidebar({
   const [selectedHref, setSelectedHref] = useState(activeHref);
 
   const currentHref = activeHref ?? selectedHref;
-  smoothingRef.current = smoothing;
   const moreItems = [
     ...items.filter((item) => compactSlot(item, "primary") === "more"),
     ...footerItems.filter((item) => compactSlot(item, "more") === "more"),
   ];
   const moreActive = moreItems.some((item) => item.href === currentHref);
 
-  const runFrame = useCallback((now: number) => {
+  useEffect(() => {
+    smoothingRef.current = smoothing;
+  }, [smoothing]);
+
+  const runFrame = useCallback(function runFrame(now: number) {
     const dt = Math.min((now - lastRef.current) / 1000, 0.05);
     lastRef.current = now;
     const followMs = Math.max(smoothingRef.current, 1);

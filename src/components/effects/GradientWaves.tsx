@@ -342,7 +342,7 @@ export default function GradientWaves({
       }
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
-  }, []);
+  }, [maxDpr]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -406,7 +406,6 @@ export default function GradientWaves({
     opacity,
     grain,
     grainIntensity,
-    maxDpr,
     mouseInteraction,
     parallaxStrength,
   ]);

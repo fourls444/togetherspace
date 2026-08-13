@@ -82,6 +82,8 @@ export const archiveBoardItemSchema = z.object({
   boardItemId: z.string().uuid("ID card ไม่ถูกต้อง"),
 });
 
+export const restoreBoardItemSchema = archiveBoardItemSchema;
+
 export const updateBoardItemSchema = z.object({
   roomId: z.string().uuid("ID ห้องไม่ถูกต้อง"),
   boardItemId: z.string().uuid("ID card ไม่ถูกต้อง"),

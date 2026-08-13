@@ -310,6 +310,19 @@ export default function FloatingLines({
   const bottomLineDistance = enabledWaves.includes("bottom")
     ? getLineDistance("bottom") * 0.01
     : 0.01;
+  const enableTop = enabledWaves.includes("top");
+  const enableMiddle = enabledWaves.includes("middle");
+  const enableBottom = enabledWaves.includes("bottom");
+  const linesGradientKey = JSON.stringify(linesGradient ?? []);
+  const topWaveX = topWavePosition?.x ?? 10.0;
+  const topWaveY = topWavePosition?.y ?? 0.5;
+  const topWaveRotate = topWavePosition?.rotate ?? -0.4;
+  const middleWaveX = middleWavePosition?.x ?? 5.0;
+  const middleWaveY = middleWavePosition?.y ?? 0.0;
+  const middleWaveRotate = middleWavePosition?.rotate ?? 0.2;
+  const bottomWaveX = bottomWavePosition?.x ?? 2.0;
+  const bottomWaveY = bottomWavePosition?.y ?? -0.7;
+  const bottomWaveRotate = bottomWavePosition?.rotate ?? 0.4;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -331,9 +344,9 @@ export default function FloatingLines({
       iTime: { value: 0 },
       iResolution: { value: new Vector3(1, 1, 1) },
       animationSpeed: { value: animationSpeed },
-      enableTop: { value: enabledWaves.includes("top") },
-      enableMiddle: { value: enabledWaves.includes("middle") },
-      enableBottom: { value: enabledWaves.includes("bottom") },
+      enableTop: { value: enableTop },
+      enableMiddle: { value: enableMiddle },
+      enableBottom: { value: enableBottom },
       topLineCount: { value: topLineCount },
       middleLineCount: { value: middleLineCount },
       bottomLineCount: { value: bottomLineCount },
@@ -342,23 +355,23 @@ export default function FloatingLines({
       bottomLineDistance: { value: bottomLineDistance },
       topWavePosition: {
         value: new Vector3(
-          topWavePosition?.x ?? 10.0,
-          topWavePosition?.y ?? 0.5,
-          topWavePosition?.rotate ?? -0.4,
+          topWaveX,
+          topWaveY,
+          topWaveRotate,
         ),
       },
       middleWavePosition: {
         value: new Vector3(
-          middleWavePosition?.x ?? 5.0,
-          middleWavePosition?.y ?? 0.0,
-          middleWavePosition?.rotate ?? 0.2,
+          middleWaveX,
+          middleWaveY,
+          middleWaveRotate,
         ),
       },
       bottomWavePosition: {
         value: new Vector3(
-          bottomWavePosition?.x ?? 2.0,
-          bottomWavePosition?.y ?? -0.7,
-          bottomWavePosition?.rotate ?? 0.4,
+          bottomWaveX,
+          bottomWaveY,
+          bottomWaveRotate,
         ),
       },
       iMouse: { value: new Vector2(-1000, -1000) },
@@ -378,8 +391,9 @@ export default function FloatingLines({
       lineGradientCount: { value: 0 },
     };
 
-    if (linesGradient && linesGradient.length > 0) {
-      const stops = linesGradient.slice(0, MAX_GRADIENT_STOPS);
+    const gradientStops = JSON.parse(linesGradientKey) as string[];
+    if (gradientStops.length > 0) {
+      const stops = gradientStops.slice(0, MAX_GRADIENT_STOPS);
       uniforms.lineGradientCount.value = stops.length;
       stops.forEach((hex, i) => {
         const color = hexToVec3(hex);
@@ -518,15 +532,19 @@ export default function FloatingLines({
     topLineDistance,
     middleLineDistance,
     bottomLineDistance,
-    // Stable primitives / serialized config — avoid remount on new array identities
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- arrays compared by JSON below
-    JSON.stringify(linesGradient),
-    JSON.stringify(enabledWaves),
-    JSON.stringify(lineCount),
-    JSON.stringify(lineDistance),
-    JSON.stringify(topWavePosition),
-    JSON.stringify(middleWavePosition),
-    JSON.stringify(bottomWavePosition),
+    enableTop,
+    enableMiddle,
+    enableBottom,
+    linesGradientKey,
+    topWaveX,
+    topWaveY,
+    topWaveRotate,
+    middleWaveX,
+    middleWaveY,
+    middleWaveRotate,
+    bottomWaveX,
+    bottomWaveY,
+    bottomWaveRotate,
   ]);
 
   return (

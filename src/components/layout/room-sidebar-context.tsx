@@ -43,7 +43,10 @@ export function RoomSidebarProvider({ children }: PropsWithChildren) {
   }, []);
 
   useEffect(() => {
-    if (readCompact()) setOpen(false);
+    const timeoutId = window.setTimeout(() => {
+      if (readCompact()) setOpen(false);
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
   }, [pathname]);
 
   const isOpen = open ?? !isCompact;

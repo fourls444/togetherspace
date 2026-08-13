@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type PropsWithChildren, type ReactNode } from "react";
+import { useEffect, type PropsWithChildren, type ReactNode } from "react";
 
 import { AtelierIridescence } from "@/components/effects/iridescence/atelier-iridescence";
 import { useRoomSidebar } from "@/components/layout/room-sidebar-context";
@@ -14,11 +14,6 @@ type RoomChromeProps = PropsWithChildren<{
 
 export function RoomChrome({ children, nav, roomType }: RoomChromeProps) {
   const { close, isCompact, isOpen, registerSidebar } = useRoomSidebar();
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    setReady(true);
-  }, []);
 
   useEffect(() => {
     document.documentElement.dataset.roomType = roomType;
@@ -43,8 +38,8 @@ export function RoomChrome({ children, nav, roomType }: RoomChromeProps) {
 
   const placeClass = [
     styles.place,
-    ready && isOpen ? styles.isOpen : "",
-    ready && !isOpen ? styles.isCollapsed : "",
+    isOpen ? styles.isOpen : "",
+    !isOpen ? styles.isCollapsed : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -66,7 +61,7 @@ export function RoomChrome({ children, nav, roomType }: RoomChromeProps) {
       <aside
         className={styles.alcove}
         id="room-alcove"
-        inert={ready && !isOpen ? true : undefined}
+        inert={!isOpen ? true : undefined}
       >
         {nav}
       </aside>

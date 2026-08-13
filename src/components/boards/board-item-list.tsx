@@ -24,7 +24,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Pencil, Save } from "lucide-react";
+import { GripVertical, Pencil, RotateCcw, Save } from "lucide-react";
 
 import {
   createChecklistItem,
@@ -38,14 +38,18 @@ import {
   updatePollSettings,
   votePollOption,
   reorderBoardItems as saveBoardItemOrder,
+  restoreBoardItem,
   type BoardMutationState,
 } from "@/features/boards/actions";
 import { ArchiveBoardItemButton } from "@/components/boards/archive-board-item-button";
 import {
   getPollOptionPercent,
+  getBoardFilterCounts,
+  getVisibleBoardItems,
   reorderBoardItems,
   toggleChecklistState,
   togglePollVoteState,
+  type BoardFilter,
 } from "@/components/boards/board-interaction-state";
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
@@ -63,6 +67,7 @@ export type BoardItemView = {
   title: string;
   body: string | null;
   createdAt: string;
+  archivedAt: string | null;
   pollMaxVotesPerUser: number;
   checklistItems: {
     id: string;
@@ -129,11 +134,17 @@ export function BoardItemList({
     message: string;
     tone: "success" | "error";
   } | null>(null);
+  const [activeFilter, setActiveFilter] = useState<BoardFilter>("all");
 
   if (sourceItems !== items) {
     setSourceItems(items);
     setLocalItems(items);
   }
+
+  const filterCounts = getBoardFilterCounts(localItems);
+  const visibleItems = getVisibleBoardItems(localItems, activeFilter);
+  const isArchiveView = activeFilter === "archived";
+  const canReorder = activeFilter === "all";
 
   if (!items.length) {
     return (
@@ -263,6 +274,8 @@ export function BoardItemList({
 
   /** จัดลำดับ card แบบ optimistic แล้วบันทึก z_index ลงฐานข้อมูล */
   function handleDragEnd(event: DragEndEvent) {
+    if (!canReorder) return;
+
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
@@ -296,20 +309,117 @@ export function BoardItemList({
     });
   }
 
+  /** กู้คืน card จากแท็บจัดเก็บแบบ optimistic แล้วค่อยบันทึกกลับฐานข้อมูล */
+  function handleRestore(boardItemId: string) {
+    const previousItems = localItems;
+    setLocalItems((currentItems) =>
+      currentItems.map((item) =>
+        item.id === boardItemId ? { ...item, archivedAt: null } : item,
+      ),
+    );
+
+    const formData = new FormData();
+    formData.set("roomId", roomId);
+    formData.set("roomCode", roomCode);
+    formData.set("boardItemId", boardItemId);
+
+    startTransition(async () => {
+      const result = await restoreBoardItem(formData);
+      if (result.error) {
+        setLocalItems(previousItems);
+        setToast({ message: result.error, tone: "error" });
+        return;
+      }
+      setToast({ message: "กู้คืนรายการกลับมาบนบอร์ดแล้ว", tone: "success" });
+    });
+  }
+
   return (
-    <section aria-label="รายการบนบอร์ด" className={styles.grid}>
-      <DndContext
-        id={`board-items-${boardId}`}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-        sensors={sensors}
-      >
-        <SortableContext
-          items={localItems.map((item) => item.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          {localItems.map((item) => (
-            <SortableBoardCard item={item} key={item.id}>
+    <section aria-label="รายการบนบอร์ด" className={styles.shell}>
+      <div className={styles.filters} role="tablist" aria-label="กรองรายการบอร์ด">
+        <BoardFilterButton
+          activeFilter={activeFilter}
+          count={filterCounts.all}
+          label="ทั้งหมด"
+          onSelect={setActiveFilter}
+          value="all"
+        />
+        <BoardFilterButton
+          activeFilter={activeFilter}
+          count={filterCounts.note}
+          label={copy.itemTypeLabels.note}
+          onSelect={setActiveFilter}
+          value="note"
+        />
+        <BoardFilterButton
+          activeFilter={activeFilter}
+          count={filterCounts.checklist}
+          label={copy.itemTypeLabels.checklist}
+          onSelect={setActiveFilter}
+          value="checklist"
+        />
+        <BoardFilterButton
+          activeFilter={activeFilter}
+          count={filterCounts.poll}
+          label={copy.itemTypeLabels.poll}
+          onSelect={setActiveFilter}
+          value="poll"
+        />
+        <BoardFilterButton
+          activeFilter={activeFilter}
+          count={filterCounts.archived}
+          label="จัดเก็บ"
+          onSelect={setActiveFilter}
+          value="archived"
+        />
+      </div>
+
+      {visibleItems.length ? (
+        isArchiveView ? (
+          <div className={styles.grid}>
+            {visibleItems.map((item) => (
+              <article
+                className={styles.card}
+                data-archived="true"
+                data-type={item.itemType}
+                key={item.id}
+              >
+                <div className={styles.cardHeader}>
+                  <div>
+                    <p className={styles.type}>
+                      {copy.itemTypeLabels[item.itemType]}
+                    </p>
+                    <h2 className={styles.title}>{item.title}</h2>
+                  </div>
+                  <div className={styles.cardActions}>
+                    <Button
+                      disabled={isPending}
+                      onClick={() => handleRestore(item.id)}
+                      type="button"
+                      variant="primary"
+                    >
+                      <RotateCcw aria-hidden size={15} /> กู้คืน
+                    </Button>
+                  </div>
+                </div>
+                {item.body ? <BoardBody body={item.body} /> : null}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className={styles.grid}>
+            <DndContext
+              id={`board-items-${boardId}`}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+              sensors={sensors}
+            >
+              <SortableContext
+                items={visibleItems.map((item) => item.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {visibleItems.map((item) => (
+            <SortableBoardCard disabled={!canReorder} item={item} key={item.id}>
               {({ attributes, listeners, setActivatorNodeRef }) => (
                 <>
                   <div className={styles.cardHeader}>
@@ -320,16 +430,18 @@ export function BoardItemList({
                       <h2 className={styles.title}>{item.title}</h2>
                     </div>
                     <div className={styles.cardActions}>
-                      <button
-                        {...attributes}
-                        {...listeners}
-                        className={styles.dragHandle}
-                        ref={setActivatorNodeRef}
-                        type="button"
-                        aria-label={`ลากเพื่อจัดลำดับ ${item.title}`}
-                      >
-                        <GripVertical aria-hidden size={16} />
-                      </button>
+                      {canReorder ? (
+                        <button
+                          {...attributes}
+                          {...listeners}
+                          className={styles.dragHandle}
+                          ref={setActivatorNodeRef}
+                          type="button"
+                          aria-label={`ลากเพื่อจัดลำดับ ${item.title}`}
+                        >
+                          <GripVertical aria-hidden size={16} />
+                        </button>
+                      ) : null}
                       <Button
                         onClick={() => setEditingItemId(item.id)}
                         type="button"
@@ -341,6 +453,18 @@ export function BoardItemList({
                         roomCode={roomCode}
                         roomId={roomId}
                         title={item.title}
+                        onArchived={() =>
+                          setLocalItems((currentItems) =>
+                            currentItems.map((currentItem) =>
+                              currentItem.id === item.id
+                                ? {
+                                    ...currentItem,
+                                    archivedAt: new Date().toISOString(),
+                                  }
+                                : currentItem,
+                            ),
+                          )
+                        }
                         onResult={(message, tone) =>
                           setToast({ message, tone })
                         }
@@ -390,9 +514,21 @@ export function BoardItemList({
                 </>
               )}
             </SortableBoardCard>
-          ))}
-        </SortableContext>
-      </DndContext>
+                ))}
+              </SortableContext>
+            </DndContext>
+          </div>
+        )
+      ) : (
+        <div className={styles.filteredEmpty}>
+          <h2>{activeFilter === "archived" ? "ยังไม่มีรายการที่จัดเก็บ" : "ยังไม่มีรายการในหมวดนี้"}</h2>
+          <p>
+            {activeFilter === "archived"
+              ? "รายการที่กดจัดเก็บจะมาอยู่ตรงนี้ และสามารถกู้คืนกลับไปบนบอร์ดได้"
+              : "ลองเลือกหมวดอื่น หรือเพิ่มรายการใหม่จากปุ่มด้านบน"}
+          </p>
+        </div>
+      )}
       <BoardEditModal
         item={localItems.find((item) => item.id === editingItemId) ?? null}
         copy={copy}
@@ -437,9 +573,40 @@ export function BoardItemList({
   );
 }
 
+function BoardFilterButton({
+  activeFilter,
+  count,
+  label,
+  onSelect,
+  value,
+}: {
+  activeFilter: BoardFilter;
+  count: number;
+  label: string;
+  onSelect: (filter: BoardFilter) => void;
+  value: BoardFilter;
+}) {
+  const selected = activeFilter === value;
+
+  return (
+    <button
+      aria-selected={selected}
+      className={styles.filterButton}
+      data-active={selected ? "true" : undefined}
+      onClick={() => onSelect(value)}
+      role="tab"
+      type="button"
+    >
+      <span>{label}</span>
+      <strong>{count}</strong>
+    </button>
+  );
+}
+
 /** ครอบ card ให้ลากเรียงลำดับได้ โดยคงเนื้อหาด้านในเหมือน card ปกติ */
 function SortableBoardCard({
   children,
+  disabled,
   item,
 }: {
   children: (handleProps: {
@@ -447,6 +614,7 @@ function SortableBoardCard({
     listeners: ReturnType<typeof useSortable>["listeners"];
     setActivatorNodeRef: ReturnType<typeof useSortable>["setActivatorNodeRef"];
   }) => ReactNode;
+  disabled?: boolean;
   item: BoardItemView;
 }) {
   const {
@@ -457,7 +625,7 @@ function SortableBoardCard({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: item.id });
+  } = useSortable({ disabled, id: item.id });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,

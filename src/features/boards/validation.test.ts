@@ -7,6 +7,7 @@ import {
   deleteChecklistItemSchema,
   deletePollOptionSchema,
   reorderBoardItemsSchema,
+  restoreBoardItemSchema,
   toggleChecklistSchema,
   updatePollSettingsSchema,
 } from "./validation.ts";
@@ -111,5 +112,15 @@ test("ไม่รับการบันทึกลำดับ board ถ้�
       orderedItemIds: [],
     }).success,
     false,
+  );
+});
+
+test("รับ id สำหรับกู้คืนรายการที่จัดเก็บ", () => {
+  assert.equal(
+    restoreBoardItemSchema.safeParse({
+      roomId: ROOM_ID,
+      boardItemId: BOARD_ITEM_ID,
+    }).success,
+    true,
   );
 });

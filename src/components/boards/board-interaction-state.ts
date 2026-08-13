@@ -1,3 +1,38 @@
+export type BoardFilter = "all" | "archived" | "checklist" | "note" | "poll";
+
+type FilterableBoardItem = {
+  archivedAt: string | null;
+  itemType: "checklist" | "note" | "poll";
+};
+
+/** กรอง card ตามแท็บที่ผู้ใช้เลือก โดยแยกของที่จัดเก็บออกจากบอร์ดปกติ */
+export function getVisibleBoardItems<T extends FilterableBoardItem>(
+  items: readonly T[],
+  filter: BoardFilter,
+): T[] {
+  if (filter === "archived") {
+    return items.filter((item) => item.archivedAt);
+  }
+
+  return items.filter((item) => {
+    if (item.archivedAt) return false;
+    return filter === "all" || item.itemType === filter;
+  });
+}
+
+/** นับจำนวน card ในแต่ละแท็บ เพื่อให้ผู้ใช้รู้ว่ามีอะไรอยู่ตรงไหนบ้าง */
+export function getBoardFilterCounts<T extends FilterableBoardItem>(
+  items: readonly T[],
+): Record<BoardFilter, number> {
+  return {
+    all: getVisibleBoardItems(items, "all").length,
+    archived: getVisibleBoardItems(items, "archived").length,
+    checklist: getVisibleBoardItems(items, "checklist").length,
+    note: getVisibleBoardItems(items, "note").length,
+    poll: getVisibleBoardItems(items, "poll").length,
+  };
+}
+
 export type InteractiveBoardItem = {
   id: string;
   pollMaxVotesPerUser: number;

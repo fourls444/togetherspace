@@ -52,9 +52,10 @@ export default async function RoomBoardPage({
 
   const itemsResult = await supabase
     .from("board_items")
-    .select("id, item_type, title, body, created_at, poll_max_votes_per_user")
+    .select(
+      "id, item_type, title, body, created_at, archived_at, poll_max_votes_per_user",
+    )
     .eq("board_id", boardId)
-    .is("archived_at", null)
     .order("z_index")
     .order("created_at", { ascending: false });
 
@@ -135,6 +136,7 @@ export default async function RoomBoardPage({
     title: item.title,
     body: item.body,
     createdAt: item.created_at,
+    archivedAt: item.archived_at,
     pollMaxVotesPerUser: item.poll_max_votes_per_user,
     checklistItems: checklistByItem.get(item.id) ?? [],
     pollOptions: pollOptionsByItem.get(item.id) ?? [],

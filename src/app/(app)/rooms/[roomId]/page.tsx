@@ -3,6 +3,7 @@ import type { CSSProperties, ReactNode } from "react";
 
 import { LivingCard } from "@/components/effects/living-card";
 import { LivingStage } from "@/components/effects/living-stage";
+import { RoomCodeCopy } from "@/components/rooms/room-code-copy";
 import { RoomPhotoWall } from "@/components/rooms/room-photo-wall";
 import styles from "@/components/rooms/room-home.module.css";
 import { ButtonLink } from "@/components/ui/button-link";
@@ -130,6 +131,7 @@ export default async function RoomPage({
   const calendarHref = getRoomSubPath(roomCode, "calendar");
   const mapHref = getRoomSubPath(roomCode, "map");
   const membersHref = getRoomSubPath(roomCode, "members");
+  const inviteHref = `${getRoomSubPath(roomCode, "settings")}#invite`;
   const modules = getRoomHomeModules(room.type);
   const albumModule = modules.find((module) => module.key === "album");
   const boardModule = modules.find((module) => module.key === "board");
@@ -259,8 +261,17 @@ export default async function RoomPage({
       }
     >
       <header className={styles.head}>
-        <h1 className={styles.title}>{room.name}</h1>
-        <p className={styles.lead}>{ROOM_TYPE_BLURB[room.type]}</p>
+        <div className={styles.headCopy}>
+          <h1 className={styles.title}>{room.name}</h1>
+          <p className={styles.lead}>{ROOM_TYPE_BLURB[room.type]}</p>
+        </div>
+        <div className={styles.roomStats} aria-label="ข้อมูลย่อของห้อง">
+          <div className={styles.statBox}>
+            <span>สมาชิก</span>
+            <strong>{members.length} คน</strong>
+          </div>
+          <RoomCodeCopy className={styles.codeBox} roomCode={roomCode} />
+        </div>
       </header>
 
       <section aria-label={albumModule?.title ?? "รูปล่าสุด"} className={styles.wall}>
@@ -352,7 +363,7 @@ export default async function RoomPage({
         {isOwner ? (
           <div className={styles.invite}>
             <ButtonLink
-              href={membersHref}
+              href={inviteHref}
               variant={lampOnInvite ? "primary" : "default"}
             >
               เชิญคนเข้ามา

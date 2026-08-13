@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  getBoardFilterCounts,
   getPollOptionPercent,
+  getVisibleBoardItems,
   reorderBoardItems,
   toggleChecklistState,
   togglePollVoteState,
@@ -81,4 +83,43 @@ test("คำนวณเปอร์เซ็นต์โพลจากคะ�
   assert.equal(getPollOptionPercent(2, 5), 40);
   assert.equal(getPollOptionPercent(1, 3), 33);
   assert.equal(getPollOptionPercent(0, 0), 0);
+});
+
+test("กรองรายการบอร์ดตามประเภทและแยกรายการที่จัดเก็บออกจากรายการปกติ", () => {
+  const boardItems = [
+    { id: "note-1", itemType: "note", archivedAt: null },
+    { id: "checklist-1", itemType: "checklist", archivedAt: null },
+    { id: "poll-1", itemType: "poll", archivedAt: null },
+    { id: "note-2", itemType: "note", archivedAt: "2026-08-13T10:00:00.000Z" },
+  ] as const;
+
+  assert.deepEqual(
+    getVisibleBoardItems(boardItems, "all").map((item) => item.id),
+    ["note-1", "checklist-1", "poll-1"],
+  );
+  assert.deepEqual(
+    getVisibleBoardItems(boardItems, "note").map((item) => item.id),
+    ["note-1"],
+  );
+  assert.deepEqual(
+    getVisibleBoardItems(boardItems, "archived").map((item) => item.id),
+    ["note-2"],
+  );
+});
+
+test("นับจำนวนรายการสำหรับแท็บบอร์ดแต่ละประเภท", () => {
+  const boardItems = [
+    { id: "note-1", itemType: "note", archivedAt: null },
+    { id: "checklist-1", itemType: "checklist", archivedAt: null },
+    { id: "poll-1", itemType: "poll", archivedAt: null },
+    { id: "note-2", itemType: "note", archivedAt: "2026-08-13T10:00:00.000Z" },
+  ] as const;
+
+  assert.deepEqual(getBoardFilterCounts(boardItems), {
+    all: 3,
+    archived: 1,
+    checklist: 1,
+    note: 1,
+    poll: 1,
+  });
 });

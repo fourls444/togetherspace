@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 export type BackdropTier = "high" | "low" | "off";
 
@@ -100,9 +100,9 @@ export function getBackdropQuality(): BackdropQuality {
 }
 
 export function useBackdropQuality(): BackdropQuality | null {
-  const [quality, setQuality] = useState<BackdropQuality | null>(null);
-  useEffect(() => {
-    setQuality(getBackdropQuality());
-  }, []);
-  return quality;
+  return useSyncExternalStore(
+    () => () => {},
+    getBackdropQuality,
+    () => null,
+  );
 }

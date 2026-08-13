@@ -101,7 +101,9 @@ export default function DepthCarousel({
   const onActivateRef = useRef(onActivate);
   const [active, setActive] = useState(0);
 
-  onActivateRef.current = onActivate;
+  useEffect(() => {
+    onActivateRef.current = onActivate;
+  }, [onActivate]);
 
   const layout = useCallback(
     (pos: number) => {

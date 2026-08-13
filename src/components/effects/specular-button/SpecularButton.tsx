@@ -158,19 +158,33 @@ export default function SpecularButton({
     autoAnimate,
   });
 
-  propsRef.current = {
-    radius,
-    lineColor,
-    baseColor,
-    intensity,
-    shineSize,
-    shineFade,
-    thickness,
-    speed,
-    followMouse,
-    proximity,
+  useEffect(() => {
+    propsRef.current = {
+      radius,
+      lineColor,
+      baseColor,
+      intensity,
+      shineSize,
+      shineFade,
+      thickness,
+      speed,
+      followMouse,
+      proximity,
+      autoAnimate,
+    };
+  }, [
     autoAnimate,
-  };
+    baseColor,
+    followMouse,
+    intensity,
+    lineColor,
+    proximity,
+    radius,
+    shineFade,
+    shineSize,
+    speed,
+    thickness,
+  ]);
 
   useEffect(() => {
     const host = hostRef.current;

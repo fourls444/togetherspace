@@ -13,6 +13,7 @@ import {
   deleteChecklistItemSchema,
   deletePollOptionSchema,
   reorderBoardItemsSchema,
+  restoreBoardItemSchema,
   toggleChecklistSchema,
   updateBoardItemSchema,
   updateChecklistItemSchema,
@@ -355,6 +356,32 @@ export async function archiveBoardItem(
     .eq("id", result.data.boardItemId);
 
   if (error) return { error: "เก็บรายการไม่สำเร็จ: " + error.message };
+
+  revalidatePath(getBoardPath(formData, result.data.roomId));
+  return { success: true };
+}
+
+/** กู้คืน board item ที่เคยจัดเก็บ โดยทำให้กลับมาแสดงบนบอร์ดอีกครั้ง */
+export async function restoreBoardItem(
+  formData: FormData,
+): Promise<BoardMutationState> {
+  const result = restoreBoardItemSchema.safeParse({
+    roomId: formData.get("roomId"),
+    boardItemId: formData.get("boardItemId"),
+  });
+
+  if (!result.success) return { error: "ข้อมูลรายการไม่ถูกต้อง" };
+
+  const { supabase } = await requireUserId();
+  const { error } = await supabase
+    .from("board_items")
+    .update({
+      archived_at: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", result.data.boardItemId);
+
+  if (error) return { error: "กู้คืนรายการไม่สำเร็จ: " + error.message };
 
   revalidatePath(getBoardPath(formData, result.data.roomId));
   return { success: true };

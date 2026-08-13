@@ -16,6 +16,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
   width: 100%;
   max-width: 32rem;
   max-height: calc(
@@ -41,12 +42,16 @@
 
 .header {
   flex: 0 0 auto;
+  position: sticky;
+  top: 0;
+  z-index: 1;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   margin: 0;
   padding: 1.25rem 1.35rem 1rem;
   border-bottom: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-surface) 96%, transparent);
 }
 
 .header > div {
@@ -58,6 +63,7 @@
   padding: 1.2rem 1.35rem 1.35rem;
   overflow-y: auto;
   overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .title {
