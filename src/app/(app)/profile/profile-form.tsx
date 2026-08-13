@@ -7,8 +7,8 @@ import {
   type UpdateProfileState,
 } from "@/features/profile/actions";
 import { ImageUploadField } from "@/components/uploads/image-upload-field";
-import { Button } from "@/components/ui/button";
 import { ActionSuccessToast } from "@/components/ui/action-success-toast";
+import { SpecularCta } from "@/components/ui/specular-cta";
 import { FieldErrors } from "@/components/ui/field-errors";
 import formStyles from "@/components/ui/form.module.css";
 import styles from "@/app/(app)/profile/profile.module.css";
@@ -107,14 +107,13 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
         </p>
       ) : null}
 
-      <Button
-        className={`${formStyles.fullWidth} ${styles.saveButton}`}
+      <SpecularCta
+        className={formStyles.fullWidth}
         pending={isPending}
         pendingText="กำลังบันทึก…"
-        variant="primary"
       >
         บันทึกโปรไฟล์
-      </Button>
+      </SpecularCta>
       <ActionSuccessToast
         message="บันทึกโปรไฟล์แล้ว"
         signal={state}

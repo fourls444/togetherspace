@@ -6,7 +6,7 @@ import {
   joinRoomByCode,
   type JoinByCodeState,
 } from "@/features/invites/actions";
-import { Button } from "@/components/ui/button";
+import { SpecularCta } from "@/components/ui/specular-cta";
 import { FieldErrors } from "@/components/ui/field-errors";
 import formStyles from "@/components/ui/form.module.css";
 
@@ -48,14 +48,13 @@ export function JoinForm() {
         </p>
       ) : null}
 
-      <Button
+      <SpecularCta
         className={formStyles.fullWidth}
         pending={isPending}
         pendingText="กำลังตรวจสอบ…"
-        variant="primary"
       >
         เข้าร่วมห้อง
-      </Button>
+      </SpecularCta>
     </form>
   );
 }

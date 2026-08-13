@@ -90,8 +90,8 @@
     "Times New Roman", serif;
   font-size: var(--font-size-display);
   font-weight: 400;
-  line-height: 1.15;
-  letter-spacing: -0.025em;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
 }
 
 .sloganSupport {
@@ -278,7 +278,7 @@
     linear-gradient(
       165deg,
       color-mix(in srgb, var(--color-muted-surface) 88%, transparent),
-      color-mix(in srgb, var(--color-surface) 94%, #070b14)
+      color-mix(in srgb, var(--color-surface) 94%, var(--color-background))
     );
   box-shadow: var(--shadow-panel);
 }
@@ -325,8 +325,8 @@
     "Times New Roman", serif;
   font-size: var(--font-size-display);
   font-weight: 400;
-  line-height: 1.15;
-  letter-spacing: -0.025em;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
 }
 
 .roomText {
@@ -512,7 +512,7 @@
 }
 
 .pageRegister .slogan {
-  font-size: clamp(1.2rem, 3vw, 1.35rem);
+  font-size: clamp(1.15rem, 3vw, 1.35rem);
   line-height: 1.2;
 }
 

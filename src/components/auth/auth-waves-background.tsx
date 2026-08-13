@@ -6,13 +6,13 @@ const GradientWaves = dynamic(() => import("@/components/effects/GradientWaves")
   ssr: false,
 });
 
-/** พื้นหลังคลื่นหน้า auth — ห้องน้ำเงินมืด + แสงโคมอุ่น */
+/** พื้นหลังคลื่นหน้า auth — หมึกอุ่น + crest แชมเปญ */
 export function AuthWavesBackground() {
   return (
     <GradientWaves
-      horizonColor="#0d1424"
-      waveColor="#1a2744"
-      crestColor="#e8a055"
+      horizonColor="#0a0908"
+      waveColor="#1a1714"
+      crestColor="#c9b896"
       speed={0.38}
       amplitude={3.6}
       waveScale={0.72}

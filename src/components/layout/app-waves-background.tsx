@@ -10,9 +10,9 @@ const GradientWaves = dynamic(() => import("@/components/effects/GradientWaves")
 export function AppWavesBackground() {
   return (
     <GradientWaves
-      horizonColor="#0d1424"
-      waveColor="#151d31"
-      crestColor="#e8a055"
+      horizonColor="#0a0908"
+      waveColor="#141210"
+      crestColor="#c9b896"
       speed={0.28}
       amplitude={2.4}
       waveScale={0.58}

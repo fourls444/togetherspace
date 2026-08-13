@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { ProfileForm } from "@/app/(app)/profile/profile-form";
 import styles from "@/app/(app)/profile/profile.module.css";
 import { ButtonLink } from "@/components/ui/button-link";
+import { GlowCard } from "@/components/ui/glow-card";
 import { requireAppUser } from "@/lib/rooms/sidebar";
 
 export default async function ProfilePage() {
@@ -21,7 +22,7 @@ export default async function ProfilePage() {
       <ButtonLink className={styles.backButton} href="/dashboard">
         ← กลับหน้าแรก
       </ButtonLink>
-      <div className={styles.panel}>
+      <GlowCard contentClassName={styles.panel} tone="room" animated>
         <div className={styles.intro}>
           <h1 className={styles.title}>โปรไฟล์ของคุณ</h1>
           <p className={styles.sub}>@{profile.username}</p>
@@ -33,7 +34,7 @@ export default async function ProfilePage() {
             avatarUrl: profile.avatar_url,
           }}
         />
-      </div>
+      </GlowCard>
     </div>
   );
 }

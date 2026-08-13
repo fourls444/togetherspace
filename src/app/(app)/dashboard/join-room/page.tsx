@@ -1,6 +1,7 @@
 import styles from "@/app/(app)/dashboard/join-room/join-room.module.css";
 import { JoinForm } from "@/components/rooms/join-form";
 import { ButtonLink } from "@/components/ui/button-link";
+import { GlowCard } from "@/components/ui/glow-card";
 
 export default function JoinRoomPage() {
   return (
@@ -8,7 +9,7 @@ export default function JoinRoomPage() {
       <ButtonLink className={styles.backButton} href="/dashboard">
         กลับหน้าแรก
       </ButtonLink>
-      <div className={styles.panel}>
+      <GlowCard contentClassName={styles.panel} tone="room" animated>
         <div className={styles.intro}>
           <h1 className={styles.title}>เข้าห้องด้วยรหัส</h1>
           <p className={styles.lead}>
@@ -23,7 +24,7 @@ export default function JoinRoomPage() {
           </p>
         </div>
         <JoinForm />
-      </div>
+      </GlowCard>
     </div>
   );
 }

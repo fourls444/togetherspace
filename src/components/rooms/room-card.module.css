@@ -1,40 +1,62 @@
+.liveWrap {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-room);
+}
+
 .card {
+  --room-accent: var(--color-primary);
+
+  position: relative;
   display: grid;
-  gap: 1rem;
-  min-height: 11rem;
-  padding: 1.2rem 1.25rem 1.25rem;
+  grid-template-rows: auto 1fr auto;
+  gap: 0.95rem;
+  min-height: 12.25rem;
+  height: 100%;
+  padding: 1.2rem 1.25rem 1.15rem;
+  overflow: hidden;
   color: inherit;
   text-decoration: none;
-  background:
-    radial-gradient(
-      80% 70% at 100% 0%,
-      color-mix(in srgb, var(--color-primary) 16%, transparent),
-      transparent 55%
-    ),
-    color-mix(in srgb, var(--color-surface) 94%, transparent);
+  background: var(--color-background);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-room);
-  box-shadow: var(--shadow-panel);
-  transition:
-    border-color 160ms ease,
-    transform 160ms ease,
-    background 160ms ease;
+  box-shadow:
+    var(--shadow-extrude),
+    inset 0 1px 0 color-mix(in srgb, var(--room-accent) 42%, transparent);
+  transition: box-shadow 180ms ease;
 }
 
 .card:hover {
-  border-color: color-mix(in srgb, var(--color-primary) 42%, var(--color-border));
-  background:
-    radial-gradient(
-      80% 70% at 100% 0%,
-      color-mix(in srgb, var(--color-primary) 22%, transparent),
-      transparent 55%
-    ),
-    var(--color-muted-surface);
-  transform: translateY(-2px);
+  box-shadow:
+    var(--shadow-extrude),
+    inset 0 1px 0 color-mix(in srgb, var(--room-accent) 55%, transparent),
+    0 0 28px color-mix(in srgb, var(--room-accent) 22%, transparent);
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    22rem circle at 18% 0%,
+    color-mix(in srgb, var(--room-accent) 22%, transparent),
+    transparent 58%
+  );
+  opacity: 0.42;
+  transition: opacity 220ms ease;
+}
+
+.card:hover::after {
+  opacity: 1;
+}
+
+.card:active {
+  box-shadow: var(--shadow-press);
 }
 
 .card:focus-visible {
-  outline: 2px solid var(--color-focus);
+  outline: 2px solid var(--room-accent);
   outline-offset: 2px;
 }
 
@@ -45,22 +67,23 @@
   gap: 0.75rem;
 }
 
+.identity {
+  display: grid;
+  gap: 0.55rem;
+  justify-items: start;
+}
+
 .avatar {
   display: grid;
   place-items: center;
-  width: 3.25rem;
-  height: 3.25rem;
+  width: 3.5rem;
+  height: 3.5rem;
   overflow: hidden;
   flex-shrink: 0;
   border-radius: var(--radius-panel);
-  border: 1px solid var(--color-border);
-  background:
-    radial-gradient(
-      circle at 30% 25%,
-      color-mix(in srgb, var(--color-primary) 35%, transparent),
-      transparent 60%
-    ),
-    var(--color-muted-surface);
+  background: var(--color-background);
+  box-shadow: var(--shadow-press-sm);
+  color: var(--room-accent);
 }
 
 .avatarImage {
@@ -74,12 +97,44 @@
   font-size: var(--font-size-brand);
   font-weight: 600;
   line-height: 1;
+  color: inherit;
+}
+
+.typePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem 0.2rem 0.4rem;
+  color: var(--color-primary-text);
+  font-size: var(--font-size-mark);
+  font-weight: 700;
+  line-height: 1.3;
+  background: var(--room-accent);
+  border-radius: var(--radius-control);
+}
+
+.typePill::before {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  flex-shrink: 0;
+  background: var(--color-primary-text);
+  opacity: 0.42;
+}
+
+.friend .typePill::before {
+  transform: rotate(45deg);
+}
+
+.couple .typePill::before {
+  border-radius: 50%;
 }
 
 .body {
   display: grid;
   gap: 0.35rem;
-  margin-top: auto;
+  align-content: end;
+  min-width: 0;
 }
 
 .name {
@@ -91,18 +146,38 @@
   overflow-wrap: anywhere;
 }
 
-.meta {
+.blurb {
   margin: 0;
+  max-width: 22ch;
   color: var(--color-text-muted);
   font-size: var(--font-size-label);
+  line-height: 1.45;
+}
+
+.footer {
+  padding-top: 0.75rem;
+}
+
+.people {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-label);
+  font-weight: 600;
+}
+
+.friend {
+  --room-accent: var(--color-room-friend);
+}
+
+.couple {
+  --room-accent: var(--color-room-couple);
+}
+
+.family {
+  --room-accent: var(--color-room-family);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .card {
     transition: none;
-  }
-
-  .card:hover {
-    transform: none;
   }
 }

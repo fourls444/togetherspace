@@ -1,8 +1,12 @@
 import type { PropsWithChildren } from "react";
 
 import { AppAtmosphere } from "@/components/layout/app-atmosphere";
+import { AppMain } from "@/components/layout/app-main";
 import { AppTopbar } from "@/components/layout/app-topbar";
 import { NavProgress } from "@/components/layout/nav-progress";
+import { RoomSidebarProvider } from "@/components/layout/room-sidebar-context";
+import { ClickSpark } from "@/components/effects/click-spark/ClickSpark";
+import { LampCursor } from "@/components/effects/lamp-cursor/LampCursor";
 import styles from "@/components/layout/app-shell.module.css";
 
 export type AppAccount = {
@@ -14,14 +18,19 @@ type AppShellProps = PropsWithChildren<{
   account: AppAccount;
 }>;
 
-/** เปลือกแอปหลังล็อกอิน — Living Room After Dark */
+/** เปลือกแอปหลังล็อกอิน — Private Atelier */
 export function AppShell({ account, children }: AppShellProps) {
   return (
-    <div className={styles.shell}>
-      <AppAtmosphere />
-      <NavProgress />
-      <AppTopbar account={account} />
-      <div className={styles.main}>{children}</div>
-    </div>
+    <RoomSidebarProvider>
+      <ClickSpark sparkColor="#C9B896">
+        <div className={styles.shell}>
+          <AppAtmosphere />
+          <LampCursor />
+          <NavProgress />
+          <AppTopbar account={account} />
+          <AppMain>{children}</AppMain>
+        </div>
+      </ClickSpark>
+    </RoomSidebarProvider>
   );
 }

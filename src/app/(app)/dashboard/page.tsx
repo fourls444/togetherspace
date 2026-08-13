@@ -1,6 +1,9 @@
 import styles from "@/app/(app)/dashboard/dashboard.module.css";
+import { DashboardHero } from "@/app/(app)/dashboard/dashboard-hero";
+import { LivingStage } from "@/components/effects/living-stage";
 import { RoomCard } from "@/components/rooms/room-card";
-import { ButtonLink } from "@/components/ui/button-link";
+import { GlowCard } from "@/components/ui/glow-card";
+import { SpecularCtaLink } from "@/components/ui/specular-cta";
 import { ErrorState } from "@/components/ui/error-state";
 import type { RoomRole } from "@/lib/types/database";
 import { requireAppUser } from "@/lib/rooms/sidebar";
@@ -30,22 +33,23 @@ export default async function DashboardPage() {
     profileResult.data?.username ??
     "คุณ";
 
+  const roomIds = userRooms.map((room) => room.id);
+  const memberCountsResult =
+    roomIds.length > 0
+      ? await supabase.from("room_members").select("room_id").in("room_id", roomIds)
+      : { data: [] as { room_id: string }[], error: null };
+
+  const memberCountByRoom = new Map<string, number>();
+  for (const row of memberCountsResult.data ?? []) {
+    memberCountByRoom.set(
+      row.room_id,
+      (memberCountByRoom.get(row.room_id) ?? 0) + 1,
+    );
+  }
+
   return (
     <main className={styles.hub}>
-      <section className={styles.hero} aria-label="ยินดีต้อนรับ">
-        <p className={styles.greeting}>สวัสดี {displayName}</p>
-        <h1 className={styles.title}>ห้องหลังค่ำของคุณ</h1>
-        <p className={styles.lead}>
-          พื้นที่เงียบสงบสำหรับเพื่อน คู่รัก หรือครอบครัว
-          เข้าไปในห้อง หรือชวนคนสำคัญมาอยู่ด้วยกัน
-        </p>
-        <div className={styles.heroActions}>
-          <ButtonLink href="/dashboard/create-room" variant="primary">
-            สร้างห้องใหม่
-          </ButtonLink>
-          <ButtonLink href="/dashboard/join-room">เข้าร่วมด้วยรหัส</ButtonLink>
-        </div>
-      </section>
+      <DashboardHero displayName={displayName} />
 
       {hasLoadError ? (
         <ErrorState
@@ -58,29 +62,44 @@ export default async function DashboardPage() {
             <h2 className={styles.sectionTitle}>ห้องที่มีอยู่</h2>
             <p className={styles.sectionHint}>{userRooms.length} ห้อง</p>
           </div>
-          <div className={styles.roomGrid}>
+          <LivingStage className={styles.roomGrid}>
             {userRooms.map((room) => {
               const membership = Array.isArray(room.room_members)
                 ? room.room_members[0]
                 : room.room_members;
               const role = (membership?.role ?? "member") as RoomRole;
-              return <RoomCard key={room.id} role={role} room={room} />;
+              return (
+                <RoomCard
+                  key={room.id}
+                  memberCount={memberCountByRoom.get(room.id) ?? 1}
+                  role={role}
+                  room={room}
+                />
+              );
             })}
-          </div>
+          </LivingStage>
         </section>
       ) : (
-        <section className={styles.empty} aria-label="ยังไม่มีห้อง">
+        <GlowCard
+          animated
+          aria-label="ยังไม่มีห้อง"
+          className={styles.emptyShell}
+          contentClassName={styles.empty}
+          tone="room"
+        >
           <h2 className={styles.emptyTitle}>ยังไม่มีห้องเลย</h2>
           <p className={styles.emptyText}>
             เริ่มจากสร้างห้องแรก หรือใช้รหัสที่คนสำคัญส่งมาให้
           </p>
           <div className={styles.emptyActions}>
-            <ButtonLink href="/dashboard/create-room" variant="primary">
+            <SpecularCtaLink href="/dashboard/create-room">
               สร้างห้องแรก
-            </ButtonLink>
-            <ButtonLink href="/dashboard/join-room">มีรหัสอยู่แล้ว</ButtonLink>
+            </SpecularCtaLink>
+            <SpecularCtaLink href="/dashboard/join-room" tone="secondary">
+              มีรหัสอยู่แล้ว
+            </SpecularCtaLink>
           </div>
-        </section>
+        </GlowCard>
       )}
     </main>
   );

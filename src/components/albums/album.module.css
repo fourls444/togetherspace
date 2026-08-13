@@ -65,7 +65,7 @@
 
 .title {
   margin-block: 0.25rem 0.35rem;
-  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-size: var(--font-size-display);
 }
 
 .sectionTitle {
@@ -132,7 +132,7 @@
 .uploadDropzone small {
   max-width: 22rem;
   color: var(--color-text-muted);
-  font-size: 0.8rem;
+  font-size: var(--font-size-label);
   line-height: 1.7;
 }
 
@@ -141,7 +141,7 @@
   width: 2.25rem;
   height: 2.25rem;
   color: var(--color-primary-text);
-  font-size: 1.25rem;
+  font-size: var(--font-size-title);
   font-weight: 800;
   place-items: center;
   border-radius: 999px;
@@ -242,16 +242,16 @@
 .uploadStatus {
   margin: 0;
   padding: 0.45rem 0.7rem;
-  font-size: 0.86rem;
+  font-size: var(--font-size-caption);
   font-weight: 700;
   line-height: 1.45;
   border-radius: 999px;
 }
 
 .successToast {
-  color: #d9fbe5;
-  border: 1px solid rgb(74 222 128 / 0.32);
-  background: rgb(22 101 52 / 0.42);
+  color: var(--color-text);
+  border: 1px solid color-mix(in srgb, var(--color-room-family) 40%, var(--color-border));
+  background: color-mix(in srgb, var(--color-room-family) 18%, var(--color-surface));
 }
 
 .uploadStatus {
@@ -295,7 +295,7 @@
 .dateGroupHead span {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.82rem;
+  font-size: var(--font-size-label);
   font-weight: 700;
   line-height: 1.55;
 }
@@ -330,7 +330,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-panel);
   background: color-mix(in srgb, var(--color-surface) 92%, transparent);
-  box-shadow: 0 0.75rem 1.8rem rgb(8 10 24 / 0.2);
+  box-shadow: var(--shadow-extrude);
 }
 
 .photoCardDraggable {
@@ -352,9 +352,9 @@
   cursor: grab;
   color: var(--color-text);
   place-items: center;
-  border: 1px solid rgb(243 237 227 / 0.18);
+  border: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
   border-radius: 999px;
-  background: rgb(13 20 36 / 0.72);
+  background: color-mix(in srgb, var(--color-background) 72%, transparent);
 }
 
 .dragHandle:disabled {
@@ -398,16 +398,56 @@
   white-space: nowrap;
 }
 
+.modalOverlay {
+  position: fixed;
+  z-index: 70;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: color-mix(in srgb, var(--color-background) 76%, transparent);
+}
+
+.uploadModal {
+  display: grid;
+  width: min(100%, 31rem);
+  max-height: min(90vh, 44rem);
+  overflow: auto;
+  gap: 0.9rem;
+  padding: 1.1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-panel);
+}
+
+.modalHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.closeButton {
+  display: inline-grid;
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+  color: var(--color-text);
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-muted-surface);
+}
+
 .photoDialogOverlay {
   position: fixed;
   z-index: 1000;
   inset: 0;
   display: grid;
   place-items: center;
-  padding: max(1rem, env(safe-area-inset-top))
-    max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom))
-    max(1rem, env(safe-area-inset-left));
-  background: rgb(8 10 24 / 0.8);
+  padding: 1rem;
+  background: color-mix(in srgb, var(--color-background) 80%, transparent);
 }
 
 .photoDialog {
@@ -469,7 +509,7 @@
   height: 2.5rem;
   cursor: pointer;
   color: var(--color-text);
-  font-size: 1.75rem;
+  font-size: var(--font-size-brand);
   line-height: 1;
   place-items: center;
   border: 1px solid var(--color-border);

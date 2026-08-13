@@ -11,7 +11,7 @@ const FloatingLines = dynamic(
 );
 
 const FLOATING_LINES_PROPS: FloatingLinesProps = {
-  linesGradient: ["#9a6432", "#d4924a", "#e8a055", "#1c2540"],
+  linesGradient: ["#8a7354", "#c9b896", "#d8cbb0", "#1c1a17"],
   enabledWaves: ["top", "middle", "bottom"],
   lineCount: [7, 10, 13],
   lineDistance: [7, 5, 4],

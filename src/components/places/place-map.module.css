@@ -23,16 +23,17 @@
 .eyebrow {
   margin: 0 0 0.35rem;
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: var(--font-size-body-sm);
 }
 
 .title {
   margin: 0;
   color: var(--color-text);
   font-family: var(--font-display), var(--font-display-thai), serif;
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 500;
-  line-height: 1.05;
+  font-size: var(--font-size-display);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
 }
 
 .description {
@@ -99,7 +100,7 @@
   border: 3px solid var(--color-primary-text);
   border-radius: 999px 999px 999px 0;
   background: var(--color-primary);
-  box-shadow: 0 8px 18px rgb(8 10 24 / 0.35);
+  box-shadow: var(--shadow-extrude-sm);
   transform: rotate(-45deg);
 }
 
@@ -130,8 +131,8 @@
   border-radius: 999px 999px 999px 0;
   background: #ff3366; /* สีชมพูแดงให้เห็นชัดเจน */
   box-shadow:
-    0 0 0 4px color-mix(in srgb, #ff3366 30%, transparent),
-    0 10px 22px rgb(8 10 24 / 0.45);
+    0 0 0 5px color-mix(in srgb, var(--color-primary) 24%, transparent),
+    var(--shadow-extrude-sm);
   transform: rotate(-45deg);
 }
 .draftMarker span::after {
@@ -149,10 +150,10 @@
   height: 1rem;
   border: 3px solid var(--color-text);
   border-radius: 999px;
-  background: #62a7ff;
+  background: var(--color-primary);
   box-shadow:
-    0 0 0 6px rgb(98 167 255 / 0.24),
-    0 8px 18px rgb(8 10 24 / 0.34);
+    0 0 0 6px color-mix(in srgb, var(--color-primary) 24%, transparent),
+    var(--shadow-extrude-sm);
 }
 
 .mapControls {
@@ -173,15 +174,13 @@
   width: 2.45rem;
   height: 2.45rem;
   place-items: center;
-  color: #1b1208;
-  font-size: 1.05rem;
+  color: var(--color-primary-text);
+  font-size: var(--font-size-body);
   font-weight: 700;
   border: 1px solid color-mix(in srgb, var(--color-primary) 80%, #ffffff);
   border-radius: var(--radius-control);
-  background: color-mix(in srgb, var(--color-primary) 90%, #ffffff);
-  box-shadow:
-    0 0 0 3px rgb(255 255 255 / 0.24),
-    0 10px 24px rgb(8 10 24 / 0.3);
+  background: color-mix(in srgb, var(--color-muted-surface) 94%, transparent);
+  box-shadow: var(--shadow-extrude-sm);
   pointer-events: none;
 }
 
@@ -204,7 +203,7 @@
   min-height: 2.45rem;
   padding: 0;
   place-items: center;
-  font-size: 1.25rem;
+  font-size: var(--font-size-title);
   line-height: 1;
   pointer-events: auto;
 }
@@ -233,7 +232,7 @@
 .sectionHeader h2 {
   margin: 0;
   color: var(--color-text);
-  font-size: 1.25rem;
+  font-size: var(--font-size-title);
 }
 
 .sectionHeader p {
@@ -255,7 +254,7 @@
 .locationMessage {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: var(--font-size-body-sm);
   line-height: 1.6;
 }
 
@@ -270,7 +269,7 @@
 
 .selectedPinBox span {
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: var(--font-size-caption);
   font-weight: 700;
 }
 
@@ -281,7 +280,7 @@
 .selectedPinBox p {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.88rem;
+  font-size: var(--font-size-caption);
   line-height: 1.55;
 }
 
@@ -309,13 +308,13 @@
 
 .placeItem h3 {
   color: var(--color-text);
-  font-size: 1rem;
+  font-size: var(--font-size-body);
 }
 
 .placeItem p,
 .placeMeta {
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: var(--font-size-body-sm);
   line-height: 1.65;
 }
 

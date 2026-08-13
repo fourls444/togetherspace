@@ -9,8 +9,9 @@
 }
 
 .label {
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: var(--font-size-label);
+  font-weight: 500;
+  letter-spacing: 0.08em;
 }
 
 .control {
@@ -19,9 +20,10 @@
   min-height: 2.75rem;
   padding: 0.7rem 0.95rem;
   color: var(--color-text);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: var(--control-bg, var(--color-surface));
+  border: 1px solid var(--control-border, var(--color-border));
   border-radius: var(--radius-control);
+  box-shadow: var(--control-shadow, none);
   outline: 2px solid transparent;
   outline-offset: 2px;
 }
@@ -53,7 +55,7 @@
   padding: 0.35rem 0.65rem;
   color: var(--color-text-muted);
   font: inherit;
-  font-size: 0.875rem;
+  font-size: var(--font-size-caption);
   font-weight: 600;
   background: transparent;
   border: 0;
@@ -74,7 +76,7 @@
 .hint {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.875rem;
+  font-size: var(--font-size-caption);
   line-height: 1.5;
 }
 
@@ -82,7 +84,7 @@
   display: grid;
   gap: 0.25rem;
   color: var(--color-error-text);
-  font-size: 0.875rem;
+  font-size: var(--font-size-caption);
 }
 
 .errors p {
@@ -93,7 +95,7 @@
   margin: 0;
   padding: 0.75rem;
   color: var(--color-error-text);
-  font-size: 0.875rem;
+  font-size: var(--font-size-caption);
   background: var(--color-error-surface);
   border: 1px solid var(--color-error-border);
   border-radius: var(--radius-control);
@@ -118,7 +120,7 @@
 
 .textLink {
   color: var(--color-text-muted);
-  font-size: 0.875rem;
+  font-size: var(--font-size-caption);
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 0.15em;
@@ -150,11 +152,11 @@
 }
 
 .formCompact .hint {
-  font-size: 0.75rem;
+  font-size: var(--font-size-label);
   line-height: 1.35;
 }
 
 .formCompact .passwordToggle {
   min-height: 1.75rem;
-  font-size: 0.75rem;
+  font-size: var(--font-size-label);
 }

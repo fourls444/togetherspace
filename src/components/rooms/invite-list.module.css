@@ -64,12 +64,12 @@
   display: inline-flex;
   width: fit-content;
   padding: 0.25rem 0.55rem;
-  color: #d9f7e6;
-  font-size: 0.75rem;
+  color: var(--color-text);
+  font-size: var(--font-size-label);
   font-weight: 700;
-  border: 1px solid rgb(116 207 158 / 0.35);
-  border-radius: 999px;
-  background: #173329;
+  border: 1px solid color-mix(in srgb, var(--color-room-family) 40%, var(--color-border));
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--color-room-family) 18%, var(--color-surface));
 }
 
 .actions {

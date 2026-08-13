@@ -10,6 +10,7 @@ import { RoomProfileForm } from "@/components/rooms/room-profile-form";
 import { RoomThemeSelector } from "@/components/rooms/room-theme-selector";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
+import { GlowCard } from "@/components/ui/glow-card";
 import { getRoomContext } from "@/lib/rooms/server";
 
 /** แสดงการตั้งค่าห้องตามลำดับการใช้งานในคอลัมน์เดียว */
@@ -145,36 +146,37 @@ export default async function RoomSettingsPage({
 
   return (
     <div className={styles.stack}>
-      <div className={`${styles.primaryGrid} ${isOwner ? "" : styles.single}`}>
-        <div className={styles.sideColumn}>
-          <section className={`${styles.panel} ${styles.profilePanel}`}>
-            <h2 className={styles.title}>โปรไฟล์ของฉันในห้องนี้</h2>
-            <p className={styles.lead}>
-              ตั้งชื่อเล่นหรือรูปที่ใช้เฉพาะห้องนี้ โดยไม่กระทบโปรไฟล์หลัก
-            </p>
-            <RoomProfileForm
-              defaultValues={{
-                avatarUrl: roomProfileResult.data?.avatar_url ?? null,
-                displayName: roomProfileResult.data?.display_name ?? null,
-              }}
-              mainDisplayName={profileResult.data?.display_name ?? "โปรไฟล์หลัก"}
-              roomCode={roomCode}
-              roomId={roomId}
-            />
-          </section>
+      <header className={styles.pageHead}>
+        <h2 className={styles.pageTitle}>ตั้งค่า</h2>
+        <p className={styles.pageLead}>
+          โปรไฟล์ในห้อง คำเชิญ และการดูแลสมาชิก
+        </p>
+      </header>
 
-          <section className={`${styles.panel} ${styles.danger}`}>
-            <h2 className={styles.title}>ออกจากห้อง</h2>
-            <p className={styles.lead}>
-              หลังออกจากห้อง คุณจะกลับเข้ามาได้อีกด้วยรหัสห้องหรือคำเชิญ
-            </p>
-            <LeaveRoomButton roomId={roomId} />
-          </section>
-        </div>
+      <div className={`${styles.primaryGrid} ${isOwner ? "" : styles.single}`}>
+        <GlowCard
+          contentClassName={`${styles.panel} ${styles.profilePanel}`}
+          roomType={room.type}
+          tone="room"
+        >
+          <h3 className={styles.title}>โปรไฟล์ของฉันในห้องนี้</h3>
+          <p className={styles.lead}>
+            ตั้งชื่อเล่นหรือรูปที่ใช้เฉพาะห้องนี้ โดยไม่กระทบโปรไฟล์หลัก
+          </p>
+          <RoomProfileForm
+            defaultValues={{
+              avatarUrl: roomProfileResult.data?.avatar_url ?? null,
+              displayName: roomProfileResult.data?.display_name ?? null,
+            }}
+            mainDisplayName={profileResult.data?.display_name ?? "โปรไฟล์หลัก"}
+            roomCode={roomCode}
+            roomId={roomId}
+          />
+        </GlowCard>
 
         {isOwner ? (
-          <section className={styles.panel}>
-            <h2 className={styles.title}>ข้อมูลห้อง</h2>
+          <GlowCard contentClassName={styles.panel} roomType={room.type} tone="room">
+            <h3 className={styles.title}>ข้อมูลห้อง</h3>
             <p className={styles.lead}>
               แก้ชื่อและรูปที่สมาชิกทุกคนเห็นร่วมกัน
             </p>
@@ -186,7 +188,7 @@ export default async function RoomSettingsPage({
               roomType={room.type}
             />
 
-            <div className={styles.sectionDivider}>
+            <div className={styles.sectionDivider} id="invite">
               <h3 className={styles.subTitle}>สร้างคำเชิญชั่วคราว</h3>
               <p className={styles.lead}>
                 สร้างลิงก์ที่จำกัดจำนวนการใช้หรือกำหนดวันหมดอายุได้
@@ -202,18 +204,25 @@ export default async function RoomSettingsPage({
                 />
               </details>
             </div>
-          </section>
+          </GlowCard>
         ) : null}
       </div>
 
-      <section className={styles.panel}>
-        <h2 className={styles.title}>ธีมห้อง</h2>
+      <GlowCard contentClassName={styles.panel} roomType={room.type} tone="room">
+        <h3 className={styles.title}>ธีมห้อง</h3>
         <p className={styles.lead}>
           เลือกบรรยากาศที่เหมาะกับห้องนี้ โดยธีม TogetherSpace จะเป็นค่าเริ่มต้นเสมอ
         </p>
         <RoomThemeSelector />
-      </section>
+      </GlowCard>
 
+      <GlowCard contentClassName={styles.panel} tone="danger">
+        <h3 className={styles.title}>ออกจากห้อง</h3>
+        <p className={styles.lead}>
+          หลังออกจากห้อง คุณจะกลับเข้ามาได้อีกด้วยรหัสห้องหรือคำเชิญ
+        </p>
+        <LeaveRoomButton roomId={roomId} />
+      </GlowCard>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 
 import { login, type LoginState } from "@/app/(auth)/login/actions";
 import { PasswordField } from "@/components/ui/password-field";
-import { Button } from "@/components/ui/button";
+import { SpecularCta } from "@/components/ui/specular-cta";
 import { FieldErrors } from "@/components/ui/field-errors";
 import formStyles from "@/components/ui/form.module.css";
 
@@ -70,14 +70,13 @@ export function LoginForm() {
         </p>
       ) : null}
 
-      <Button
+      <SpecularCta
         className={formStyles.fullWidth}
         pending={isPending}
         pendingText="กำลังเข้าสู่ระบบ…"
-        variant="primary"
       >
         เข้าสู่ระบบ
-      </Button>
+      </SpecularCta>
     </form>
   );
 }

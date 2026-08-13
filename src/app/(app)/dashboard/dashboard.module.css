@@ -4,20 +4,48 @@
   padding-top: 0.75rem;
 }
 
+.heroShell {
+  min-width: 0;
+}
+
 .hero {
   position: relative;
   overflow: hidden;
   padding: 1.75rem 1.5rem 1.85rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-room);
+}
+
+.heroAura {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
   background:
     radial-gradient(
-      90% 80% at 100% 0%,
-      color-mix(in srgb, var(--color-primary) 22%, transparent),
-      transparent 52%
+      70% 80% at 78% 18%,
+      color-mix(in srgb, var(--color-primary) 26%, transparent),
+      transparent 62%
     ),
-    color-mix(in srgb, var(--color-surface) 92%, transparent);
-  box-shadow: var(--shadow-panel);
+    radial-gradient(
+      50% 60% at 12% 88%,
+      color-mix(in srgb, var(--color-primary-hover) 12%, transparent),
+      transparent 58%
+    );
+}
+
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    color-mix(in srgb, var(--color-background) 78%, transparent),
+    color-mix(in srgb, var(--color-background) 38%, transparent) 52%,
+    color-mix(in srgb, var(--color-surface) 22%, transparent)
+  );
+}
+
+.heroBody {
+  position: relative;
+  z-index: 1;
 }
 
 .greeting,
@@ -35,9 +63,9 @@
   margin-top: 0.35rem;
   font-family: var(--font-display-thai), var(--font-display), serif;
   font-size: var(--font-size-display);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
 }
 
 .lead {
@@ -85,14 +113,56 @@
   gap: 0.9rem;
 }
 
+.roomGrid > * {
+  animation: room-rise 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.roomGrid > *:nth-child(1) {
+  animation-delay: 40ms;
+}
+
+.roomGrid > *:nth-child(2) {
+  animation-delay: 90ms;
+}
+
+.roomGrid > *:nth-child(3) {
+  animation-delay: 140ms;
+}
+
+.roomGrid > *:nth-child(4) {
+  animation-delay: 190ms;
+}
+
+.roomGrid > *:nth-child(5) {
+  animation-delay: 230ms;
+}
+
+.roomGrid > *:nth-child(n + 6) {
+  animation-delay: 270ms;
+}
+
+@keyframes room-rise {
+  from {
+    opacity: 0.35;
+    transform: translate3d(0, 10px, 0);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+.emptyShell {
+  min-width: 0;
+}
+
 .empty {
   display: grid;
   gap: 0.75rem;
   justify-items: start;
   padding: 1.75rem 1.5rem;
-  border: 1px dashed color-mix(in srgb, var(--color-primary) 35%, var(--color-border));
-  border-radius: var(--radius-room);
-  background: color-mix(in srgb, var(--color-muted-surface) 55%, transparent);
 }
 
 .emptyTitle {
@@ -130,5 +200,15 @@
 @media (min-width: 64rem) {
   .roomGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roomGrid > * {
+    animation: none;
+  }
+
+  .heroAura {
+    display: none;
   }
 }

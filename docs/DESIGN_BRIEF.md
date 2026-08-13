@@ -1,35 +1,35 @@
 # Design brief — Auth landing + theme
 
-ธีมล็อก: **Living Room After Dark** (ห้องน้ำเงินมืด + แสงโคมอุ่น + ข้อความครีม)  
+ธีมล็อก: **Private Atelier** (หมึกอุ่น + งาช้าง + แชมเปญ)  
 เลย์เอาต์ login: split ซ้าย auth + สโลแกน / ขวาพรีวิว
 
 ## สี
 
 | บทบาท | Hex |
 |--------|-----|
-| พื้นหลังแอป | `#0D1424` |
-| พื้นการ์ด | `#151D31` |
-| พื้นรอง | `#1C2540` |
-| ข้อความหลัก | `#F3EDE3` |
-| ข้อความรอง | `#A8B0C2` |
-| ข้อความจาง | `#6F788F` |
-| สีหลัก | `#E8A055` |
-| สีหลัก hover | `#F0B56E` |
-| สีหลักอ่อน | `#3A2A18` |
-| ขอบ | `#2A334A` |
-| ข้อความบนปุ่มหลัก | `#1A1208` |
-| อันตราย | `#F08080` |
+| พื้นหลังแอป | `#0A0908` |
+| พื้นการ์ด | `#141210` |
+| พื้นรอง | `#1C1A17` |
+| ข้อความหลัก | `#F6F1E8` |
+| ข้อความรอง | `#A39E94` |
+| ข้อความจาง | `#8A847A` |
+| สีหลัก | `#C9B896` |
+| สีหลัก hover | `#D8CBB0` |
+| สีหลักอ่อน | `#2A261F` |
+| ขอบ | `#2E2B26` |
+| ข้อความบนปุ่มหลัก | `#1A1612` |
+| อันตราย | `#C97B7B` |
 
 ## คลื่นพื้นหลัง auth
-- horizon `#0D1424`
-- wave `#1A2744`
-- crest `#E8A055`
+- horizon `#0A0908`
+- wave `#1A1714`
+- crest `#C9B896`
 
 ## Typography (ล็อก)
 | บทบาท | อังกฤษ | ไทย |
 |--------|--------|-----|
-| Display / สโลแกน | Instrument Serif | Taviraj |
-| UI / Body | DM Sans | Anuphan |
+| Display / สโลแกน | Bodoni Moda | Taviraj |
+| UI / Body | Libre Franklin | Anuphan |
 
 รายละเอียด: `docs/TYPOGRAPHY.md` และ `DESIGN.md`
 
@@ -37,9 +37,3 @@
 1. ซ้าย: TogetherSpace + สโลแกน + ฟอร์ม
 2. ขวา: พรีวิวภาพรวมเว็บ
 3. Desktop สองคอลัมน์ / Mobile ซ้อนแนวตั้ง
-
-ไฟล์ที่ AI ต้องเคารพ:
-- `.cursor/rules/togetherspace-product.mdc`
-- `.cursor/rules/auth-landing-layout.mdc`
-- `docs/TYPOGRAPHY.md`
-- `AGENTS.md`

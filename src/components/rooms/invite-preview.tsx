@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 
 import { joinRoomByToken } from "@/features/invites/actions";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { SpecularCta } from "@/components/ui/specular-cta";
 import { Panel } from "@/components/ui/panel";
 import { ROOM_TYPE_LABEL } from "@/lib/rooms/labels";
 import { getRoomPath } from "@/lib/rooms/room-path";
@@ -67,16 +67,16 @@ export function InvitePreview({
           </a>
         </div>
       ) : (
-        <Button
+        <SpecularCta
           className={styles.joinBtn}
           disabled={isPending}
           onClick={handleJoin}
           pending={isPending}
           pendingText="กำลังเข้าร่วม…"
-          variant="primary"
+          type="button"
         >
           ยืนยันเข้าร่วมห้อง
-        </Button>
+        </SpecularCta>
       )}
     </Panel>
   );

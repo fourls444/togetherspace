@@ -1,0 +1,46 @@
+.lamp {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  width: 8rem;
+  height: 8rem;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-primary) 5%, transparent) 0%,
+    color-mix(in srgb, var(--color-primary) 1.5%, transparent) 42%,
+    transparent 72%
+  );
+  transform: translate3d(
+    calc(var(--lamp-x, 50vw) - 50%),
+    calc(var(--lamp-y, 18vh) - 50%),
+    0
+  );
+  mix-blend-mode: soft-light;
+  opacity: 0.55;
+}
+
+html[data-room-type="couple"] .lamp {
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-room-couple) 5%, transparent) 0%,
+    color-mix(in srgb, var(--color-room-couple) 1.5%, transparent) 42%,
+    transparent 72%
+  );
+}
+
+html[data-room-type="family"] .lamp {
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-room-family) 5%, transparent) 0%,
+    color-mix(in srgb, var(--color-room-family) 1.5%, transparent) 42%,
+    transparent 72%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lamp {
+    display: none;
+  }
+}

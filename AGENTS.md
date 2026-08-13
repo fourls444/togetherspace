@@ -18,11 +18,11 @@ TogetherSpace = เว็บพื้นที่ร่วมสำหรับ�
 ดูตารางใน `.cursor/rules/togetherspace-product.mdc`  
 อัปเดตค่าจริงใน `src/styles/tokens.css`
 
-หลักสั้นๆ: พื้นน้ำเงินมืด `#0D1424` · การ์ด `#151D31` · ข้อความครีม `#F3EDE3` · ปุ่มโคม `#E8A055`
+หลักสั้นๆ: พื้นหมึก `#0A0908` · การ์ด `#141210` · ข้อความงาช้าง `#F6F1E8` · ปุ่มแชมเปญ `#C9B896`
 
 ## Typography (ล็อก)
-- Display: **Instrument Serif** + **Taviraj** (ไทย)
-- UI/Body: **DM Sans** + **Anuphan** (ไทย)
+- Display: **Bodoni Moda** + **Taviraj** (ไทย)
+- UI/Body: **Libre Franklin** + **Anuphan** (ไทย)
 - รายละเอียด: `docs/TYPOGRAPHY.md`
 
 ## หน้า Login / Register (สำคัญ)

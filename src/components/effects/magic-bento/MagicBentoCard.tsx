@@ -14,9 +14,9 @@ import { gsap } from "gsap";
 import "./MagicBento.css";
 
 const DEFAULT_PARTICLE_COUNT = 10;
-const DEFAULT_SPOTLIGHT_RADIUS = 280;
-/** Lamp amber from Living Room After Dark (#e8a055) */
-export const AUTH_GLOW_COLOR = "232, 160, 85";
+const DEFAULT_SPOTLIGHT_RADIUS = 140;
+/** Lamp champagne from Private Atelier (#c9b896) */
+export const AUTH_GLOW_COLOR = "201, 184, 150";
 const MOBILE_BREAKPOINT = 768;
 
 function createParticleElement(x: number, y: number, color: string) {
@@ -392,21 +392,19 @@ export function MagicBentoSpotlight({
     spotlight.className = "global-spotlight";
     spotlight.style.cssText = `
       position: fixed;
-      width: 800px;
-      height: 800px;
+      width: 280px;
+      height: 280px;
       border-radius: 50%;
       pointer-events: none;
       background: radial-gradient(circle,
-        rgba(${glowColor}, 0.14) 0%,
-        rgba(${glowColor}, 0.07) 15%,
-        rgba(${glowColor}, 0.03) 28%,
-        rgba(${glowColor}, 0.015) 45%,
-        transparent 68%
+        rgba(${glowColor}, 0.05) 0%,
+        rgba(${glowColor}, 0.02) 22%,
+        transparent 58%
       );
       z-index: 200;
       opacity: 0;
       transform: translate(-50%, -50%);
-      mix-blend-mode: screen;
+      mix-blend-mode: soft-light;
     `;
     document.body.appendChild(spotlight);
     spotlightRef.current = spotlight;
@@ -477,9 +475,9 @@ export function MagicBentoSpotlight({
 
       const targetOpacity =
         minDistance <= proximity
-          ? 0.75
+          ? 0.22
           : minDistance <= fadeDistance
-            ? ((fadeDistance - minDistance) / (fadeDistance - proximity)) * 0.75
+            ? ((fadeDistance - minDistance) / (fadeDistance - proximity)) * 0.22
             : 0;
 
       gsap.to(spotlightRef.current, {

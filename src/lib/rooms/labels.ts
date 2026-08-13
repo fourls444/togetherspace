@@ -6,6 +6,47 @@ export const ROOM_TYPE_LABEL: Record<RoomType, string> = {
   family: "ครอบครัว",
 };
 
+/** บรรทัดบรรยากาศสั้นๆ บนการ์ดห้อง */
+export const ROOM_TYPE_BLURB: Record<RoomType, string> = {
+  friend: "มุมคุยเล่นของกลุ่ม",
+  couple: "พื้นที่สองคนของเรา",
+  family: "บ้านหลังเล็กของครอบครัว",
+};
+
+/** สีการ์ดตามประเภท — Private Atelier โลหะคนละโทน */
+export const ROOM_TYPE_THEME: Record<
+  RoomType,
+  {
+    background: string;
+    accent: string;
+    colors: [string, string, string];
+    glowColor: string;
+    sparkRgb: string;
+  }
+> = {
+  friend: {
+    background: "#141210",
+    accent: "#C9B896",
+    colors: ["#C9B896", "#D8CBB0", "#F6F1E8"],
+    glowColor: "40 30 69",
+    sparkRgb: "201, 184, 150",
+  },
+  couple: {
+    background: "#141210",
+    accent: "#C9968C",
+    colors: ["#C9968C", "#D8B4AC", "#F6F1E8"],
+    glowColor: "8 32 68",
+    sparkRgb: "201, 150, 140",
+  },
+  family: {
+    background: "#141210",
+    accent: "#A8B08C",
+    colors: ["#A8B08C", "#C4C8A8", "#F6F1E8"],
+    glowColor: "75 18 62",
+    sparkRgb: "168, 176, 140",
+  },
+};
+
 export const ROOM_ROLE_LABEL: Record<RoomRole, string> = {
   owner: "เจ้าของ",
   member: "สมาชิก",

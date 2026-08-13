@@ -1,6 +1,11 @@
+import { AppLightfall } from "@/components/layout/app-lightfall";
 import styles from "@/components/layout/app-atmosphere.module.css";
 
-/** พื้นหลังบรรยากาศแบบ CSS — ไม่ใช้ WebGL เพื่อให้สลับหน้าได้ลื่น */
+/** พื้นหลังหลังล็อกอิน — หมึก + Lightfall */
 export function AppAtmosphere() {
-  return <div className={styles.atmosphere} aria-hidden />;
+  return (
+    <div className={styles.atmosphere} aria-hidden>
+      <AppLightfall />
+    </div>
+  );
 }

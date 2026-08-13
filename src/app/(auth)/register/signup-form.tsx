@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { signup, type SignupState } from "@/app/(auth)/register/actions";
 import styles from "@/app/(auth)/register/signup.module.css";
 import { PasswordField } from "@/components/ui/password-field";
-import { Button } from "@/components/ui/button";
+import { SpecularCta } from "@/components/ui/specular-cta";
 import { FieldErrors } from "@/components/ui/field-errors";
 import formStyles from "@/components/ui/form.module.css";
 
@@ -98,14 +98,13 @@ export function SignupForm() {
         </p>
       ) : null}
 
-      <Button
+      <SpecularCta
         className={formStyles.fullWidth}
         pending={isPending}
         pendingText="กำลังสมัครสมาชิก…"
-        variant="primary"
       >
         สมัครสมาชิก
-      </Button>
+      </SpecularCta>
     </form>
   );
 }

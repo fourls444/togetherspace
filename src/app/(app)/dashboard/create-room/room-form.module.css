@@ -11,40 +11,82 @@
 }
 
 .typeCard {
-  --room-type-accent: var(--color-primary);
+  --type-accent: var(--color-primary);
+
+  position: relative;
   display: grid;
   gap: 0.25rem;
   padding: 0.85rem 0.95rem;
+  overflow: hidden;
   text-align: left;
   color: var(--color-text);
   font: inherit;
-  background: color-mix(in srgb, var(--color-muted-surface) 70%, transparent);
-  border: 1px solid var(--color-border);
+  background: var(--color-background);
+  border: 1px solid transparent;
   border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-extrude-sm);
   cursor: pointer;
+  transition: box-shadow 180ms ease;
+}
+
+.type_friend {
+  --type-accent: var(--color-room-friend);
+}
+
+.type_couple {
+  --type-accent: var(--color-room-couple);
+}
+
+.type_family {
+  --type-accent: var(--color-room-family);
+}
+
+.typeCard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    16rem circle at 10% 0%,
+    color-mix(in srgb, var(--type-accent) 26%, transparent),
+    transparent 58%
+  );
+  opacity: 0;
+  transition: opacity 220ms ease;
 }
 
 .typeCard:hover {
-  border-color: color-mix(in srgb, var(--room-type-accent) 55%, var(--color-border));
+  color: var(--color-text);
+  box-shadow:
+    var(--shadow-extrude-sm),
+    0 0 22px color-mix(in srgb, var(--type-accent) 20%, transparent);
+}
+
+.typeCard:hover::after,
+.typeCardSelected::after {
+  opacity: 1;
 }
 
 .typeCardSelected {
-  border-color: var(--room-type-accent);
-  background: color-mix(in srgb, var(--room-type-accent) 12%, var(--color-surface));
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--room-type-accent) 35%, transparent);
+  box-shadow: var(--shadow-press-sm);
 }
 
-.friend { --room-type-accent: #72b7d9; }
-.couple { --room-type-accent: #e28aa2; }
-.family { --room-type-accent: #8fc6a1; }
+.typeCard:focus-visible {
+  outline: 2px solid var(--type-accent);
+  outline-offset: 2px;
+}
 
-.typeCardSelected .typeTitle {
-  color: var(--room-type-accent);
+@media (prefers-reduced-motion: reduce) {
+  .typeCard,
+  .typeCard::after {
+    transition: none;
+  }
 }
 
 .typeTitle {
   font-size: var(--font-size-label);
   font-weight: 700;
+  color: var(--type-accent);
 }
 
 .typeText {

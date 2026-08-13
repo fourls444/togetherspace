@@ -11,13 +11,13 @@
   line-height: 1.5;
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-control);
-  box-shadow: 0 16px 40px rgb(0 0 0 / 0.3);
+  box-shadow: var(--shadow-extrude);
 }
 
 .success {
-  color: #d9f7e6;
-  border-color: rgb(116 207 158 / 0.45);
-  background: #173329;
+  color: var(--color-text);
+  border-color: color-mix(in srgb, var(--color-room-family) 45%, var(--color-border));
+  background: color-mix(in srgb, var(--color-room-family) 18%, var(--color-surface));
 }
 
 .error {

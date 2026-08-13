@@ -1,13 +1,14 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect } from "react";
 
 import { createRoom, type CreateRoomState } from "@/features/rooms/actions";
 import { ImageUploadField } from "@/components/uploads/image-upload-field";
-import { Button } from "@/components/ui/button";
+import { SpecularCta } from "@/components/ui/specular-cta";
 import { FieldErrors } from "@/components/ui/field-errors";
 import formStyles from "@/components/ui/form.module.css";
 import styles from "@/app/(app)/dashboard/create-room/room-form.module.css";
+import type { RoomType } from "@/lib/types/database";
 
 const initialState: CreateRoomState = {};
 
@@ -35,16 +36,25 @@ const ROOM_TYPES = [
   },
 ] as const;
 
-export function RoomForm() {
+type RoomFormProps = {
+  type: RoomType;
+  onTypeChange: (type: RoomType) => void;
+};
+
+export function RoomForm({ type, onTypeChange }: RoomFormProps) {
   const [state, formAction, isPending] = useActionState(
     createRoom,
     initialState,
   );
-  const [type, setType] = useState<(typeof ROOM_TYPES)[number]["value"]>(
-    "friend",
-  );
   const selectedType =
     ROOM_TYPES.find((option) => option.value === type) ?? ROOM_TYPES[0];
+
+  useEffect(() => {
+    document.documentElement.dataset.roomType = type;
+    return () => {
+      delete document.documentElement.dataset.roomType;
+    };
+  }, [type]);
 
   return (
     <form action={formAction} className={formStyles.form}>
@@ -74,9 +84,9 @@ export function RoomForm() {
             return (
               <button
                 aria-pressed={selected}
-                className={`${styles.typeCard} ${styles[option.value]} ${selected ? styles.typeCardSelected : ""}`}
+                className={`${styles.typeCard} ${styles[`type_${option.value}`]} ${selected ? styles.typeCardSelected : ""}`}
                 key={option.value}
-                onClick={() => setType(option.value)}
+                onClick={() => onTypeChange(option.value)}
                 type="button"
               >
                 <span className={styles.typeTitle}>{option.title}</span>
@@ -108,14 +118,13 @@ export function RoomForm() {
         </p>
       ) : null}
 
-      <Button
+      <SpecularCta
         className={formStyles.fullWidth}
         pending={isPending}
         pendingText="กำลังสร้าง…"
-        variant="primary"
       >
         สร้างห้อง
-      </Button>
+      </SpecularCta>
     </form>
   );
 }

@@ -6,8 +6,8 @@ import {
   createInvite,
   type CreateInviteState,
 } from "@/features/invites/actions";
-import { Button } from "@/components/ui/button";
 import { ActionSuccessToast } from "@/components/ui/action-success-toast";
+import { SpecularCta } from "@/components/ui/specular-cta";
 import { FieldErrors } from "@/components/ui/field-errors";
 import styles from "@/components/rooms/create-invite-form.module.css";
 import formStyles from "@/components/ui/form.module.css";
@@ -79,13 +79,9 @@ export function CreateInviteForm({ roomCode, roomId }: CreateInviteFormProps) {
       ) : null}
 
       <div className={styles.submit}>
-        <Button
-          pending={isPending}
-          pendingText="กำลังสร้างลิงก์…"
-          variant="primary"
-        >
+        <SpecularCta pending={isPending} pendingText="กำลังสร้างลิงก์…">
           สร้างคำเชิญใหม่
-        </Button>
+        </SpecularCta>
       </div>
       <ActionSuccessToast
         message="สร้างลิงก์คำเชิญแล้ว"

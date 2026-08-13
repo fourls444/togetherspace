@@ -6,6 +6,7 @@ import {
 import { MemberList, type MemberListItem } from "@/components/rooms/member-list";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
+import { GlowCard } from "@/components/ui/glow-card";
 import { getRoomContext } from "@/lib/rooms/server";
 
 export default async function RoomMembersPage({
@@ -29,7 +30,7 @@ export default async function RoomMembersPage({
     );
   }
 
-  const { currentUserId, roomCode, roomId, supabase } = context;
+  const { currentUserId, room, roomCode, roomId, supabase } = context;
 
   const [membershipsResult, meResult, roomProfilesResult] = await Promise.all([
     supabase
@@ -70,7 +71,13 @@ export default async function RoomMembersPage({
   });
 
   return (
-    <section className={styles.panel} aria-label="สมาชิกในห้อง">
+    <GlowCard
+      aria-label="คนในห้อง"
+      contentClassName={styles.panel}
+      role="region"
+      roomType={room.type}
+      tone="room"
+    >
       <div className={styles.head}>
         <div>
           <h2 className={styles.title}>สมาชิกในห้อง</h2>
@@ -87,6 +94,6 @@ export default async function RoomMembersPage({
       ) : (
         <MemberList members={members} />
       )}
-    </section>
+    </GlowCard>
   );
 }

@@ -6,6 +6,7 @@ import {
 import { BoardCreateForms } from "@/components/boards/board-create-forms";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
+import { GlowCard } from "@/components/ui/glow-card";
 import { getBoardCopy } from "@/lib/boards/board-copy";
 import { getRoomContext } from "@/lib/rooms/server";
 
@@ -141,7 +142,7 @@ export default async function RoomBoardPage({
 
   return (
     <div className={styles.stack}>
-      <section className={styles.panel}>
+      <GlowCard contentClassName={styles.panel} roomType={room.type} tone="room">
         <h2 className={styles.title}>{boardCopy.pageTitle}</h2>
         <p className={styles.lead}>{boardCopy.lead}</p>
         <BoardCreateForms
@@ -150,8 +151,8 @@ export default async function RoomBoardPage({
           roomCode={roomCode}
           roomId={roomId}
         />
-      </section>
-      <section className={styles.panel}>
+      </GlowCard>
+      <GlowCard contentClassName={styles.panel} roomType={room.type} tone="room">
         <h2 className={styles.title}>{boardCopy.panelTitle}</h2>
         <BoardItemList
           boardId={boardId}
@@ -160,7 +161,7 @@ export default async function RoomBoardPage({
           roomCode={roomCode}
           roomId={roomId}
         />
-      </section>
+      </GlowCard>
     </div>
   );
 }
