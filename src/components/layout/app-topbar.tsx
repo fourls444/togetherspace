@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useLayoutEffect } from "react";
 import { usePathname } from "next/navigation";
 
 import {
@@ -14,9 +15,36 @@ type AppTopbarProps = {
   account: AccountMenuUser;
 };
 
+const ROOM_THEME_ROOT_VARS = [
+  "--color-background",
+  "--color-border",
+  "--color-border-strong",
+  "--color-focus",
+  "--color-hover",
+  "--color-muted-surface",
+  "--color-placeholder",
+  "--color-primary",
+  "--color-primary-hover",
+  "--color-primary-soft",
+  "--color-primary-text",
+  "--color-sidebar",
+  "--color-sidebar-hover",
+  "--color-surface",
+  "--color-text",
+  "--color-text-muted",
+] as const;
+
 export function AppTopbar({ account }: AppTopbarProps) {
   const pathname = usePathname();
   const isHome = pathname === "/dashboard";
+
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    for (const name of ROOM_THEME_ROOT_VARS) {
+      root.style.removeProperty(name);
+    }
+    delete root.dataset.roomTheme;
+  }, []);
 
   return (
     <header className={styles.topbar}>

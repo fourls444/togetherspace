@@ -25,7 +25,7 @@ export function RoomThemeSelector() {
     <div>
       <p className={styles.selectorHint}>
         ห้องประเภท{ROOM_TYPE_LABEL[roomType]}เลือกได้เฉพาะ 4 ชุดนี้
-        ธีมจะเปลี่ยนทั้งเว็บไซต์และจำไว้เฉพาะเบราว์เซอร์เครื่องนี้
+        ใช้กับภายในห้อง ไม่เปลี่ยนแถบบนของเว็บ และจำไว้บนเครื่องนี้
       </p>
       <div className={styles.themeGrid} aria-label="ตัวเลือกธีมห้อง">
         {themes.map((theme) => {

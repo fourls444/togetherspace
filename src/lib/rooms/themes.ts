@@ -25,175 +25,94 @@ export type RoomTheme = {
   palette: RoomThemePalette;
 };
 
+const ATELIER_INK: RoomThemePalette = {
+  background: "#0A0908",
+  surface: "#141210",
+  mutedSurface: "#1C1A17",
+  hover: "#25221E",
+  primary: "#C9B896",
+  primaryHover: "#D8CBB0",
+  primarySoft: "#2A261F",
+  primaryText: "#1A1612",
+  text: "#F6F1E8",
+  textMuted: "#A39E94",
+  placeholder: "#8A847A",
+  border: "#2E2B26",
+  borderStrong: "#3D3933",
+};
+
+const ATELIER_LAMP: RoomThemePalette = {
+  ...ATELIER_INK,
+  background: "#1C1A17",
+  surface: "#25221E",
+  mutedSurface: "#2A261F",
+  hover: "#2E2B26",
+};
+
+function withMetal(
+  base: RoomThemePalette,
+  primary: string,
+): RoomThemePalette {
+  return { ...base, primary };
+}
+
 const DEFAULT_THEME: RoomTheme = {
   id: DEFAULT_ROOM_THEME_ID,
-  name: "TogetherSpace",
-  description: "ธีมมาตรฐานของเว็บไซต์ อ่านง่ายและคุ้นเคย",
-  palette: {
-    background: "#0d1424",
-    surface: "#151d31",
-    mutedSurface: "#1c2540",
-    hover: "#243050",
-    primary: "#e8a055",
-    primaryHover: "#f0b56e",
-    primarySoft: "#3a2a18",
-    primaryText: "#1a1208",
-    text: "#f3ede3",
-    textMuted: "#a8b0c2",
-    placeholder: "#6f788f",
-    border: "#2a334a",
-    borderStrong: "#3d4a66",
-  },
+  name: "Private Atelier",
+  description: "หมึกอุ่น งาช้าง และโลหะแชมเปญ — ธีมหลักของบ้านหลังนี้",
+  palette: ATELIER_INK,
 };
 
 const LIGHT_THEME: RoomTheme = {
   id: "warm-light",
-  name: "Warm Light",
-  description: "พื้นครีมอุ่น สบายตา เหมาะกับการใช้งานช่วงกลางวัน",
-  palette: {
-    background: "#f5f1e9",
-    surface: "#fffaf2",
-    mutedSurface: "#eee7dc",
-    hover: "#e4dccf",
-    primary: "#b96f2f",
-    primaryHover: "#a86128",
-    primarySoft: "#f2ddc7",
-    primaryText: "#fffaf2",
-    text: "#2b2825",
-    textMuted: "#6f675f",
-    placeholder: "#91877d",
-    border: "#d7cec2",
-    borderStrong: "#b9ad9f",
-  },
+  name: "Lamp Room",
+  description: "หมึกโทนสว่างขึ้นเล็กน้อย เหมือนเปิดโคมในห้องทำงาน",
+  palette: ATELIER_LAMP,
 };
 
 const TYPE_THEME: Record<RoomType, RoomTheme> = {
   couple: {
     id: "rose-evening",
-    name: "Rose Evening",
-    description: "ชมพูกุหลาบนุ่มลึกสำหรับพื้นที่ของเราสองคน",
-    palette: {
-      background: "#17111b",
-      surface: "#251925",
-      mutedSurface: "#342234",
-      hover: "#493047",
-      primary: "#e6a0a8",
-      primaryHover: "#f0b4bb",
-      primarySoft: "#47252f",
-      primaryText: "#28151a",
-      text: "#f7ece9",
-      textMuted: "#c4adb4",
-      placeholder: "#917b84",
-      border: "#493446",
-      borderStrong: "#695064",
-    },
+    name: "Rose Gold",
+    description: "โรสโกลด์บนหมึกอุ่น สำหรับพื้นที่ของเราสองคน",
+    palette: withMetal(ATELIER_INK, "#C9968C"),
   },
   family: {
     id: "calm-home",
-    name: "Calm Home",
-    description: "เขียวเทาสบายตา อ่านง่ายสำหรับสมาชิกทุกวัย",
-    palette: {
-      background: "#101817",
-      surface: "#192522",
-      mutedSurface: "#22332e",
-      hover: "#2d443c",
-      primary: "#d9ad68",
-      primaryHover: "#e5bd7d",
-      primarySoft: "#3e3220",
-      primaryText: "#21180b",
-      text: "#f1eee5",
-      textMuted: "#aebbb5",
-      placeholder: "#788b82",
-      border: "#30423d",
-      borderStrong: "#496159",
-    },
+    name: "Sage Bronze",
+    description: "ทองมะกอกบนหมึกอุ่น อ่านง่ายสำหรับทุกวัยในบ้าน",
+    palette: withMetal(ATELIER_INK, "#A8B08C"),
   },
   friend: {
     id: "midnight-crew",
-    name: "Midnight Crew",
-    description: "น้ำเงินม่วงเข้มสำหรับกลุ่มเพื่อนที่ชอบบรรยากาศเท่ๆ",
-    palette: {
-      background: "#0f1020",
-      surface: "#1a1c32",
-      mutedSurface: "#252842",
-      hover: "#343858",
-      primary: "#c4a0ed",
-      primaryHover: "#d2b4f3",
-      primarySoft: "#382a4e",
-      primaryText: "#20142d",
-      text: "#f2eef8",
-      textMuted: "#aaa9c2",
-      placeholder: "#777690",
-      border: "#343750",
-      borderStrong: "#505473",
-    },
+    name: "Champagne",
+    description: "โลหะแชมเปญบนหมึกอุ่น สำหรับกลุ่มเพื่อน",
+    palette: withMetal(ATELIER_INK, "#C9B896"),
   },
 };
 
 const TYPE_LIGHT_THEME: Record<RoomType, RoomTheme> = {
   couple: {
     id: "blush-morning",
-    name: "Blush Morning",
-    description: "ชมพูครีมอ่อนโยน สดใส และอบอุ่นสำหรับเราสองคน",
-    palette: {
-      background: "#fff5f3",
-      surface: "#fffafb",
-      mutedSurface: "#f8e8e7",
-      hover: "#f1d9da",
-      primary: "#b85f72",
-      primaryHover: "#a94e62",
-      primarySoft: "#f3d8dc",
-      primaryText: "#fff8f8",
-      text: "#3c292d",
-      textMuted: "#7d6066",
-      placeholder: "#a2868b",
-      border: "#e5cfd1",
-      borderStrong: "#caaeb3",
-    },
+    name: "Rose Lamp",
+    description: "โรสโกลด์บนห้องโคมสว่างขึ้นเล็กน้อย",
+    palette: withMetal(ATELIER_LAMP, "#C9968C"),
   },
   family: {
     id: "sunny-home",
-    name: "Sunny Home",
-    description: "บ้านสว่างสดใส สีอ่านง่ายและเป็นมิตรกับสมาชิกทุกวัย",
-    palette: {
-      background: "#f5f8ee",
-      surface: "#fffdf7",
-      mutedSurface: "#e9f0dc",
-      hover: "#dce8ca",
-      primary: "#44795b",
-      primaryHover: "#35694c",
-      primarySoft: "#d9ead2",
-      primaryText: "#f8fff8",
-      text: "#28352c",
-      textMuted: "#617066",
-      placeholder: "#88958c",
-      border: "#cedbc7",
-      borderStrong: "#a8bca5",
-    },
+    name: "Sage Lamp",
+    description: "ทองมะกอกบนห้องโคมสว่างขึ้นเล็กน้อย",
+    palette: withMetal(ATELIER_LAMP, "#A8B08C"),
   },
   friend: {
     id: "day-trip",
-    name: "Day Trip",
-    description: "ฟ้าสดใสและครีมอุ่นสำหรับแผนเที่ยวและเรื่องสนุกของกลุ่ม",
-    palette: {
-      background: "#f1f7f9",
-      surface: "#fbfdfd",
-      mutedSurface: "#e1eef2",
-      hover: "#d2e4e9",
-      primary: "#34768b",
-      primaryHover: "#286779",
-      primarySoft: "#cfe5eb",
-      primaryText: "#f8ffff",
-      text: "#26373c",
-      textMuted: "#60757c",
-      placeholder: "#84969c",
-      border: "#c8dce1",
-      borderStrong: "#9fbac2",
-    },
+    name: "Champagne Lamp",
+    description: "โลหะแชมเปญบนห้องโคมสว่างขึ้นเล็กน้อย",
+    palette: withMetal(ATELIER_LAMP, "#C9B896"),
   },
 };
 
-/** คืนธีมมาตรฐาน ธีมสว่าง และธีมเฉพาะประเภทแบบมืด/สว่างตามลำดับ */
+/** คืนธีมมาตรฐาน ธีมโคมสว่าง และธีมโลหะตามประเภทห้อง */
 export function getRoomThemes(type: RoomType): RoomTheme[] {
   return [DEFAULT_THEME, LIGHT_THEME, TYPE_THEME[type], TYPE_LIGHT_THEME[type]];
 }

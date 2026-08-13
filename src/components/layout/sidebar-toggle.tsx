@@ -14,10 +14,11 @@ export function SidebarToggle() {
       aria-expanded={isOpen}
       aria-label={isOpen ? "ปิดเมนูห้อง" : "เปิดเมนูห้อง"}
       className={styles.menu}
+      data-open={isOpen ? "true" : "false"}
       onClick={toggle}
       type="button"
     >
-      <span className={styles.menuIcon} data-open={isOpen ? "true" : "false"}>
+      <span className={styles.menuIcon}>
         <span />
         <span />
         <span />

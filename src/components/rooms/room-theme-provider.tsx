@@ -4,7 +4,6 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useSyncExternalStore,
   type CSSProperties,
@@ -52,7 +51,7 @@ function getThemeStorageKey(roomCode: string): string {
   return `togetherspace:room-theme:${roomCode}`;
 }
 
-/** แปลงชุดสีเป็นตัวแปร CSS ให้เนื้อหาห้องใช้สีได้ทันทีระหว่าง hydration */
+/** แปลงชุดสีเป็นตัวแปร CSS ให้ใช้เฉพาะภายในห้อง ไม่ทับแถบบนของแอป */
 function getThemeStyle(theme: RoomTheme): CSSProperties {
   const variables = Object.fromEntries(
     Object.entries(THEME_VARIABLES).map(([paletteKey, variableName]) => [
@@ -63,12 +62,12 @@ function getThemeStyle(theme: RoomTheme): CSSProperties {
   return {
     ...variables,
     "--color-focus": theme.palette.primaryHover,
-    "--color-sidebar": theme.palette.background,
+    "--color-sidebar": theme.palette.mutedSurface,
     "--color-sidebar-hover": theme.palette.hover,
   } as CSSProperties;
 }
 
-/** ใช้ธีมห้องกับทั้งหน้าและจำค่าที่เลือกไว้เฉพาะเบราว์เซอร์เครื่องปัจจุบัน */
+/** ใช้ธีมกับเนื้อหาในห้อง และจำค่าที่เลือกไว้เฉพาะเบราว์เซอร์เครื่องปัจจุบัน */
 export function RoomThemeProvider({
   children,
   roomCode,
@@ -113,37 +112,6 @@ export function RoomThemeProvider({
     () => ({ currentTheme, roomType, selectTheme, themes }),
     [currentTheme, roomType, selectTheme, themes],
   );
-
-  useEffect(() => {
-    const root = document.documentElement;
-    const previousValues = new Map<string, string>();
-
-    for (const [paletteKey, variableName] of Object.entries(THEME_VARIABLES)) {
-      previousValues.set(variableName, root.style.getPropertyValue(variableName));
-      root.style.setProperty(
-        variableName,
-        currentTheme.palette[paletteKey as keyof RoomThemePalette],
-      );
-    }
-    const additionalVariables = {
-      "--color-focus": currentTheme.palette.primaryHover,
-      "--color-sidebar": currentTheme.palette.background,
-      "--color-sidebar-hover": currentTheme.palette.hover,
-    };
-    for (const [variableName, value] of Object.entries(additionalVariables)) {
-      previousValues.set(variableName, root.style.getPropertyValue(variableName));
-      root.style.setProperty(variableName, value);
-    }
-    root.dataset.roomTheme = currentTheme.id;
-
-    return () => {
-      for (const [variableName, previousValue] of previousValues) {
-        if (previousValue) root.style.setProperty(variableName, previousValue);
-        else root.style.removeProperty(variableName);
-      }
-      delete root.dataset.roomTheme;
-    };
-  }, [currentTheme]);
 
   return (
     <RoomThemeContext.Provider value={contextValue}>

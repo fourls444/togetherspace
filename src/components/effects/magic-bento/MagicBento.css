@@ -18,7 +18,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  padding: 1.5px;
+  padding: 2px;
   background: radial-gradient(
     var(--glow-radius) circle at var(--glow-x) var(--glow-y),
     rgba(var(--glow-color), calc(var(--glow-intensity) * 0.85)) 0%,

@@ -9,8 +9,8 @@
   height: 2.4rem;
   padding: 0;
   overflow: hidden;
-  color: var(--color-text);
-  background: var(--color-background);
+  color: var(--app-chrome-text);
+  background: var(--app-chrome-ink);
   box-shadow: var(--shadow-extrude-sm);
   border: 1px solid transparent;
   border-radius: 50%;
@@ -22,7 +22,7 @@
 }
 
 .trigger:focus-visible {
-  outline: 2px solid var(--color-focus);
+  outline: 2px solid var(--app-chrome-focus);
   outline-offset: 2px;
 }
 

@@ -17,6 +17,15 @@
   --color-primary-hover: #d8cbb0;
   --color-primary-text: #1a1612;
   --color-focus: #c9b896;
+  /* แถบบนของแอป — ล็อกไว้ ไม่ให้ธีมห้องทับ */
+  --app-chrome-ink: #0a0908;
+  --app-chrome-surface: #141210;
+  --app-chrome-text: #f6f1e8;
+  --app-chrome-text-muted: #a39e94;
+  --app-chrome-border: #2e2b26;
+  --app-chrome-primary: #c9b896;
+  --app-chrome-primary-text: #1a1612;
+  --app-chrome-focus: #c9b896;
   --color-room-friend: #c9b896;
   --color-room-couple: #c9968c;
   --color-room-family: #a8b08c;
