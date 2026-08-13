@@ -3,6 +3,7 @@ export * from "./rooms";
 export * from "./room-members";
 export * from "./room-profiles";
 export * from "./room-invites";
+export * from "./room-messages";
 export * from "./boards";
 export * from "./calendar";
 export * from "./albums";

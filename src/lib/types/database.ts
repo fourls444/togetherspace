@@ -146,6 +146,29 @@ export type Database = {
         };
         Relationships: [];
       };
+      room_messages: {
+        Row: {
+          id: string;
+          room_id: string;
+          user_id: string;
+          body: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          room_id: string;
+          user_id: string;
+          body: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          body?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       boards: {
         Row: {
           id: string;

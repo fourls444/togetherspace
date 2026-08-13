@@ -4,6 +4,7 @@ import { pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { profiles } from "./profiles";
 import { roomInvites } from "./room-invites";
 import { roomMembers } from "./room-members";
+import { roomMessages } from "./room-messages";
 
 export const roomTypeEnum = pgEnum("room_type", [
   "friend",
@@ -35,4 +36,5 @@ export const roomsRelations = relations(rooms, ({ one, many }) => ({
   }),
   members: many(roomMembers),
   invites: many(roomInvites),
+  messages: many(roomMessages),
 }));
