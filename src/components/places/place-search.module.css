@@ -1,0 +1,129 @@
+.searchContainer {
+  position: absolute;
+  top: 1rem;
+  left: 3.5rem; /* ถัดจากปุ่ม zoom ของ leaflet */
+  z-index: 1000; /* อยู่เหนือแผนที่ */
+  width: min(100% - 4.5rem, 24rem);
+  font-family: var(--font-body), var(--font-body-thai), sans-serif;
+}
+
+.searchForm {
+  display: flex;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-control);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0.65rem 0.85rem;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.searchInput::placeholder {
+  color: var(--color-placeholder);
+}
+
+.searchButton {
+  background: color-mix(in srgb, var(--color-muted-surface) 50%, transparent);
+  border: none;
+  border-left: 1px solid var(--color-border);
+  padding: 0 0.85rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.searchButton:hover:not(:disabled) {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
+.searchButton:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.resultsList {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0.35rem 0;
+  list-style: none;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-control);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  max-height: 18rem;
+  overflow-y: auto;
+}
+
+.resultItem {
+  margin: 0;
+}
+
+.resultButton {
+  width: 100%;
+  text-align: left;
+  padding: 0.65rem 0.85rem;
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.resultButton:hover {
+  background: var(--color-hover);
+}
+
+.noResults {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  padding: 0.85rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-control);
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 560px) {
+  .searchContainer {
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+    top: 0.5rem;
+  }
+  @keyframes slideUpMobile {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

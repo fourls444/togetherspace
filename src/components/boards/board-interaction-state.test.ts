@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  getPollOptionPercent,
+  reorderBoardItems,
   toggleChecklistState,
   togglePollVoteState,
   type InteractiveBoardItem,
@@ -58,4 +60,25 @@ test("โพลหลายข้อเพิ่มคะแนนโดยไ�
 
   assert.equal(next[0]?.pollOptions[0]?.votedByCurrentUser, true);
   assert.equal(next[0]?.pollOptions[1]?.votedByCurrentUser, true);
+});
+
+test("จัดลำดับ board item ตาม id ที่ลากวางโดยคง item ที่ไม่รู้จักไว้ท้ายสุด", () => {
+  const boardItems = [
+    { ...items[0]!, id: "board-1" },
+    { ...items[0]!, id: "board-2" },
+    { ...items[0]!, id: "board-3" },
+  ];
+
+  const next = reorderBoardItems(boardItems, ["board-3", "board-1"]);
+
+  assert.deepEqual(
+    next.map((item) => item.id),
+    ["board-3", "board-1", "board-2"],
+  );
+});
+
+test("คำนวณเปอร์เซ็นต์โพลจากคะแนนรวมและกันกรณีไม่มีคะแนน", () => {
+  assert.equal(getPollOptionPercent(2, 5), 40);
+  assert.equal(getPollOptionPercent(1, 3), 33);
+  assert.equal(getPollOptionPercent(0, 0), 0);
 });

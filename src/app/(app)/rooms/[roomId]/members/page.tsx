@@ -1,8 +1,11 @@
 import styles from "@/app/(app)/rooms/[roomId]/members/members.module.css";
+import {
+  MemberManagement,
+  type ManageMemberItem,
+} from "@/components/rooms/member-management";
 import { MemberList, type MemberListItem } from "@/components/rooms/member-list";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
-import { getRoomSubPath } from "@/lib/rooms/room-path";
 import { getRoomContext } from "@/lib/rooms/server";
 
 export default async function RoomMembersPage({
@@ -73,13 +76,17 @@ export default async function RoomMembersPage({
           <h2 className={styles.title}>สมาชิกในห้อง</h2>
           <p className={styles.meta}>{members.length} คน</p>
         </div>
-        {isOwner ? (
-          <ButtonLink href={getRoomSubPath(roomCode, "settings")}>
-            ตั้งค่าห้อง
-          </ButtonLink>
-        ) : null}
       </div>
-      <MemberList members={members} />
+      {isOwner ? (
+        <MemberManagement
+          currentUserId={currentUserId}
+          members={members as ManageMemberItem[]}
+          roomCode={roomCode}
+          roomId={roomId}
+        />
+      ) : (
+        <MemberList members={members} />
+      )}
     </section>
   );
 }

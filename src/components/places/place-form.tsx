@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
+import { ActionSuccessToast } from "@/components/ui/action-success-toast";
 import { FieldErrors } from "@/components/ui/field-errors";
 import { createPlace, type PlaceActionState } from "@/features/places/actions";
 import type { PlacePosition } from "@/components/places/place-map";
@@ -12,17 +13,21 @@ import styles from "@/components/places/place-map.module.css";
 const initialState: PlaceActionState = {};
 
 type PlaceFormProps = {
+  draftAddress?: string | null;
+  /** เรียกเมื่อบันทึกสำเร็จ — ให้ workspace เคลียร์หมุดร่าง */
+  onSaveSuccess: () => void;
+  /** เรียกเมื่อกดยกเลิก — ให้ workspace เคลียร์หมุดร่าง */
+  onCancelPin: () => void;
   roomCode: string;
   roomId: string;
   selectedPosition: PlacePosition | null;
 };
 
-function formatCoordinate(value: number) {
-  return value.toFixed(6);
-}
-
 /** ฟอร์มเพิ่มสถานที่ ใช้พิกัดจากหมุดที่เลือกบนแผนที่ */
 export function PlaceForm({
+  draftAddress,
+  onSaveSuccess,
+  onCancelPin,
   roomCode,
   roomId,
   selectedPosition,
@@ -31,6 +36,13 @@ export function PlaceForm({
     createPlace,
     initialState,
   );
+
+  /** เคลียร์หมุดร่างทันทีที่บันทึกสำเร็จ */
+  useEffect(() => {
+    if (state.success) {
+      onSaveSuccess();
+    }
+  }, [state.success, onSaveSuccess]);
 
   return (
     <form action={formAction} className={styles.placeForm}>
@@ -48,16 +60,20 @@ export function PlaceForm({
       />
 
       <div className={styles.selectedPinBox}>
-        <span>หมุดที่จะบันทึก</span>
+        <span>ตำแหน่งที่เลือก</span>
         {selectedPosition ? (
-          <strong>
-            {formatCoordinate(selectedPosition.latitude)},{" "}
-            {formatCoordinate(selectedPosition.longitude)}
+          <strong
+            style={{
+              display: "block",
+              marginTop: "0.2rem",
+              fontSize: "0.95rem",
+            }}
+          >
+            {draftAddress ? draftAddress : "กำลังดึงที่อยู่..."}
           </strong>
         ) : (
           <strong>ยังไม่ได้เลือกตำแหน่ง</strong>
         )}
-        <p>คลิกบนแผนที่เพื่อเลือกตำแหน่งใหม่ได้ตลอด</p>
         <FieldErrors
           id="place-latitude-errors"
           messages={state.fieldErrors?.latitude}
@@ -81,9 +97,17 @@ export function PlaceForm({
           maxLength={120}
           name="name"
           placeholder="เช่น ร้านโปรดของเรา"
+          defaultValue={
+            draftAddress && draftAddress !== "กำลังดึงชื่อสถานที่..."
+              ? draftAddress.split(",")[0]
+              : ""
+          }
           required
         />
-        <FieldErrors id="place-name-errors" messages={state.fieldErrors?.name} />
+        <FieldErrors
+          id="place-name-errors"
+          messages={state.fieldErrors?.name}
+        />
       </div>
 
       <div className={formStyles.field}>
@@ -134,20 +158,32 @@ export function PlaceForm({
         </p>
       ) : null}
 
-      {state.success ? (
-        <p className={formStyles.serviceSuccess} role="status">
-          เพิ่มสถานที่แล้ว
-        </p>
-      ) : null}
-
-      <Button
-        disabled={!selectedPosition}
-        pending={isPending}
-        pendingText="กำลังบันทึก…"
-        variant="primary"
-      >
-        เพิ่มสถานที่
-      </Button>
+      <div className={styles.placeEditorActions}>
+        {/* ปุ่มยกเลิก — แสดงเมื่อมีหมุดร่าง */}
+        {selectedPosition ? (
+          <button
+            className={styles.cancelPinButton}
+            disabled={isPending}
+            onClick={onCancelPin}
+            type="button"
+          >
+            ยกเลิก
+          </button>
+        ) : null}
+        <Button
+          disabled={!selectedPosition}
+          pending={isPending}
+          pendingText="กำลังบันทึก…"
+          variant="primary"
+        >
+          เพิ่มสถานที่
+        </Button>
+      </div>
+      <ActionSuccessToast
+        message="เพิ่มสถานที่แล้ว"
+        signal={state}
+        success={state.success}
+      />
     </form>
   );
 }

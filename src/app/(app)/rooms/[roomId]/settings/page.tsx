@@ -5,12 +5,9 @@ import {
   type InviteListItem,
 } from "@/components/rooms/invite-list";
 import { LeaveRoomButton } from "@/components/rooms/leave-room-button";
-import {
-  MemberManagement,
-  type ManageMemberItem,
-} from "@/components/rooms/member-management";
 import { RoomDetailsForm } from "@/components/rooms/room-details-form";
 import { RoomProfileForm } from "@/components/rooms/room-profile-form";
+import { RoomThemeSelector } from "@/components/rooms/room-theme-selector";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
 import { getRoomContext } from "@/lib/rooms/server";
@@ -106,7 +103,7 @@ export default async function RoomSettingsPage({
         .in("id", creatorIds)
     : { data: [] as { id: string; display_name: string; username: string }[] };
 
-  const members: ManageMemberItem[] = memberships.map((membership) => {
+  const members = memberships.map((membership) => {
     const profile = Array.isArray(membership.profiles)
       ? membership.profiles[0]
       : membership.profiles;
@@ -149,21 +146,31 @@ export default async function RoomSettingsPage({
   return (
     <div className={styles.stack}>
       <div className={`${styles.primaryGrid} ${isOwner ? "" : styles.single}`}>
-        <section className={`${styles.panel} ${styles.profilePanel}`}>
-          <h2 className={styles.title}>โปรไฟล์ของฉันในห้องนี้</h2>
-          <p className={styles.lead}>
-            ตั้งชื่อเล่นหรือรูปที่ใช้เฉพาะห้องนี้ โดยไม่กระทบโปรไฟล์หลัก
-          </p>
-          <RoomProfileForm
-            defaultValues={{
-              avatarUrl: roomProfileResult.data?.avatar_url ?? null,
-              displayName: roomProfileResult.data?.display_name ?? null,
-            }}
-            mainDisplayName={profileResult.data?.display_name ?? "โปรไฟล์หลัก"}
-            roomCode={roomCode}
-            roomId={roomId}
-          />
-        </section>
+        <div className={styles.sideColumn}>
+          <section className={`${styles.panel} ${styles.profilePanel}`}>
+            <h2 className={styles.title}>โปรไฟล์ของฉันในห้องนี้</h2>
+            <p className={styles.lead}>
+              ตั้งชื่อเล่นหรือรูปที่ใช้เฉพาะห้องนี้ โดยไม่กระทบโปรไฟล์หลัก
+            </p>
+            <RoomProfileForm
+              defaultValues={{
+                avatarUrl: roomProfileResult.data?.avatar_url ?? null,
+                displayName: roomProfileResult.data?.display_name ?? null,
+              }}
+              mainDisplayName={profileResult.data?.display_name ?? "โปรไฟล์หลัก"}
+              roomCode={roomCode}
+              roomId={roomId}
+            />
+          </section>
+
+          <section className={`${styles.panel} ${styles.danger}`}>
+            <h2 className={styles.title}>ออกจากห้อง</h2>
+            <p className={styles.lead}>
+              หลังออกจากห้อง คุณจะกลับเข้ามาได้อีกด้วยรหัสห้องหรือคำเชิญ
+            </p>
+            <LeaveRoomButton roomId={roomId} />
+          </section>
+        </div>
 
         {isOwner ? (
           <section className={styles.panel}>
@@ -199,28 +206,14 @@ export default async function RoomSettingsPage({
         ) : null}
       </div>
 
-      {isOwner ? (
-        <section className={styles.panel}>
-          <h2 className={styles.title}>ดูแลสมาชิกในห้อง</h2>
-          <p className={styles.lead}>
-            เปลี่ยนบทบาทหรือนำสมาชิกออก โดยแสดงครั้งละ 20 คน
-          </p>
-          <MemberManagement
-            currentUserId={currentUserId}
-            members={members}
-            roomCode={roomCode}
-            roomId={roomId}
-          />
-        </section>
-      ) : null}
-
-      <section className={`${styles.panel} ${styles.danger}`}>
-        <h2 className={styles.title}>ออกจากห้อง</h2>
+      <section className={styles.panel}>
+        <h2 className={styles.title}>ธีมห้อง</h2>
         <p className={styles.lead}>
-          หลังออกจากห้อง คุณจะกลับเข้ามาได้อีกด้วยรหัสห้องหรือคำเชิญ
+          เลือกบรรยากาศที่เหมาะกับห้องนี้ โดยธีม TogetherSpace จะเป็นค่าเริ่มต้นเสมอ
         </p>
-        <LeaveRoomButton roomId={roomId} />
+        <RoomThemeSelector />
       </section>
+
     </div>
   );
 }

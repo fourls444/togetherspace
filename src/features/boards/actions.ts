@@ -12,6 +12,7 @@ import {
   createPollSchema,
   deleteChecklistItemSchema,
   deletePollOptionSchema,
+  reorderBoardItemsSchema,
   toggleChecklistSchema,
   updateBoardItemSchema,
   updateChecklistItemSchema,
@@ -46,6 +47,7 @@ type BoardItemInsert = {
   body: string | null;
   poll_max_votes_per_user?: number;
   poll_allow_vote_cancel?: boolean;
+  z_index?: number;
   created_by: string;
 };
 
@@ -80,7 +82,23 @@ async function archivePartialBoardItem(boardItemId: string) {
 /** สร้าง card หลักของ board แล้วคืน id สำหรับสร้างข้อมูลย่อยตามประเภท */
 async function createBoardItem(payload: BoardItemInsert) {
   const supabase = await createClient();
-  return supabase.from("board_items").insert(payload).select("id").single();
+  const { data: lastItem } = await supabase
+    .from("board_items")
+    .select("z_index")
+    .eq("board_id", payload.board_id)
+    .is("archived_at", null)
+    .order("z_index", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return supabase
+    .from("board_items")
+    .insert({
+      ...payload,
+      z_index: payload.z_index ?? (lastItem?.z_index ?? -1) + 1,
+    })
+    .select("id")
+    .single();
 }
 
 /** เพิ่ม note card แบบข้อความธรรมดาลงใน board */
@@ -567,6 +585,50 @@ export async function updatePollSettings(
     .eq("id", result.data.boardItemId)
     .eq("item_type", "poll");
   if (error) return { error: "บันทึกโหมดโหวตไม่สำเร็จ: " + error.message };
+
+  revalidatePath(getBoardPath(formData, result.data.roomId));
+  return { success: true };
+}
+
+/** บันทึกลำดับ card บนบอร์ดตามตำแหน่งที่ผู้ใช้ลากวาง */
+export async function reorderBoardItems(
+  formData: FormData,
+): Promise<BoardMutationState> {
+  let orderedItemIds: unknown = [];
+  try {
+    orderedItemIds = JSON.parse(String(formData.get("orderedItemIds") ?? "[]"));
+  } catch {
+    return { error: "ลำดับ card ไม่ถูกต้อง" };
+  }
+
+  const result = reorderBoardItemsSchema.safeParse({
+    roomId: formData.get("roomId"),
+    boardId: formData.get("boardId"),
+    orderedItemIds,
+  });
+  if (!result.success) {
+    return {
+      error: result.error.issues[0]?.message ?? "ลำดับ card ไม่ถูกต้อง",
+    };
+  }
+
+  const { supabase } = await requireUserId();
+  const updates = result.data.orderedItemIds.map((id, index) =>
+    supabase
+      .from("board_items")
+      .update({
+        z_index: index,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .eq("board_id", result.data.boardId)
+      .is("archived_at", null),
+  );
+  const results = await Promise.all(updates);
+  const error = results.find((update) => update.error)?.error;
+  if (error) {
+    return { error: "บันทึกลำดับบอร์ดไม่สำเร็จ: " + error.message };
+  }
 
   revalidatePath(getBoardPath(formData, result.data.roomId));
   return { success: true };

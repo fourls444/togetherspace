@@ -36,6 +36,13 @@ export const createChecklistSchema = z.object({
     }),
 });
 
+const boardItemIdArraySchema = z
+  .array(z.string().uuid("ID card ไม่ถูกต้อง"))
+  .transform((ids) => Array.from(new Set(ids)))
+  .refine((ids) => ids.length > 0, {
+    message: "ต้องมี card อย่างน้อย 1 รายการสำหรับจัดลำดับ",
+  });
+
 export const createPollSchema = z.object({
   ...boardBaseSchema,
   pollVoteMode: z.enum(["single", "multiple"], {
@@ -145,6 +152,12 @@ export const updatePollSettingsSchema = z.object({
   roomId: z.string().uuid("ID ห้องไม่ถูกต้อง"),
   boardItemId: z.string().uuid("ID poll ไม่ถูกต้อง"),
   pollVoteMode: z.enum(["single", "multiple"]),
+});
+
+export const reorderBoardItemsSchema = z.object({
+  roomId: z.string().uuid("ID ห้องไม่ถูกต้อง"),
+  boardId: z.string().uuid("ID บอร์ดไม่ถูกต้อง"),
+  orderedItemIds: boardItemIdArraySchema,
 });
 
 export type CreateNoteInput = z.infer<typeof createNoteSchema>;

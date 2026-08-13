@@ -8,6 +8,7 @@ import {
 } from "@/features/room-profiles/actions";
 import { ImageUploadField } from "@/components/uploads/image-upload-field";
 import { Button } from "@/components/ui/button";
+import { ActionSuccessToast } from "@/components/ui/action-success-toast";
 import { FieldErrors } from "@/components/ui/field-errors";
 import formStyles from "@/components/ui/form.module.css";
 import styles from "@/components/rooms/room-profile-form.module.css";
@@ -64,7 +65,7 @@ export function RoomProfileForm({
           aria-describedby={
             state.fieldErrors?.displayName
               ? "room-display-name-errors"
-              : "room-display-name-hint"
+              : undefined
           }
           aria-invalid={Boolean(state.fieldErrors?.displayName)}
           className={formStyles.control}
@@ -74,9 +75,6 @@ export function RoomProfileForm({
           name="displayName"
           placeholder={`เว้นว่างไว้เพื่อใช้ ${mainDisplayName}`}
         />
-        <p className={formStyles.hint} id="room-display-name-hint">
-          ใช้สำหรับแสดงในรายชื่อสมาชิกของห้องนี้เท่านั้น
-        </p>
         <FieldErrors
           id="room-display-name-errors"
           messages={state.fieldErrors?.displayName}
@@ -84,25 +82,27 @@ export function RoomProfileForm({
       </div>
 
       {state.error ? (
-        <p className={`${formStyles.serviceError} ${styles.fullRow}`} role="alert">
+        <p
+          className={`${formStyles.serviceError} ${styles.fullRow}`}
+          role="alert"
+        >
           {state.error}
         </p>
       ) : null}
 
-      {state.success ? (
-        <p className={`${formStyles.serviceSuccess} ${styles.fullRow}`} role="status">
-          บันทึกโปรไฟล์ในห้องนี้แล้ว
-        </p>
-      ) : null}
-
       <Button
-        className={`${formStyles.fullWidth} ${styles.fullRow}`}
+        className={`${styles.submitButton} ${styles.fullRow}`}
         pending={isPending}
         pendingText="กำลังบันทึก…"
         variant="primary"
       >
         บันทึกโปรไฟล์ในห้องนี้
       </Button>
+      <ActionSuccessToast
+        message="บันทึกโปรไฟล์ในห้องนี้แล้ว"
+        signal={state}
+        success={state.success}
+      />
     </form>
   );
 }

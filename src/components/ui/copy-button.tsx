@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Check, Copy } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -10,7 +11,7 @@ type CopyButtonProps = {
   copiedLabel?: string;
 };
 
-/** คัดลอกข้อความสั้น ๆ เช่น room code หรือ invite link และแสดงสถานะสำเร็จชั่วคราว */
+/** คัดลอกข้อความสั้นๆ เช่น room code หรือ invite link และแสดงสถานะสำเร็จชั่วคราว */
 export function CopyButton({
   text,
   label = "คัดลอก",
@@ -26,6 +27,11 @@ export function CopyButton({
 
   return (
     <Button onClick={handleCopy} type="button">
+      {copied ? (
+        <Check aria-hidden size={15} />
+      ) : (
+        <Copy aria-hidden size={15} />
+      )}
       {copied ? copiedLabel : label}
     </Button>
   );

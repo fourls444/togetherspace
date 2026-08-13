@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
 
 import { changeMemberRole, kickMember } from "@/features/members/actions";
 import { Badge } from "@/components/ui/badge";
@@ -48,6 +49,7 @@ export function MemberManagement({
     message: string;
     tone: "success" | "error";
   } | null>(null);
+  const listParentRef = useRef<HTMLDivElement>(null);
 
   /** นำสมาชิกที่เลือกออกจากห้องหลังยืนยัน */
   const handleKick = () => {
@@ -82,15 +84,35 @@ export function MemberManagement({
   };
 
   const visibleMembers = getVisibleMembers(members, visibleLimit);
+  // TanStack Virtual คืนฟังก์ชันภายใน hook เอง จึงปิด warning React Compiler เฉพาะจุดนี้
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const virtualizer = useVirtualizer({
+    count: visibleMembers.length,
+    estimateSize: () => 78,
+    getScrollElement: () => listParentRef.current,
+    overscan: 6,
+  });
 
   return (
     <div className={styles.container}>
-      <ul className={styles.list}>
-        {visibleMembers.map((member) => {
+      <div className={styles.virtualFrame} ref={listParentRef}>
+        <ul
+          className={styles.list}
+          style={{ height: `${virtualizer.getTotalSize()}px` }}
+        >
+          {virtualizer.getVirtualItems().map((virtualRow) => {
+          const member = visibleMembers[virtualRow.index];
+          if (!member) return null;
           const isSelf = member.userId === currentUserId;
           const avatarUrl = member.avatarUrl?.trim() || getDefaultImageUrl("profile");
           return (
-            <li className={styles.member} key={member.userId}>
+            <li
+              className={styles.member}
+              data-index={virtualRow.index}
+              key={member.userId}
+              ref={virtualizer.measureElement}
+              style={{ transform: `translateY(${virtualRow.start}px)` }}
+            >
               <div className={styles.identity}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img alt="" className={styles.avatar} src={avatarUrl} />
@@ -141,7 +163,8 @@ export function MemberManagement({
             </li>
           );
         })}
-      </ul>
+        </ul>
+      </div>
       {visibleLimit < members.length ? (
         <Button onClick={handleLoadMore} type="button">
           โหลดสมาชิกเพิ่ม ({members.length - visibleLimit})

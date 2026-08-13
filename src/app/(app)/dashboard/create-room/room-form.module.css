@@ -11,6 +11,7 @@
 }
 
 .typeCard {
+  --room-type-accent: var(--color-primary);
   display: grid;
   gap: 0.25rem;
   padding: 0.85rem 0.95rem;
@@ -24,13 +25,21 @@
 }
 
 .typeCard:hover {
-  border-color: color-mix(in srgb, var(--color-primary) 35%, var(--color-border));
+  border-color: color-mix(in srgb, var(--room-type-accent) 55%, var(--color-border));
 }
 
 .typeCardSelected {
-  border-color: var(--color-primary);
-  background: color-mix(in srgb, var(--color-primary-soft) 65%, var(--color-surface));
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 35%, transparent);
+  border-color: var(--room-type-accent);
+  background: color-mix(in srgb, var(--room-type-accent) 12%, var(--color-surface));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--room-type-accent) 35%, transparent);
+}
+
+.friend { --room-type-accent: #72b7d9; }
+.couple { --room-type-accent: #e28aa2; }
+.family { --room-type-accent: #8fc6a1; }
+
+.typeCardSelected .typeTitle {
+  color: var(--room-type-accent);
 }
 
 .typeTitle {

@@ -10,6 +10,7 @@ import {
   useMap,
   useMapEvents,
 } from "react-leaflet";
+import { LocateFixed, MapPin } from "lucide-react";
 
 import styles from "@/components/places/place-map.module.css";
 
@@ -26,10 +27,14 @@ export type PlaceMapItem = PlacePosition & {
 };
 
 type PlaceMapProps = {
+  flyToPosition: PlacePosition | null;
+  flyToTick: number;
   focusTick: number;
   onLocate: () => void;
+  onMarkerClick: (id: string) => void;
   onSelectPosition: (position: PlacePosition) => void;
   places: PlaceMapItem[];
+  selectedPlaceId: string | null;
   selectedPosition: PlacePosition | null;
   userPosition: PlacePosition | null;
 };
@@ -38,6 +43,14 @@ const BANGKOK_CENTER: [number, number] = [13.7563, 100.5018];
 
 const placeIcon = L.divIcon({
   className: styles.placeMarker,
+  html: "<span></span>",
+  iconAnchor: [14, 28],
+  iconSize: [28, 28],
+  popupAnchor: [0, -26],
+});
+
+const placeSelectedIcon = L.divIcon({
+  className: `${styles.placeMarker} ${styles.placeMarkerSelected}`,
   html: "<span></span>",
   iconAnchor: [14, 28],
   iconSize: [28, 28],
@@ -75,10 +88,6 @@ function formatPlaceDate(date: string | null) {
     dateStyle: "medium",
     timeZone: "UTC",
   }).format(new Date(`${date}T00:00:00.000Z`));
-}
-
-function formatCoordinate(position: PlacePosition) {
-  return `${position.latitude.toFixed(6)}, ${position.longitude.toFixed(6)}`;
 }
 
 /** รับ click/tap จากแผนที่แล้วส่งพิกัดกลับไปให้ form */
@@ -119,12 +128,36 @@ function MapFocusHandler({
   return null;
 }
 
+/** บินแผนที่ไปยังสถานที่ที่เลือกจาก side panel */
+function MapFlyToHandler({
+  flyToPosition,
+  flyToTick,
+}: {
+  flyToPosition: PlacePosition | null;
+  flyToTick: number;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!flyToPosition) return;
+    map.flyTo(toLatLng(flyToPosition), Math.max(map.getZoom(), 15), {
+      duration: 0.7,
+    });
+  }, [flyToTick, map, flyToPosition]);
+
+  return null;
+}
+
 /** แสดงสถานที่ของห้องบนแผนที่จริง และให้แตะเพื่อเลือกหมุดใหม่ */
 export function PlaceMap({
+  flyToPosition,
+  flyToTick,
   focusTick,
   onLocate,
+  onMarkerClick,
   onSelectPosition,
   places,
+  selectedPlaceId,
   selectedPosition,
   userPosition,
 }: PlaceMapProps) {
@@ -142,10 +175,12 @@ export function PlaceMap({
         />
         <MapClickHandler onSelectPosition={onSelectPosition} />
         <MapFocusHandler focusTick={focusTick} userPosition={userPosition} />
+        <MapFlyToHandler flyToPosition={flyToPosition} flyToTick={flyToTick} />
 
         {places.map((place) => (
           <Marker
-            icon={placeIcon}
+            eventHandlers={{ click: () => onMarkerClick(place.id) }}
+            icon={place.id === selectedPlaceId ? placeSelectedIcon : placeIcon}
             key={place.id}
             position={[place.latitude, place.longitude]}
           >
@@ -160,12 +195,7 @@ export function PlaceMap({
         ))}
 
         {selectedPosition ? (
-          <Marker icon={draftIcon} position={toLatLng(selectedPosition)}>
-            <Popup>
-              <strong>หมุดใหม่</strong>
-              <p>{formatCoordinate(selectedPosition)}</p>
-            </Popup>
-          </Marker>
+          <Marker icon={draftIcon} position={toLatLng(selectedPosition)} />
         ) : null}
 
         {userPosition ? (
@@ -183,13 +213,13 @@ export function PlaceMap({
           title="ไปตำแหน่งของฉัน"
           type="button"
         >
-          ◎
+          <LocateFixed size={18} strokeWidth={2.5} />
         </button>
         <span
           aria-label="แตะบนแผนที่เพื่อวางหมุด"
           title="แตะบนแผนที่เพื่อวางหมุด"
         >
-          📍
+          <MapPin size={18} strokeWidth={2.5} />
         </span>
       </div>
     </div>

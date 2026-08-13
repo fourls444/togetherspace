@@ -1,14 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { ChevronLeft, ChevronRight, Save, Trash2, X } from "lucide-react";
 
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { Button } from "@/components/ui/button";
 import { Toast } from "@/components/ui/toast";
-import {
-  deleteAlbumPhoto,
-  updateAlbumPhoto,
-} from "@/features/albums/actions";
+import { deleteAlbumPhoto, updateAlbumPhoto } from "@/features/albums/actions";
 
 import type { AlbumPhotoView } from "./album-photo-grid";
 import styles from "./album.module.css";
@@ -146,13 +144,7 @@ export function AlbumPhotoDialog({
   }
 
   return (
-    <div
-      className={styles.photoDialogOverlay}
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget && !isPending) onClose();
-      }}
-      role="presentation"
-    >
+    <div className={styles.photoDialogOverlay} role="presentation">
       <section
         aria-label="ดูรูปในอัลบั้ม"
         aria-modal="true"
@@ -163,12 +155,14 @@ export function AlbumPhotoDialog({
         <div className={styles.photoDialogBar}>
           <span>{photoPosition}</span>
           <Button
+            aria-label="ปิดหน้าต่างดูรูป"
+            className={styles.photoDialogClose}
             disabled={isPending}
             onClick={onClose}
             ref={closeButtonRef}
             type="button"
           >
-            ปิด
+            <X aria-hidden size={18} />
           </Button>
         </div>
 
@@ -179,7 +173,7 @@ export function AlbumPhotoDialog({
             onClick={() => onMove("previous")}
             type="button"
           >
-            ‹
+            <ChevronLeft aria-hidden size={20} />
           </button>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -192,7 +186,7 @@ export function AlbumPhotoDialog({
             onClick={() => onMove("next")}
             type="button"
           >
-            ›
+            <ChevronRight aria-hidden size={20} />
           </button>
         </div>
 
@@ -212,8 +206,8 @@ export function AlbumPhotoDialog({
               <textarea
                 maxLength={280}
                 onChange={(event) => setCaption(event.target.value)}
-                placeholder="เพิ่มเรื่องราวสั้น ๆ ของรูปนี้"
-                rows={3}
+                placeholder="เพิ่มเรื่องราวสั้นๆ ของรูปนี้"
+                rows={2}
                 value={caption}
               />
             </label>
@@ -224,7 +218,7 @@ export function AlbumPhotoDialog({
                 type="button"
                 variant="danger"
               >
-                ลบรูป
+                <Trash2 aria-hidden size={16} /> ลบรูป
               </Button>
               <Button
                 onClick={handleSave}
@@ -233,7 +227,7 @@ export function AlbumPhotoDialog({
                 type="button"
                 variant="primary"
               >
-                บันทึก
+                <Save aria-hidden size={16} /> บันทึก
               </Button>
             </div>
           </div>
@@ -247,7 +241,7 @@ export function AlbumPhotoDialog({
 
       <ConfirmationDialog
         confirmLabel="ลบรูป"
-        description="รูปนี้จะถูกลบออกจากอัลบั้มและ Storage โดยไม่สามารถกู้คืนได้"
+        description="รูปนี้จะถูกลบออกจากอัลบั้ม และไม่สามารถกู้คืนได้"
         isPending={isPending}
         onCancel={() => setConfirmDelete(false)}
         onConfirm={handleDelete}

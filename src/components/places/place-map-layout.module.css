@@ -1,0 +1,40 @@
+/* ... existing styles ... */
+
+.mapFrameWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-surface);
+  overflow: hidden;
+}
+
+.listPageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  max-width: 800px; /* ไม่ให้กว้างเกินไปเมื่ออยู่เต็มจอ */
+}
+
+.listPageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.listPageHeader h2 {
+  font-family: var(--font-display), var(--font-display-thai), serif;
+  font-size: 1.5rem;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.listPageContent {
+  /* ใส่ background เบาๆ หรือ padding ให้ list ดูเป็นสัดส่วนบนหน้าเต็ม */
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-surface);
+  padding: 1rem;
+}

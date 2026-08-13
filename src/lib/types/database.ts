@@ -388,6 +388,229 @@ export type Database = {
         };
         Relationships: [];
       };
+      finance_trips: {
+        Row: {
+          id: string;
+          room_id: string;
+          name: string;
+          start_date: string | null;
+          end_date: string | null;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          room_id: string;
+          name: string;
+          start_date?: string | null;
+          end_date?: string | null;
+          created_by: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          name?: string;
+          start_date?: string | null;
+          end_date?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      finance_funds: {
+        Row: {
+          id: string;
+          room_id: string;
+          name: string;
+          purpose: "trip" | "date";
+          target_cents: number | null;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          room_id: string;
+          name: string;
+          purpose: "trip" | "date";
+          target_cents?: number | null;
+          created_by: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          name?: string;
+          purpose?: "trip" | "date";
+          target_cents?: number | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      finance_fund_contributions: {
+        Row: {
+          id: string;
+          fund_id: string;
+          user_id: string;
+          amount_cents: number;
+          contribution_date: string;
+          created_by: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          fund_id: string;
+          user_id: string;
+          amount_cents: number;
+          contribution_date?: string;
+          created_by: string;
+          created_at?: string;
+        };
+        Update: Record<string, never>;
+        Relationships: [];
+      };
+      finance_incomes: {
+        Row: {
+          id: string;
+          room_id: string;
+          user_id: string;
+          source: string;
+          amount_cents: number;
+          income_month: string;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          room_id: string;
+          user_id: string;
+          source: string;
+          amount_cents: number;
+          income_month: string;
+          created_by: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          source?: string;
+          amount_cents?: number;
+          income_month?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      finance_budgets: {
+        Row: {
+          id: string;
+          room_id: string;
+          category: string;
+          budget_month: string;
+          limit_cents: number;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          room_id: string;
+          category: string;
+          budget_month: string;
+          limit_cents: number;
+          created_by: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          limit_cents?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      finance_repayments: {
+        Row: {
+          id: string;
+          room_id: string;
+          from_user_id: string;
+          to_user_id: string;
+          amount_cents: number;
+          repaid_at: string;
+          created_by: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          room_id: string;
+          from_user_id: string;
+          to_user_id: string;
+          amount_cents: number;
+          repaid_at?: string;
+          created_by: string;
+          created_at?: string;
+        };
+        Update: Record<string, never>;
+        Relationships: [];
+      };
+      finance_expenses: {
+        Row: {
+          id: string;
+          room_id: string;
+          title: string;
+          amount_cents: number;
+          expense_date: string;
+          paid_by: string;
+          created_by: string;
+          category: string;
+          trip_id: string | null;
+          fund_id: string | null;
+          note: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          room_id: string;
+          title: string;
+          amount_cents: number;
+          expense_date: string;
+          paid_by: string;
+          created_by: string;
+          category?: string;
+          trip_id?: string | null;
+          fund_id?: string | null;
+          note?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          title?: string;
+          amount_cents?: number;
+          expense_date?: string;
+          paid_by?: string;
+          category?: string;
+          trip_id?: string | null;
+          fund_id?: string | null;
+          note?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      finance_expense_splits: {
+        Row: {
+          expense_id: string;
+          user_id: string;
+          amount_cents: number;
+        };
+        Insert: {
+          expense_id: string;
+          user_id: string;
+          amount_cents: number;
+        };
+        Update: {
+          amount_cents?: number;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -484,6 +707,22 @@ export type Database = {
           p_avatar_url?: string | null;
         };
         Returns: void;
+      };
+      save_finance_expense: {
+        Args: {
+          p_expense_id: string | null;
+          p_room_id: string;
+          p_title: string;
+          p_amount_cents: number;
+          p_expense_date: string;
+          p_paid_by: string;
+          p_category: string;
+          p_trip_id: string | null;
+          p_fund_id: string | null;
+          p_note: string | null;
+          p_splits: Json;
+        };
+        Returns: string;
       };
     };
     Enums: {

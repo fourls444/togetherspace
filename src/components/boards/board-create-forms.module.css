@@ -5,6 +5,9 @@
 }
 
 .smallButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   padding: 0.45rem 0.7rem;
   color: var(--color-text);
   background: var(--color-surface);
@@ -20,61 +23,72 @@
   border-color: var(--color-primary);
 }
 
-.overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
+.presets {
   display: grid;
-  align-items: start;
-  justify-items: center;
-  padding: 6rem 1rem 1rem;
-  background: color-mix(in srgb, var(--color-background) 55%, transparent);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.85rem;
 }
 
-.modal {
+.presetButton {
   display: grid;
-  width: min(100%, 36rem);
-  max-height: calc(100vh - 7rem);
-  gap: 1rem;
-  padding: 1rem;
-  overflow: auto;
-  background: var(--color-surface);
+  gap: 0.35rem;
+  min-height: 5.2rem;
+  padding: 0.75rem;
+  color: var(--color-text);
+  text-align: left;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-panel);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--color-muted-surface) 58%, transparent);
+  cursor: pointer;
 }
 
-.modalHeader {
-  display: flex;
+.presetButton:hover {
+  border-color: color-mix(
+    in srgb,
+    var(--color-primary) 52%,
+    var(--color-border)
+  );
+  background: color-mix(
+    in srgb,
+    var(--color-primary-soft) 34%,
+    var(--color-muted-surface)
+  );
+}
+
+.presetButton span {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  justify-content: center;
+  width: fit-content;
+  min-height: 1.45rem;
+  padding: 0.2rem 0.5rem;
+  color: var(--color-primary);
+  font-size: var(--font-size-mark);
+  font-weight: 800;
+  line-height: 1;
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+}
+
+.presetButton[data-type="checklist"] span {
+  color: #9fd0ff;
+  background: color-mix(in srgb, #82b7f4 16%, var(--color-muted-surface));
+}
+
+.presetButton[data-type="poll"] span {
+  color: #d5bfff;
+  background: color-mix(in srgb, #b9a0e8 18%, var(--color-muted-surface));
+}
+
+.presetButton strong {
+  font-size: var(--font-size-label);
+  line-height: 1.4;
 }
 
 .form {
   display: grid;
   gap: 1rem;
-}
-
-.title {
-  margin: 0;
-  font-size: var(--font-size-body);
-  font-weight: 600;
-}
-
-.closeButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  color: var(--color-text);
-  background: var(--color-muted-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-control);
-  cursor: pointer;
-  font: inherit;
-  font-size: var(--font-size-title);
 }
 
 .hint,
@@ -104,4 +118,10 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-control);
   font-size: var(--font-size-label);
+}
+
+@media (max-width: 48rem) {
+  .presets {
+    grid-template-columns: 1fr;
+  }
 }

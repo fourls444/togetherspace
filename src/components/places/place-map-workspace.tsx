@@ -1,43 +1,57 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { PlaceForm } from "@/components/places/place-form";
 import { PlaceMapShell } from "@/components/places/place-map-shell";
 import type { PlaceMapItem, PlacePosition } from "@/components/places/place-map";
+import { PlaceSearch } from "@/components/places/place-search";
+import { ButtonLink } from "@/components/ui/button-link";
+import { Modal } from "@/components/ui/modal";
+import type { GeocodeResult } from "@/lib/geocoding";
+import { reverseGeocode } from "@/lib/geocoding";
 import styles from "@/components/places/place-map.module.css";
 
 type PlaceMapWorkspaceProps = {
+  initialFlyToPlaceId?: string;
   places: PlaceMapItem[];
   roomCode: string;
   roomId: string;
 };
 
-/** จัดการ state กลางของแผนที่: หมุดที่เลือก, ตำแหน่งผู้ใช้ และการขอสิทธิ์ location */
+/** จัดการ state กลางของหน้าแผนที่ ทั้งการปักหมุดใหม่ การค้นหา และการโฟกัสสถานที่ */
 export function PlaceMapWorkspace({
+  initialFlyToPlaceId,
   places,
   roomCode,
   roomId,
 }: PlaceMapWorkspaceProps) {
-  const [selectedPosition, setSelectedPosition] = useState<PlacePosition | null>(
-    null,
-  );
+  const initialPlace = initialFlyToPlaceId
+    ? places.find((place) => place.id === initialFlyToPlaceId)
+    : null;
+
+  const [selectedPosition, setSelectedPosition] =
+    useState<PlacePosition | null>(null);
+  const [draftAddress, setDraftAddress] = useState<string | null>(null);
   const [userPosition, setUserPosition] = useState<PlacePosition | null>(null);
-  const [locationMessage, setLocationMessage] = useState<string | null>(null);
   const [locationTick, setLocationTick] = useState(0);
-  const [isLocating, setIsLocating] = useState(false);
+  const [flyToPosition, setFlyToPosition] = useState<PlacePosition | null>(
+    initialPlace
+      ? { latitude: initialPlace.latitude, longitude: initialPlace.longitude }
+      : null,
+  );
+  const [flyToTick, setFlyToTick] = useState(initialPlace ? 1 : 0);
+  const [selectedPlaceId, setSelectedPlaceId] = useState<string | null>(
+    initialPlace?.id ?? null,
+  );
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  /** ขอพิกัดจาก browser แล้วใช้เป็นหมุดร่างสำหรับเพิ่มสถานที่ */
+  /** ขอสิทธิ์ location แล้วใช้ตำแหน่งปัจจุบันเป็นหมุดร่าง */
   function requestCurrentLocation() {
-    if (!("geolocation" in navigator)) {
-      setLocationMessage("อุปกรณ์นี้ไม่รองรับการหาตำแหน่งปัจจุบัน");
-      return;
-    }
+    if (!("geolocation" in navigator)) return;
 
-    setIsLocating(true);
-    setLocationMessage("กำลังขอตำแหน่งปัจจุบัน…");
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const nextPosition = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
@@ -45,70 +59,120 @@ export function PlaceMapWorkspace({
         setUserPosition(nextPosition);
         setSelectedPosition(nextPosition);
         setLocationTick((current) => current + 1);
-        setLocationMessage("ใช้ตำแหน่งปัจจุบันเป็นหมุดแล้ว");
-        setIsLocating(false);
+        setIsModalOpen(true);
+
+        const address = await reverseGeocode(
+          nextPosition.latitude,
+          nextPosition.longitude,
+        );
+        setDraftAddress(address);
       },
-      (error) => {
-        const message =
-          error.code === error.PERMISSION_DENIED
-            ? "ต้องอนุญาต Location ใน browser ก่อนถึงจะใช้ตำแหน่งปัจจุบันได้"
-            : "หาตำแหน่งปัจจุบันไม่สำเร็จ ลองใหม่อีกครั้ง";
-        setLocationMessage(message);
-        setIsLocating(false);
+      () => {
+        // Browser จะแสดงสถานะ permission เอง รอบนี้ไม่ต้องโชว์กล่อง error เพิ่ม
       },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 30_000,
-        timeout: 10_000,
-      },
+      { enableHighAccuracy: true, maximumAge: 30_000, timeout: 10_000 },
     );
   }
 
-  /** เลือกพิกัดใหม่จากการคลิกหรือแตะบนแผนที่ */
-  function handleSelectPosition(position: PlacePosition) {
+  /** เลือกพิกัดจากการคลิก/แตะบนแผนที่ แล้วลองดึงชื่อสถานที่มาเติมให้ */
+  async function handleSelectPosition(position: PlacePosition) {
     setSelectedPosition(position);
-    setLocationMessage("เลือกตำแหน่งสำหรับหมุดใหม่แล้ว");
+    setDraftAddress("กำลังดึงชื่อสถานที่...");
+    setIsModalOpen(true);
+    const address = await reverseGeocode(position.latitude, position.longitude);
+    setDraftAddress(address);
   }
 
+  /** โฟกัสแผนที่ไปยัง marker ที่กด */
+  function handleMarkerClick(id: string) {
+    const place = places.find((item) => item.id === id);
+    if (!place) return;
+    handleSelectPlace(place);
+  }
+
+  /** เลือกผลลัพธ์จากช่องค้นหาและวางหมุดร่างทันที */
+  function handleSelectSearchResult(result: GeocodeResult) {
+    const position = {
+      latitude: result.latitude,
+      longitude: result.longitude,
+    };
+    setSelectedPosition(position);
+    setDraftAddress(result.displayName);
+    setFlyToPosition(position);
+    setFlyToTick((current) => current + 1);
+    setIsModalOpen(true);
+  }
+
+  /** เลือกสถานที่จากรายการด้านล่างซ้ายแล้ววาร์ปแผนที่ไปยังจุดนั้น */
+  function handleSelectPlace(place: PlaceMapItem) {
+    setSelectedPlaceId(place.id);
+    setFlyToPosition({
+      latitude: place.latitude,
+      longitude: place.longitude,
+    });
+    setFlyToTick((current) => current + 1);
+  }
+
+  /** ล้างหมุดร่างหลังบันทึกสถานที่สำเร็จ */
+  const handleSaveSuccess = useCallback(() => {
+    setSelectedPosition(null);
+    setDraftAddress(null);
+    setIsModalOpen(false);
+  }, []);
+
+  /** ยกเลิกหมุดร่างที่ยังไม่บันทึก */
+  const handleCancelPin = useCallback(() => {
+    setSelectedPosition(null);
+    setDraftAddress(null);
+    setIsModalOpen(false);
+  }, []);
+
   return (
-    <section className={styles.layout}>
-      <article className={styles.mapPanel}>
-        <PlaceMapShell
-          focusTick={locationTick}
-          onLocate={requestCurrentLocation}
-          onSelectPosition={handleSelectPosition}
-          places={places}
-          selectedPosition={selectedPosition}
-          userPosition={userPosition}
-        />
+    <section className={styles.layoutFull}>
+      <article className={styles.mapPanelFull}>
+        <div className={styles.mapFrameWrapper}>
+          <div className={styles.topControls}>
+            <PlaceSearch onSelectResult={handleSelectSearchResult} />
+          </div>
+
+          <PlaceMapShell
+            flyToPosition={flyToPosition}
+            flyToTick={flyToTick}
+            focusTick={locationTick}
+            onLocate={requestCurrentLocation}
+            onMarkerClick={handleMarkerClick}
+            onSelectPosition={handleSelectPosition}
+            places={places}
+            selectedPlaceId={selectedPlaceId}
+            selectedPosition={selectedPosition}
+            userPosition={userPosition}
+          />
+
+          <ButtonLink
+            className={styles.mapAllPlacesButton}
+            href={`/rooms/${roomCode}/map/places`}
+            variant="default"
+          >
+            ดูสถานที่ทั้งหมด
+          </ButtonLink>
+        </div>
       </article>
 
-      <aside className={styles.sidePanel}>
-        <div className={styles.sectionHeader}>
-          <h2>เพิ่มสถานที่</h2>
-          <p>
-            แตะหรือคลิกบนแผนที่เพื่อวางหมุด หรือใช้ตำแหน่งปัจจุบันเพื่อเริ่มจากจุดที่คุณอยู่
-          </p>
-        </div>
-        <div className={styles.locationActions}>
-          <button
-            className={styles.locationButton}
-            disabled={isLocating}
-            onClick={requestCurrentLocation}
-            type="button"
-          >
-            {isLocating ? "กำลังหา…" : "ใช้ตำแหน่งปัจจุบัน"}
-          </button>
-          {locationMessage ? (
-            <p className={styles.locationMessage}>{locationMessage}</p>
-          ) : null}
-        </div>
+      <Modal
+        description="กรอกรายละเอียดของสถานที่ที่เลือก เพื่อบันทึกไว้ในแผนที่ของห้อง"
+        isOpen={isModalOpen}
+        onClose={handleCancelPin}
+        title="เพิ่มสถานที่ใหม่"
+      >
         <PlaceForm
+          draftAddress={draftAddress}
+          onCancelPin={handleCancelPin}
+          onSaveSuccess={handleSaveSuccess}
           roomCode={roomCode}
           roomId={roomId}
           selectedPosition={selectedPosition}
         />
-      </aside>
+      </Modal>
     </section>
   );
 }

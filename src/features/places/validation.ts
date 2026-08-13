@@ -42,3 +42,36 @@ export const createPlaceSchema = z.object({
 });
 
 export type CreatePlaceInput = z.infer<typeof createPlaceSchema>;
+
+export const updatePlaceSchema = z.object({
+  placeId: z.string().uuid("รหัสสถานที่ไม่ถูกต้อง"),
+  roomId: z.string().uuid(),
+  roomCode: z.string().regex(/^\d{6}$/),
+  name: z
+    .string()
+    .trim()
+    .min(1, "กรุณากรอกชื่อสถานที่")
+    .max(120, "ชื่อสถานที่ต้องไม่เกิน 120 ตัวอักษร"),
+  description: z
+    .string()
+    .trim()
+    .max(1000, "รายละเอียดต้องไม่เกิน 1000 ตัวอักษร")
+    .transform((value) => value || null),
+  latitude: coordinateString
+    .refine((value) => value >= -90, "ละติจูดต้องไม่ต่ำกว่า -90")
+    .refine((value) => value <= 90, "ละติจูดต้องไม่เกิน 90"),
+  longitude: coordinateString
+    .refine((value) => value >= -180, "ลองจิจูดต้องไม่ต่ำกว่า -180")
+    .refine((value) => value <= 180, "ลองจิจูดต้องไม่เกิน 180"),
+  placeDate: optionalDate,
+});
+
+export type UpdatePlaceInput = z.infer<typeof updatePlaceSchema>;
+
+export const deletePlaceSchema = z.object({
+  placeId: z.string().uuid("รหัสสถานที่ไม่ถูกต้อง"),
+  roomId: z.string().uuid(),
+  roomCode: z.string().regex(/^\d{6}$/),
+});
+
+export type DeletePlaceInput = z.infer<typeof deletePlaceSchema>;

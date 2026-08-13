@@ -6,6 +6,7 @@ import {
 import { BoardCreateForms } from "@/components/boards/board-create-forms";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
+import { getBoardCopy } from "@/lib/boards/board-copy";
 import { getRoomContext } from "@/lib/rooms/server";
 
 /** บอร์ดของห้อง — โน้ต เช็คลิสต์ โพล */
@@ -30,7 +31,8 @@ export default async function RoomBoardPage({
     );
   }
 
-  const { currentUserId, roomCode, roomId, supabase } = context;
+  const { currentUserId, room, roomCode, roomId, supabase } = context;
+  const boardCopy = getBoardCopy(room.type);
 
   const { data: boardId, error: boardError } = await supabase.rpc(
     "ensure_room_board",
@@ -140,21 +142,21 @@ export default async function RoomBoardPage({
   return (
     <div className={styles.stack}>
       <section className={styles.panel}>
-        <h2 className={styles.title}>บอร์ดของเรา</h2>
-        <p className={styles.lead}>
-          เก็บโน้ต เช็คลิสต์ และโพลไว้ด้วยกันในห้องนี้
-        </p>
+        <h2 className={styles.title}>{boardCopy.pageTitle}</h2>
+        <p className={styles.lead}>{boardCopy.lead}</p>
         <BoardCreateForms
           boardId={boardId}
+          roomType={room.type}
           roomCode={roomCode}
           roomId={roomId}
         />
       </section>
       <section className={styles.panel}>
-        <h2 className={styles.title}>บนบอร์ดตอนนี้</h2>
+        <h2 className={styles.title}>{boardCopy.panelTitle}</h2>
         <BoardItemList
+          boardId={boardId}
           items={items}
-          key={JSON.stringify(items)}
+          roomType={room.type}
           roomCode={roomCode}
           roomId={roomId}
         />

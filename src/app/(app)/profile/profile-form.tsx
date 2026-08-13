@@ -8,6 +8,7 @@ import {
 } from "@/features/profile/actions";
 import { ImageUploadField } from "@/components/uploads/image-upload-field";
 import { Button } from "@/components/ui/button";
+import { ActionSuccessToast } from "@/components/ui/action-success-toast";
 import { FieldErrors } from "@/components/ui/field-errors";
 import formStyles from "@/components/ui/form.module.css";
 import styles from "@/app/(app)/profile/profile.module.css";
@@ -98,14 +99,11 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
       </div>
 
       {state.error ? (
-        <p className={`${formStyles.serviceError} ${styles.formMessage}`} role="alert">
+        <p
+          className={`${formStyles.serviceError} ${styles.formMessage}`}
+          role="alert"
+        >
           {state.error}
-        </p>
-      ) : null}
-
-      {state.success ? (
-        <p className={`${styles.success} ${styles.formMessage}`} role="status">
-          บันทึกโปรไฟล์เรียบร้อยแล้ว
         </p>
       ) : null}
 
@@ -117,6 +115,11 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
       >
         บันทึกโปรไฟล์
       </Button>
+      <ActionSuccessToast
+        message="บันทึกโปรไฟล์แล้ว"
+        signal={state}
+        success={state.success}
+      />
     </form>
   );
 }

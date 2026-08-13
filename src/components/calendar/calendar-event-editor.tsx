@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, type FormEvent } from "react";
+import { Save, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
@@ -99,7 +100,7 @@ export function CalendarEventEditor({
         />
         <div className={styles.editActions}>
           <Button pending={isPending} type="submit" variant="primary">
-            บันทึกแก้ไข
+            <Save aria-hidden size={16} /> บันทึกแก้ไข
           </Button>
           <Button
             disabled={isPending}
@@ -107,7 +108,7 @@ export function CalendarEventEditor({
             type="button"
             variant="danger"
           >
-            ลบกิจกรรม
+            <Trash2 aria-hidden size={16} /> ลบกิจกรรม
           </Button>
         </div>
       </form>

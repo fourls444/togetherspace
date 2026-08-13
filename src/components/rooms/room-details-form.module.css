@@ -1,0 +1,20 @@
+.form {
+  gap: 1rem;
+}
+
+.nameField {
+  width: min(100%, 30rem);
+}
+
+.submitButton {
+  width: fit-content;
+  min-height: 2.65rem;
+  justify-self: end;
+}
+
+@media (max-width: 40rem) {
+  .submitButton {
+    width: 100%;
+    justify-self: stretch;
+  }
+}

@@ -7,6 +7,7 @@ import {
   type CalendarActionState,
 } from "@/features/calendar/actions";
 import { Button } from "@/components/ui/button";
+import { ActionSuccessToast } from "@/components/ui/action-success-toast";
 import { FieldErrors } from "@/components/ui/field-errors";
 import formStyles from "@/components/ui/form.module.css";
 
@@ -104,12 +105,6 @@ export function CalendarEventForm({
         </p>
       ) : null}
 
-      {state.success ? (
-        <p className={formStyles.serviceSuccess} role="status">
-          เพิ่มกิจกรรมแล้ว
-        </p>
-      ) : null}
-
       <Button
         className={formStyles.fullWidth}
         pending={isPending}
@@ -118,6 +113,11 @@ export function CalendarEventForm({
       >
         เพิ่มกิจกรรม
       </Button>
+      <ActionSuccessToast
+        message="เพิ่มกิจกรรมแล้ว"
+        signal={state}
+        success={state.success}
+      />
     </form>
   );
 }

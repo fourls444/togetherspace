@@ -3,6 +3,7 @@ import type { PropsWithChildren } from "react";
 import styles from "@/components/rooms/room-chrome.module.css";
 import { RoomCodeCopy } from "@/components/rooms/room-code-copy";
 import { RoomNav } from "@/components/rooms/room-nav";
+import { RoomThemeProvider } from "@/components/rooms/room-theme-provider";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ROOM_TYPE_LABEL } from "@/lib/rooms/labels";
 import { getRoomPath, getRoomSubPath } from "@/lib/rooms/room-path";
@@ -32,7 +33,8 @@ export default async function RoomLayout({
     .eq("room_id", roomId);
 
   return (
-    <div className={styles.place}>
+    <RoomThemeProvider roomCode={roomCode} roomType={room.type}>
+      <div className={styles.place}>
       <ButtonLink className={styles.backButton} href="/dashboard">
         ← กลับหน้าแรก
       </ButtonLink>
@@ -69,6 +71,7 @@ export default async function RoomLayout({
             { href: getRoomSubPath(roomCode, "calendar"), label: "ปฏิทิน" },
             { href: getRoomSubPath(roomCode, "map"), label: "แผนที่" },
             { href: getRoomSubPath(roomCode, "album"), label: "อัลบั้ม" },
+            { href: getRoomSubPath(roomCode, "finance"), label: "การเงิน" },
             {
               href: getRoomSubPath(roomCode, "members"),
               label: "สมาชิกในห้อง",
@@ -81,6 +84,7 @@ export default async function RoomLayout({
         />
       </header>
       <div className={styles.body}>{children}</div>
-    </div>
+      </div>
+    </RoomThemeProvider>
   );
 }

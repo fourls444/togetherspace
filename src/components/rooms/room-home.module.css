@@ -11,6 +11,8 @@
 
 .modulePanel,
 .presence {
+  position: relative;
+  overflow: hidden;
   display: grid;
   gap: 1rem;
   padding: 1.25rem;
@@ -18,6 +20,30 @@
   border-radius: var(--radius-room);
   background: color-mix(in srgb, var(--color-surface) 88%, transparent);
   box-shadow: var(--shadow-panel);
+}
+
+.modulePanel::before {
+  position: absolute;
+  inset: -35% 8% auto auto;
+  width: 18rem;
+  height: 18rem;
+  content: "";
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-primary) 18%, transparent) 0%,
+    transparent 62%
+  );
+  filter: blur(2px);
+  opacity: 0.75;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  animation: roomGlowDrift 12s ease-in-out infinite alternate;
+}
+
+.modulePanel > *,
+.presence > * {
+  position: relative;
+  z-index: 1;
 }
 
 .modulePanelHead,
@@ -47,11 +73,25 @@
 
 .moduleGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.85rem;
 }
 
+@media (max-width: 56rem) {
+  .moduleGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 36rem) {
+  .moduleGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .moduleCard {
+  position: relative;
+  overflow: hidden;
   display: grid;
   align-content: start;
   min-height: 10.25rem;
@@ -68,6 +108,26 @@
     background 160ms ease;
 }
 
+.moduleCard::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    transparent 42%,
+    color-mix(in srgb, var(--color-primary) 18%, transparent) 50%,
+    transparent 58%,
+    transparent 100%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-35%);
+  transition:
+    opacity 180ms ease,
+    transform 520ms ease;
+}
+
 .moduleCard:hover {
   border-color: color-mix(
     in srgb,
@@ -78,21 +138,36 @@
   transform: translateY(-2px);
 }
 
+.moduleCard:hover::after {
+  opacity: 1;
+  transform: translateX(35%);
+}
+
 .moduleCard h3,
 .moduleCard p {
   margin: 0;
 }
 
 .moduleCard h3 {
+  display: -webkit-box;
+  min-height: 2.9em;
+  overflow: hidden;
   color: var(--color-text);
   font-size: 1rem;
   line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .moduleCard p {
+  display: -webkit-box;
+  min-height: 3.4em;
+  overflow: hidden;
   color: var(--color-text-muted);
   font-size: 0.88rem;
   line-height: 1.7;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .moduleBadge {
@@ -146,11 +221,27 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .modulePanel::before,
   .moduleCard {
+    animation: none;
     transition: none;
   }
 
   .moduleCard:hover {
     transform: none;
+  }
+
+  .moduleCard::after {
+    transition: none;
+  }
+}
+
+@keyframes roomGlowDrift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(-2rem, 1.5rem, 0) scale(1.08);
   }
 }

@@ -5,23 +5,16 @@ import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
 import { getRoomContext } from "@/lib/rooms/server";
 
-const PLACE_DATE_FORMATTER = new Intl.DateTimeFormat("th-TH", {
-  dateStyle: "medium",
-  timeZone: "UTC",
-});
-
-function formatPlaceDate(date: string | null) {
-  if (!date) return null;
-  return PLACE_DATE_FORMATTER.format(new Date(`${date}T00:00:00.000Z`));
-}
-
 /** หน้าแผนที่ของห้อง แสดงสถานที่ที่สมาชิกบันทึกร่วมกัน */
 export default async function RoomMapPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ roomId: string }>;
+  searchParams: Promise<{ placeId?: string }>;
 }) {
   const { roomId: roomSlug } = await params;
+  const { placeId } = await searchParams;
   const context = await getRoomContext(roomSlug);
 
   if (!context.isMember) {
@@ -59,43 +52,24 @@ export default async function RoomMapPage({
           <p className={styles.eyebrow}>แผนที่ของห้อง</p>
           <h1 className={styles.title}>สถานที่ที่อยากจำไว้ด้วยกัน</h1>
           <p className={styles.description}>
-            แตะบนแผนที่เพื่อปักหมุดร้านโปรด ที่เที่ยว หรือสถานที่สำคัญของห้องนี้
+            แตะบนแผนที่หรือค้นหาเพื่อปักหมุดที่เที่ยว/ร้านโปรดของห้องนี้
             ถ้าอยากเริ่มจากจุดที่คุณอยู่ ให้กดปุ่มใช้ตำแหน่งปัจจุบัน
           </p>
         </div>
       </section>
 
+      {/*
+        PlaceMapWorkspace รับ places ทั้งหมดและจัดการ:
+        - แผนที่ + หมุดทั้งหมด
+        - ฟอร์มเพิ่มสถานที่ใหม่
+        - ช่องค้นหา
+      */}
       <PlaceMapWorkspace
+        initialFlyToPlaceId={placeId}
         places={places}
         roomCode={context.roomCode}
         roomId={context.roomId}
       />
-
-      <section className={styles.sidePanel}>
-        <div className={styles.sectionHeader}>
-          <h2>สถานที่ทั้งหมด</h2>
-          <p>{places.length} จุดในห้องนี้</p>
-        </div>
-
-        {places.length ? (
-          <ul className={styles.placeList}>
-            {places.map((place) => (
-              <li className={styles.placeItem} key={place.id}>
-                <h3>{place.name}</h3>
-                {place.description ? <p>{place.description}</p> : null}
-                <span className={styles.placeMeta}>
-                  {place.latitude.toFixed(5)}, {place.longitude.toFixed(5)}
-                  {place.placeDate ? ` · ${formatPlaceDate(place.placeDate)}` : ""}
-                </span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className={styles.emptyState}>
-            ยังไม่มีสถานที่ในห้องนี้ แตะบนแผนที่เพื่อปักหมุดแรกได้เลย
-          </p>
-        )}
-      </section>
     </div>
   );
 }

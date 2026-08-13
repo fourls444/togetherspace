@@ -1,13 +1,15 @@
 .stack {
   display: grid;
-  gap: 1rem;
+  gap: 1.25rem;
   width: 100%;
-  max-width: 72rem;
+  max-width: 76rem;
+  margin-inline: auto;
 }
 
 .primaryGrid {
   display: grid;
-  gap: 0;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 1.25rem;
   align-items: start;
 }
 
@@ -22,11 +24,21 @@
 
 .profilePanel {
   min-width: 0;
-  border-bottom: 1px solid var(--color-border);
-  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  align-self: start;
+}
+
+.sideColumn {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.primaryGrid.single {
+  grid-template-columns: minmax(0, 42rem);
 }
 
 .danger {
+  align-self: start;
   border-color: color-mix(
     in srgb,
     var(--color-error-border) 55%,
@@ -82,14 +94,14 @@
   background: var(--color-hover);
 }
 
-.primaryGrid:not(.single) .panel + .panel {
-  border-top: none;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-
 @media (min-width: 48rem) {
   .panel {
     padding: 1.5rem;
+  }
+}
+
+@media (max-width: 62rem) {
+  .primaryGrid {
+    grid-template-columns: 1fr;
   }
 }

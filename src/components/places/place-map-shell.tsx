@@ -14,10 +14,14 @@ const PlaceMap = dynamic(
 );
 
 type PlaceMapShellProps = {
+  flyToPosition: PlacePosition | null;
+  flyToTick: number;
   focusTick: number;
   onLocate: () => void;
+  onMarkerClick: (id: string) => void;
   onSelectPosition: (position: PlacePosition) => void;
   places: PlaceMapItem[];
+  selectedPlaceId: string | null;
   selectedPosition: PlacePosition | null;
   userPosition: PlacePosition | null;
 };

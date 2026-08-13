@@ -7,6 +7,7 @@ import {
   type CreateInviteState,
 } from "@/features/invites/actions";
 import { Button } from "@/components/ui/button";
+import { ActionSuccessToast } from "@/components/ui/action-success-toast";
 import { FieldErrors } from "@/components/ui/field-errors";
 import styles from "@/components/rooms/create-invite-form.module.css";
 import formStyles from "@/components/ui/form.module.css";
@@ -78,15 +79,19 @@ export function CreateInviteForm({ roomCode, roomId }: CreateInviteFormProps) {
       ) : null}
 
       <div className={styles.submit}>
-        <Button pending={isPending} pendingText="กำลังสร้างลิงก์…" variant="primary">
+        <Button
+          pending={isPending}
+          pendingText="กำลังสร้างลิงก์…"
+          variant="primary"
+        >
           สร้างคำเชิญใหม่
         </Button>
       </div>
-      {state.success ? (
-        <p className={formStyles.serviceSuccess} role="status">
-          สร้างลิงก์คำเชิญเรียบร้อยแล้ว
-        </p>
-      ) : null}
+      <ActionSuccessToast
+        message="สร้างลิงก์คำเชิญแล้ว"
+        signal={state}
+        success={state.success}
+      />
     </form>
   );
 }

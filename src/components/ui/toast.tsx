@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 import styles from "./toast.module.css";
+import { DEFAULT_TOAST_DURATION } from "./toast-timing";
 
 export type ToastProps = {
   duration?: number;
@@ -13,7 +14,7 @@ export type ToastProps = {
 
 /** แสดงข้อความตอบกลับชั่วคราวโดยไม่รบกวน flow ของหน้าปัจจุบัน */
 export function Toast({
-  duration = 2600,
+  duration = DEFAULT_TOAST_DURATION,
   message,
   onDismiss,
   tone = "success",

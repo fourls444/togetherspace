@@ -1,13 +1,16 @@
 "use client";
 
 import {
+  useEffect,
   useRef,
   useState,
   useTransition,
   type FormEvent,
 } from "react";
+import { ImagePlus, Upload, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 import { Toast } from "@/components/ui/toast";
 import { saveAlbumPhotos } from "@/features/albums/actions";
 import { createClient } from "@/lib/supabase/client";
@@ -30,6 +33,12 @@ type AlbumUploaderProps = {
 type UploadedPhoto = {
   imageUrl: string;
   storagePath: string;
+};
+
+type QueuedPhoto = {
+  file: File;
+  id: string;
+  previewUrl: string;
 };
 
 /** คืนวันที่วันนี้ในรูปแบบ yyyy-mm-dd เพื่อใช้เป็นค่าเริ่มต้นของช่องวันที่ */
@@ -57,11 +66,12 @@ export function AlbumUploader({
   roomId,
 }: AlbumUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const selectedPhotosRef = useRef<QueuedPhoto[]>([]);
   const [clientError, setClientError] = useState<string | null>(null);
   const [isSaving, startSavingTransition] = useTransition();
   const [isUploadingStorage, setIsUploadingStorage] = useState(false);
   const [open, setOpen] = useState(false);
-  const [selectedFileCount, setSelectedFileCount] = useState(0);
+  const [selectedPhotos, setSelectedPhotos] = useState<QueuedPhoto[]>([]);
   const [serverError, setServerError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<{
@@ -69,6 +79,52 @@ export function AlbumUploader({
     total: number;
   } | null>(null);
   const pending = isUploadingStorage || isSaving;
+
+  useEffect(() => {
+    selectedPhotosRef.current = selectedPhotos;
+  }, [selectedPhotos]);
+
+  useEffect(() => {
+    return () => {
+      selectedPhotosRef.current.forEach((photo) =>
+        URL.revokeObjectURL(photo.previewUrl),
+      );
+    };
+  }, []);
+
+  /** คืน object URL และล้างคิวรูปก่อนปิด modal หรือหลังอัปโหลดสำเร็จ */
+  function clearQueue() {
+    setSelectedPhotos((current) => {
+      current.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
+      return [];
+    });
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  /** สร้าง preview สำหรับไฟล์ที่เลือกและแทนคิวเดิมเพื่อให้ลบรูปก่อนอัปโหลดได้ */
+  function handleFilesSelected(files: FileList | null) {
+    const nextFiles = Array.from(files ?? []).slice(0, 20);
+    setClientError(
+      files && files.length > 20 ? "อัปโหลดได้สูงสุดครั้งละ 20 รูป" : null,
+    );
+    setSelectedPhotos((current) => {
+      current.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
+      return nextFiles.map((file, index) => ({
+        file,
+        id: `${file.name}-${file.lastModified}-${index}`,
+        previewUrl: URL.createObjectURL(file),
+      }));
+    });
+  }
+
+  /** เอารูปออกจากคิวและคืน object URL ของรูปนั้น */
+  function removeQueuedPhoto(photoId: string) {
+    setSelectedPhotos((current) => {
+      const removed = current.find((photo) => photo.id === photoId);
+      if (removed) URL.revokeObjectURL(removed.previewUrl);
+      return current.filter((photo) => photo.id !== photoId);
+    });
+  }
 
   /** อัปโหลดไฟล์ขึ้น Storage ก่อน แล้วส่ง metadata ไปบันทึกในฐานข้อมูล */
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -78,7 +134,7 @@ export function AlbumUploader({
 
     const form = event.currentTarget;
     const formData = new FormData(form);
-    const files = Array.from(fileInputRef.current?.files ?? []);
+    const files = selectedPhotos.map((photo) => photo.file);
 
     if (!files.length) {
       setClientError("กรุณาเลือกรูปอย่างน้อย 1 รูป");
@@ -162,9 +218,8 @@ export function AlbumUploader({
         return;
       }
 
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      clearQueue();
       setOpen(false);
-      setSelectedFileCount(0);
       setUploadProgress(null);
       setToast("อัปโหลดรูปเรียบร้อยแล้ว");
     });
@@ -173,109 +228,129 @@ export function AlbumUploader({
   return (
     <div className={styles.uploadDock}>
       <Button onClick={() => setOpen(true)} type="button" variant="primary">
-        อัปโหลดภาพ
+        <ImagePlus aria-hidden size={17} /> อัปโหลดภาพ
       </Button>
 
-      {open ? (
-        <div
-          className={styles.modalOverlay}
-          onClick={() => {
-            if (!pending) setOpen(false);
-          }}
-          role="presentation"
-        >
-          <form
-            className={styles.uploadModal}
-            onClick={(event) => event.stopPropagation()}
-            onSubmit={handleSubmit}
-          >
-            <div className={styles.modalHeader}>
-              <div>
-                <p className={styles.kicker}>เพิ่มรูปใหม่</p>
-                <h2 className={styles.sectionTitle}>อัปโหลดเข้าอัลบั้ม</h2>
-                <p className={styles.muted}>
-                  เลือกหลายรูปได้ในครั้งเดียว รูปจะถูกเรียงตามลำดับที่เลือก
-                </p>
+      <Modal
+        description="เลือกรูปได้สูงสุด 20 รูป ตรวจตัวอย่างก่อนอัปโหลด และเอารูปที่ไม่ต้องการออกจากคิวได้"
+        isOpen={open}
+        onClose={() => {
+          if (!pending) {
+            setOpen(false);
+            clearQueue();
+          }
+        }}
+        size="lg"
+        title="อัปโหลดเข้าอัลบั้ม"
+      >
+        <form className={styles.uploadForm} onSubmit={handleSubmit}>
+          <label className={styles.uploadDropzone}>
+            <input
+              accept={ALLOWED_IMAGE_TYPES.join(",")}
+              multiple
+              name="photos"
+              onChange={(event) =>
+                handleFilesSelected(event.currentTarget.files)
+              }
+              ref={fileInputRef}
+              type="file"
+            />
+            <span className={styles.uploadIcon}>
+              <ImagePlus aria-hidden size={20} />
+            </span>
+            <strong>เลือกรูปหลายรูป</strong>
+            <small>
+              JPG, PNG หรือ WebP สูงสุด 20 รูปต่อครั้ง ·{" "}
+              {selectedPhotos.length
+                ? `เลือกแล้ว ${selectedPhotos.length} รูป`
+                : "ยังไม่ได้เลือกรูป"}
+            </small>
+          </label>
+
+          {selectedPhotos.length ? (
+            <div className={styles.uploadPreviewSection}>
+              <div className={styles.uploadPreviewHead}>
+                <strong>ตัวอย่างก่อนอัปโหลด</strong>
+                <span>{selectedPhotos.length} รูป</span>
               </div>
-              <button
-                aria-label="ปิดหน้าต่างอัปโหลด"
-                className={styles.closeButton}
-                disabled={pending}
-                onClick={() => setOpen(false)}
-                type="button"
-              >
-                ×
-              </button>
+              <ul className={styles.uploadPreviewGrid}>
+                {selectedPhotos.map((photo) => (
+                  <li key={photo.id}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      alt={`ตัวอย่าง ${photo.file.name}`}
+                      src={photo.previewUrl}
+                    />
+                    <span title={photo.file.name}>{photo.file.name}</span>
+                    <button
+                      aria-label={`เอา ${photo.file.name} ออกจากคิว`}
+                      disabled={pending}
+                      onClick={() => removeQueuedPhoto(photo.id)}
+                      type="button"
+                    >
+                      <X aria-hidden size={15} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
+          ) : null}
 
-            <label className={styles.uploadDropzone}>
-              <input
-                accept={ALLOWED_IMAGE_TYPES.join(",")}
-                multiple
-                name="photos"
-                onChange={(event) =>
-                  setSelectedFileCount(event.currentTarget.files?.length ?? 0)
-                }
-                ref={fileInputRef}
-                type="file"
-              />
-              <span className={styles.uploadIcon}>＋</span>
-              <strong>เลือกรูปหลายรูป</strong>
-              <small>
-                JPG, PNG หรือ WebP สูงสุด 20 รูปต่อครั้ง ·{" "}
-                {selectedFileCount
-                  ? `เลือกแล้ว ${selectedFileCount} รูป`
-                  : "ยังไม่ได้เลือกรูป"}
-              </small>
-            </label>
+          <label className={styles.field}>
+            <span>วันที่ของรูป</span>
+            <input
+              defaultValue={getTodayInputValue()}
+              name="takenAt"
+              type="date"
+            />
+            <small>ถ้าไม่เลือกวันที่ ระบบจะใช้วันที่อัปโหลดให้อัตโนมัติ</small>
+          </label>
 
-            <label className={styles.field}>
-              <span>วันที่ของรูป</span>
-              <input
-                defaultValue={getTodayInputValue()}
-                name="takenAt"
-                type="date"
-              />
-              <small>ถ้าไม่เลือกวันที่ ระบบจะใช้วันที่อัปโหลดให้อัตโนมัติ</small>
-            </label>
+          <label className={styles.field}>
+            <span>คำบรรยายรวม (ไม่บังคับ)</span>
+            <textarea
+              maxLength={280}
+              name="caption"
+              placeholder="เช่น ทริปทะเลกับเพื่อน"
+              rows={3}
+            />
+          </label>
 
-            <label className={styles.field}>
-              <span>คำบรรยายรวม (ไม่บังคับ)</span>
-              <textarea
-                maxLength={280}
-                name="caption"
-                placeholder="เช่น ทริปทะเลกับเพื่อน"
-                rows={3}
-              />
-            </label>
+          {clientError || serverError ? (
+            <p className={styles.error}>{clientError ?? serverError}</p>
+          ) : null}
+          {pending ? (
+            <p className={styles.uploadStatus}>
+              {isUploadingStorage && uploadProgress
+                ? `กำลังอัปโหลด ${uploadProgress.completed} / ${uploadProgress.total} รูป`
+                : "กำลังบันทึกรูปลงอัลบั้ม…"}
+            </p>
+          ) : null}
 
-            {clientError || serverError ? (
-              <p className={styles.error}>{clientError ?? serverError}</p>
-            ) : null}
-            {pending ? (
-              <p className={styles.uploadStatus}>
-                {isUploadingStorage && uploadProgress
-                  ? `กำลังอัปโหลด ${uploadProgress.completed} / ${uploadProgress.total} รูป`
-                  : "กำลังบันทึกรูปลงอัลบั้ม…"}
-              </p>
-            ) : null}
-
+          <div className={styles.uploadActions}>
             <Button
+              disabled={pending}
+              onClick={() => {
+                clearQueue();
+                setOpen(false);
+              }}
+              type="button"
+            >
+              <X aria-hidden size={16} /> ยกเลิก
+            </Button>
+            <Button
+              disabled={!selectedPhotos.length}
               pending={pending}
               pendingText="กำลังอัปโหลด..."
               type="submit"
               variant="primary"
             >
-              อัปโหลดรูป
+              <Upload aria-hidden size={16} /> อัปโหลดรูป
             </Button>
-          </form>
-        </div>
-      ) : null}
-      <Toast
-        message={toast}
-        onDismiss={() => setToast(null)}
-        tone="success"
-      />
+          </div>
+        </form>
+      </Modal>
+      <Toast message={toast} onDismiss={() => setToast(null)} tone="success" />
     </div>
   );
 }

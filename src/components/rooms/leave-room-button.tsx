@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { LogOut } from "lucide-react";
 
 import { leaveRoom } from "@/features/members/actions";
 import { Button } from "@/components/ui/button";
@@ -30,12 +31,8 @@ export function LeaveRoomButton({ roomId }: LeaveRoomButtonProps) {
 
   return (
     <div>
-      <Button
-        onClick={() => setOpen(true)}
-        type="button"
-        variant="danger"
-      >
-        ออกจากห้อง
+      <Button onClick={() => setOpen(true)} type="button" variant="danger">
+        <LogOut aria-hidden size={16} /> ออกจากห้อง
       </Button>
       <ConfirmationDialog
         confirmLabel="ออกจากห้อง"

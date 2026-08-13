@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Archive } from "lucide-react";
 
 import { archiveBoardItem } from "@/features/boards/actions";
 import { Button } from "@/components/ui/button";
@@ -48,7 +49,7 @@ export function ArchiveBoardItemButton({
   return (
     <>
       <Button onClick={() => setOpen(true)} type="button" variant="primary">
-        จัดเก็บ
+        <Archive aria-hidden size={15} /> จัดเก็บ
       </Button>
       <ConfirmationDialog
         confirmLabel="จัดเก็บ"

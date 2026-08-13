@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Check, Copy } from "lucide-react";
 
 import styles from "@/components/rooms/room-code-copy.module.css";
 
@@ -13,7 +14,7 @@ type RoomCodeCopyProps = {
 export function RoomCodeCopy({ className, roomCode }: RoomCodeCopyProps) {
   const [copied, setCopied] = useState(false);
 
-  /** เขียนรหัสลง clipboard และคืนข้อความเดิมหลังช่วงสั้น ๆ */
+  /** เขียนรหัสลง clipboard และคืนข้อความเดิมหลังช่วงสั้นๆ */
   const handleCopy = async () => {
     await navigator.clipboard.writeText(roomCode);
     setCopied(true);
@@ -30,7 +31,11 @@ export function RoomCodeCopy({ className, roomCode }: RoomCodeCopyProps) {
       <span>รหัสห้อง</span>
       <span className={styles.valueRow}>
         <strong>{roomCode}</strong>
-        <span aria-hidden className={styles.copyIcon} />
+        {copied ? (
+          <Check aria-hidden size={15} />
+        ) : (
+          <Copy aria-hidden size={15} />
+        )}
       </span>
       <small className={copied ? styles.copied : undefined}>
         {copied ? "คัดลอกแล้ว" : "กดเพื่อคัดลอก"}

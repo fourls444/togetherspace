@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { BarChart3, ListChecks, StickyNote } from "lucide-react";
 
 import {
   createChecklist,
@@ -10,8 +11,11 @@ import {
 } from "@/features/boards/actions";
 import { Button } from "@/components/ui/button";
 import { FieldErrors } from "@/components/ui/field-errors";
+import { Modal } from "@/components/ui/modal";
 import { Toast } from "@/components/ui/toast";
 import formStyles from "@/components/ui/form.module.css";
+import { getBoardCopy, type BoardCopy } from "@/lib/boards/board-copy";
+import type { BoardItemType, RoomType } from "@/lib/types/database";
 import styles from "@/components/boards/board-create-forms.module.css";
 
 const initialState: BoardActionState = {};
@@ -20,18 +24,30 @@ type BoardCreateFormsProps = {
   boardId: string;
   roomCode: string;
   roomId: string;
+  roomType: RoomType;
 };
 
-type ActiveForm = "note" | "checklist" | "poll" | null;
+type ActiveForm = BoardItemType | null;
+
+type BoardDraft = {
+  body: string;
+  checklistItems?: string;
+  pollOptions?: string;
+  title: string;
+  type: BoardItemType;
+} | null;
 
 /** แสดงปุ่มเพิ่มรายการ และเปิด modal ตามประเภทที่เลือก */
 export function BoardCreateForms({
   boardId,
   roomCode,
   roomId,
+  roomType,
 }: BoardCreateFormsProps) {
   const [activeForm, setActiveForm] = useState<ActiveForm>(null);
+  const [draft, setDraft] = useState<BoardDraft>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const copy = getBoardCopy(roomType);
   const [noteState, noteAction, isNotePending] = useActionState(
     createNote,
     initialState,
@@ -46,18 +62,10 @@ export function BoardCreateForms({
   );
 
   useEffect(() => {
-    if (!activeForm) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setActiveForm(null);
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [activeForm]);
-
-  useEffect(() => {
     if (noteState.success || checklistState.success || pollState.success) {
       const timer = window.setTimeout(() => {
         setActiveForm(null);
+        setDraft(null);
         setToast("เพิ่มรายการลงบอร์ดแล้ว");
       }, 0);
       return () => window.clearTimeout(timer);
@@ -70,102 +78,126 @@ export function BoardCreateForms({
       <div aria-label="เพิ่มรายการลงบอร์ด" className={styles.toolbar}>
         <button
           className={styles.smallButton}
-          onClick={() => setActiveForm("note")}
+          onClick={() => {
+            setDraft(null);
+            setActiveForm("note");
+          }}
           type="button"
         >
-          + โน้ต
+          <StickyNote aria-hidden size={15} /> {copy.actions.note.label}
         </button>
         <button
           className={styles.smallButton}
-          onClick={() => setActiveForm("checklist")}
+          onClick={() => {
+            setDraft(null);
+            setActiveForm("checklist");
+          }}
           type="button"
         >
-          + รายการ
+          <ListChecks aria-hidden size={15} /> {copy.actions.checklist.label}
         </button>
         <button
           className={styles.smallButton}
-          onClick={() => setActiveForm("poll")}
+          onClick={() => {
+            setDraft(null);
+            setActiveForm("poll");
+          }}
           type="button"
         >
-          + โพล
+          <BarChart3 aria-hidden size={15} /> {copy.actions.poll.label}
         </button>
       </div>
 
-      {activeForm ? (
-        <div className={styles.overlay} role="presentation">
-          <div
-            aria-modal="true"
-            className={styles.modal}
-            role="dialog"
-            aria-labelledby="board-create-modal-title"
+      <div className={styles.presets} aria-label="ไอเดียเริ่มต้นของบอร์ด">
+        {copy.starterSuggestions.map((suggestion) => (
+          <button
+            className={styles.presetButton}
+            data-type={suggestion.type}
+            key={suggestion.title}
+            onClick={() => {
+              setDraft({
+                body: suggestion.body,
+                checklistItems: suggestion.checklistItems,
+                pollOptions: suggestion.pollOptions,
+                title: suggestion.title,
+                type: suggestion.type,
+              });
+              setActiveForm(suggestion.type);
+            }}
+            type="button"
           >
-            <div className={styles.modalHeader}>
-              <h2 className={styles.title} id="board-create-modal-title">
-                {getModalTitle(activeForm)}
-              </h2>
-              <button
-                aria-label="ปิดหน้าต่างเพิ่มรายการ"
-                className={styles.closeButton}
-                onClick={() => setActiveForm(null)}
-                type="button"
-              >
-                ×
-              </button>
-            </div>
+            <span>{copy.itemTypeLabels[suggestion.type]}</span>
+            <strong>{suggestion.title}</strong>
+          </button>
+        ))}
+      </div>
 
-            {activeForm === "note" ? (
-              <NoteForm
-                action={noteAction}
-                boardId={boardId}
-                isPending={isNotePending}
-                roomCode={roomCode}
-                roomId={roomId}
-                state={noteState}
-              />
-            ) : null}
+      <Modal
+        description={
+          activeForm
+            ? copy.actions[activeForm].description
+            : "เพิ่มเรื่องใหม่ลงบอร์ดของห้อง"
+        }
+        isOpen={Boolean(activeForm)}
+        onClose={() => {
+          setActiveForm(null);
+          setDraft(null);
+        }}
+        size="md"
+        title={activeForm ? copy.actions[activeForm].modalTitle : "เพิ่มรายการ"}
+      >
+        {activeForm === "note" ? (
+          <NoteForm
+            action={noteAction}
+            boardId={boardId}
+            copy={copy}
+            draft={draft?.type === "note" ? draft : null}
+            isPending={isNotePending}
+            key={draft?.title ?? "note"}
+            roomCode={roomCode}
+            roomId={roomId}
+            state={noteState}
+          />
+        ) : null}
 
-            {activeForm === "checklist" ? (
-              <ChecklistForm
-                action={checklistAction}
-                boardId={boardId}
-                isPending={isChecklistPending}
-                roomCode={roomCode}
-                roomId={roomId}
-                state={checklistState}
-              />
-            ) : null}
+        {activeForm === "checklist" ? (
+          <ChecklistForm
+            action={checklistAction}
+            boardId={boardId}
+            copy={copy}
+            draft={draft?.type === "checklist" ? draft : null}
+            isPending={isChecklistPending}
+            key={draft?.title ?? "checklist"}
+            roomCode={roomCode}
+            roomId={roomId}
+            state={checklistState}
+          />
+        ) : null}
 
-            {activeForm === "poll" ? (
-              <PollForm
-                action={pollAction}
-                boardId={boardId}
-                isPending={isPollPending}
-                roomCode={roomCode}
-                roomId={roomId}
-                state={pollState}
-              />
-            ) : null}
-          </div>
-        </div>
-      ) : null}
-      <Toast
-        message={toast}
-        onDismiss={() => setToast(null)}
-        tone="success"
-      />
+        {activeForm === "poll" ? (
+          <PollForm
+            action={pollAction}
+            boardId={boardId}
+            copy={copy}
+            draft={draft?.type === "poll" ? draft : null}
+            isPending={isPollPending}
+            key={draft?.title ?? "poll"}
+            roomCode={roomCode}
+            roomId={roomId}
+            state={pollState}
+          />
+        ) : null}
+      </Modal>
+      <Toast message={toast} onDismiss={() => setToast(null)} tone="success" />
     </div>
   );
-}
-
-function getModalTitle(activeForm: Exclude<ActiveForm, null>) {
-  if (activeForm === "note") return "เพิ่มโน้ต";
-  if (activeForm === "checklist") return "เพิ่มรายการ";
-  return "เพิ่มโพล";
 }
 
 function NoteForm({
   action,
   boardId,
+  copy,
+  draft,
   isPending,
   roomCode,
   roomId,
@@ -173,6 +205,8 @@ function NoteForm({
 }: {
   action: (payload: FormData) => void;
   boardId: string;
+  copy: BoardCopy;
+  draft: Exclude<BoardDraft, null> | null;
   isPending: boolean;
   roomCode: string;
   roomId: string;
@@ -180,12 +214,30 @@ function NoteForm({
 }) {
   return (
     <form action={action} className={styles.form}>
-      <BoardHiddenFields boardId={boardId} roomCode={roomCode} roomId={roomId} />
-      <BoardTitleField idPrefix="note" state={state} />
-      <BoardBodyField idPrefix="note" state={state} />
+      <BoardHiddenFields
+        boardId={boardId}
+        roomCode={roomCode}
+        roomId={roomId}
+      />
+      <BoardTitleField
+        defaultValue={draft?.title}
+        idPrefix="note"
+        placeholder={copy.placeholders.title}
+        state={state}
+      />
+      <BoardBodyField
+        defaultValue={draft?.body}
+        idPrefix="note"
+        placeholder={copy.placeholders.body}
+        state={state}
+      />
       <BoardError state={state} />
-      <Button pending={isPending} pendingText="กำลังเพิ่มโน้ต…" variant="primary">
-        เพิ่มโน้ต
+      <Button
+        pending={isPending}
+        pendingText={copy.actions.note.pendingText}
+        variant="primary"
+      >
+        {copy.actions.note.submitLabel}
       </Button>
     </form>
   );
@@ -194,6 +246,8 @@ function NoteForm({
 function ChecklistForm({
   action,
   boardId,
+  copy,
+  draft,
   isPending,
   roomCode,
   roomId,
@@ -201,6 +255,8 @@ function ChecklistForm({
 }: {
   action: (payload: FormData) => void;
   boardId: string;
+  copy: BoardCopy;
+  draft: Exclude<BoardDraft, null> | null;
   isPending: boolean;
   roomCode: string;
   roomId: string;
@@ -208,9 +264,23 @@ function ChecklistForm({
 }) {
   return (
     <form action={action} className={styles.form}>
-      <BoardHiddenFields boardId={boardId} roomCode={roomCode} roomId={roomId} />
-      <BoardTitleField idPrefix="checklist" state={state} />
-      <BoardBodyField idPrefix="checklist" state={state} />
+      <BoardHiddenFields
+        boardId={boardId}
+        roomCode={roomCode}
+        roomId={roomId}
+      />
+      <BoardTitleField
+        defaultValue={draft?.title}
+        idPrefix="checklist"
+        placeholder={copy.placeholders.title}
+        state={state}
+      />
+      <BoardBodyField
+        defaultValue={draft?.body}
+        idPrefix="checklist"
+        placeholder={copy.placeholders.body}
+        state={state}
+      />
       <div className={formStyles.field}>
         <label className={formStyles.label} htmlFor="checklistItems">
           รายการในเช็คลิสต์
@@ -222,9 +292,10 @@ function ChecklistForm({
               : "checklist-items-hint"
           }
           className={formStyles.control}
+          defaultValue={draft?.checklistItems}
           id="checklistItems"
           name="checklistItems"
-          placeholder={"ซื้อของ\nจองร้าน\nเตรียมเอกสาร"}
+          placeholder={copy.placeholders.checklistItems}
           rows={4}
           required
         />
@@ -239,10 +310,10 @@ function ChecklistForm({
       <BoardError state={state} />
       <Button
         pending={isPending}
-        pendingText="กำลังเพิ่มรายการ…"
+        pendingText={copy.actions.checklist.pendingText}
         variant="primary"
       >
-        เพิ่มรายการ
+        {copy.actions.checklist.submitLabel}
       </Button>
     </form>
   );
@@ -251,6 +322,8 @@ function ChecklistForm({
 function PollForm({
   action,
   boardId,
+  copy,
+  draft,
   isPending,
   roomCode,
   roomId,
@@ -258,6 +331,8 @@ function PollForm({
 }: {
   action: (payload: FormData) => void;
   boardId: string;
+  copy: BoardCopy;
+  draft: Exclude<BoardDraft, null> | null;
   isPending: boolean;
   roomCode: string;
   roomId: string;
@@ -265,9 +340,23 @@ function PollForm({
 }) {
   return (
     <form action={action} className={styles.form}>
-      <BoardHiddenFields boardId={boardId} roomCode={roomCode} roomId={roomId} />
-      <BoardTitleField idPrefix="poll" state={state} />
-      <BoardBodyField idPrefix="poll" state={state} />
+      <BoardHiddenFields
+        boardId={boardId}
+        roomCode={roomCode}
+        roomId={roomId}
+      />
+      <BoardTitleField
+        defaultValue={draft?.title}
+        idPrefix="poll"
+        placeholder={copy.placeholders.title}
+        state={state}
+      />
+      <BoardBodyField
+        defaultValue={draft?.body}
+        idPrefix="poll"
+        placeholder={copy.placeholders.body}
+        state={state}
+      />
       <div className={formStyles.field}>
         <span className={formStyles.label}>ตัวเลือกสำหรับโหวต</span>
         <div
@@ -311,9 +400,10 @@ function PollForm({
               : "poll-options-hint"
           }
           className={formStyles.control}
+          defaultValue={draft?.pollOptions}
           id="pollOptions"
           name="pollOptions"
-          placeholder={"เสาร์นี้\nอาทิตย์นี้\nสัปดาห์หน้า"}
+          placeholder={copy.placeholders.pollOptions}
           rows={4}
           required
         />
@@ -326,8 +416,12 @@ function PollForm({
         />
       </div>
       <BoardError state={state} />
-      <Button pending={isPending} pendingText="กำลังเพิ่มโพล…" variant="primary">
-        เพิ่มโพล
+      <Button
+        pending={isPending}
+        pendingText={copy.actions.poll.pendingText}
+        variant="primary"
+      >
+        {copy.actions.poll.submitLabel}
       </Button>
     </form>
   );
@@ -337,7 +431,7 @@ function BoardHiddenFields({
   boardId,
   roomCode,
   roomId,
-}: BoardCreateFormsProps) {
+}: Pick<BoardCreateFormsProps, "boardId" | "roomCode" | "roomId">) {
   return (
     <>
       <input name="boardId" type="hidden" value={boardId} />
@@ -348,10 +442,14 @@ function BoardHiddenFields({
 }
 
 function BoardTitleField({
+  defaultValue,
   idPrefix,
+  placeholder,
   state,
 }: {
+  defaultValue?: string;
   idPrefix: string;
+  placeholder: string;
   state: BoardActionState;
 }) {
   const inputId = `${idPrefix}-title`;
@@ -365,9 +463,11 @@ function BoardTitleField({
       <input
         aria-describedby={state.fieldErrors?.title ? errorId : undefined}
         className={formStyles.control}
+        defaultValue={defaultValue}
         id={inputId}
         maxLength={120}
         name="title"
+        placeholder={placeholder}
         required
       />
       <FieldErrors id={errorId} messages={state.fieldErrors?.title} />
@@ -376,10 +476,14 @@ function BoardTitleField({
 }
 
 function BoardBodyField({
+  defaultValue,
   idPrefix,
+  placeholder,
   state,
 }: {
+  defaultValue?: string;
   idPrefix: string;
+  placeholder: string;
   state: BoardActionState;
 }) {
   const inputId = `${idPrefix}-body`;
@@ -393,11 +497,16 @@ function BoardBodyField({
       <textarea
         aria-describedby={state.fieldErrors?.body ? errorId : undefined}
         className={formStyles.control}
+        defaultValue={defaultValue}
         id={inputId}
         maxLength={1000}
         name="body"
+        placeholder={placeholder}
         rows={3}
       />
+      <p className={styles.hint}>
+        พิมพ์ขึ้นต้นด้วย - เพื่อทำ bullet หรือ 1. เพื่อทำรายการลำดับเลข
+      </p>
       <FieldErrors id={errorId} messages={state.fieldErrors?.body} />
     </div>
   );

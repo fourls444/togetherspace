@@ -83,3 +83,28 @@ export function togglePollVoteState<T extends InteractiveBoardItem>(
     return { ...item, pollOptions: nextOptions };
   }) as T[];
 }
+
+/** จัดลำดับ board item ตาม id ที่ลากวาง และเก็บ item ที่ไม่อยู่ในลำดับใหม่ไว้ท้ายรายการ */
+export function reorderBoardItems<T extends { id: string }>(
+  items: T[],
+  orderedItemIds: string[],
+): T[] {
+  const itemById = new Map(items.map((item) => [item.id, item]));
+  const usedIds = new Set<string>();
+  const orderedItems: T[] = [];
+
+  for (const id of orderedItemIds) {
+    const item = itemById.get(id);
+    if (!item || usedIds.has(id)) continue;
+    orderedItems.push(item);
+    usedIds.add(id);
+  }
+
+  return [...orderedItems, ...items.filter((item) => !usedIds.has(item.id))];
+}
+
+/** คำนวณเปอร์เซ็นต์คะแนนของตัวเลือกโพล โดยปัดเป็นจำนวนเต็มเพื่อแสดงเป็น progress bar */
+export function getPollOptionPercent(voteCount: number, totalVotes: number) {
+  if (totalVotes <= 0) return 0;
+  return Math.round((voteCount / totalVotes) * 100);
+}

@@ -8,10 +8,17 @@
 .avatarColumn,
 .identityField {
   min-width: 0;
+  max-width: 30rem;
 }
 
 .fullRow {
   grid-column: 1 / -1;
+}
+
+.submitButton {
+  width: fit-content;
+  min-height: 2.65rem;
+  justify-self: end;
 }
 
 @media (max-width: 40rem) {
@@ -25,5 +32,10 @@
 
   .fullRow {
     grid-column: auto;
+  }
+
+  .submitButton {
+    width: 100%;
+    justify-self: stretch;
   }
 }

@@ -1,0 +1,144 @@
+.themeScope {
+  min-width: 0;
+  color: var(--color-text);
+}
+
+.selectorHint {
+  margin: 0 0 0.9rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-label);
+  line-height: 1.6;
+}
+
+.themeGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.themeOption {
+  position: relative;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+}
+
+.themeOption:hover {
+  border-color: color-mix(
+    in srgb,
+    var(--color-primary) 55%,
+    var(--color-border)
+  );
+}
+
+.themeOption:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.themeOption[aria-pressed="true"] {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--color-primary) 18%, transparent);
+}
+
+.themePreview {
+  position: relative;
+  display: block;
+  height: 4.5rem;
+  overflow: hidden;
+  background: var(--theme-preview-background);
+}
+
+.themePreview::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: radial-gradient(
+    circle at 82% 15%,
+    var(--theme-preview-primary),
+    transparent 38%
+  );
+  opacity: 0.55;
+}
+
+.themePreview span {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.65rem;
+  width: 45%;
+  height: 0.65rem;
+  border-radius: 999px;
+  background: var(--theme-preview-surface);
+}
+
+.themePreview span + span {
+  right: auto;
+  left: 0.75rem;
+  width: 28%;
+}
+
+.themeCopy {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.75rem;
+}
+
+.themeCopy strong {
+  overflow: hidden;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.themeCopy small {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.selectedMark {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  color: var(--color-primary-text);
+  border-radius: 999px;
+  background: var(--color-primary);
+}
+
+@media (max-width: 60rem) {
+  .themeGrid {
+    grid-template-columns: none;
+    grid-auto-columns: minmax(12.5rem, 45%);
+    grid-auto-flow: column;
+    padding-bottom: 0.4rem;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: inline proximity;
+  }
+
+  .themeOption {
+    scroll-snap-align: start;
+  }
+}
+
+@media (max-width: 34rem) {
+  .themeGrid {
+    grid-auto-columns: minmax(12.5rem, 82%);
+  }
+}

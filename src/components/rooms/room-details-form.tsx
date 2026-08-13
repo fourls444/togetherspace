@@ -4,6 +4,7 @@ import { useActionState } from "react";
 
 import { ImageUploadField } from "@/components/uploads/image-upload-field";
 import { Button } from "@/components/ui/button";
+import { ActionSuccessToast } from "@/components/ui/action-success-toast";
 import { FieldErrors } from "@/components/ui/field-errors";
 import {
   updateRoomDetails,
@@ -12,6 +13,7 @@ import {
 import { ROOM_TYPE_LABEL } from "@/lib/rooms/labels";
 import type { RoomType } from "@/lib/types/database";
 import formStyles from "@/components/ui/form.module.css";
+import styles from "@/components/rooms/room-details-form.module.css";
 
 const initialState: UpdateRoomDetailsState = {};
 
@@ -37,11 +39,11 @@ export function RoomDetailsForm({
   );
 
   return (
-    <form action={formAction} className={formStyles.form}>
+    <form action={formAction} className={`${formStyles.form} ${styles.form}`}>
       <input name="roomId" type="hidden" value={roomId} />
       <input name="roomCode" type="hidden" value={roomCode} />
 
-      <div className={formStyles.field}>
+      <div className={`${formStyles.field} ${styles.nameField}`}>
         <label className={formStyles.label} htmlFor="roomName">
           ชื่อห้อง
         </label>
@@ -60,7 +62,8 @@ export function RoomDetailsForm({
       <div className={formStyles.field}>
         <span className={formStyles.label}>ประเภทห้อง</span>
         <p className={formStyles.hint}>
-          {ROOM_TYPE_LABEL[roomType]} ประเภทห้องกำหนดตอนสร้างและไม่สามารถเปลี่ยนได้
+          {ROOM_TYPE_LABEL[roomType]}{" "}
+          ประเภทห้องกำหนดตอนสร้างและไม่สามารถเปลี่ยนได้
         </p>
       </div>
 
@@ -87,18 +90,18 @@ export function RoomDetailsForm({
       ) : null}
 
       <Button
-        className={formStyles.fullWidth}
+        className={styles.submitButton}
         pending={isPending}
         pendingText="กำลังบันทึก…"
         variant="primary"
       >
         บันทึกข้อมูลห้อง
       </Button>
-      {state.success ? (
-        <p className={formStyles.serviceSuccess} role="status">
-          บันทึกข้อมูลห้องแล้ว
-        </p>
-      ) : null}
+      <ActionSuccessToast
+        message="บันทึกข้อมูลห้องแล้ว"
+        signal={state}
+        success={state.success}
+      />
     </form>
   );
 }

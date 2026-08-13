@@ -1,0 +1,68 @@
+.stack { display: grid; gap: 1.15rem; }
+.hero { display: flex; align-items: end; justify-content: space-between; gap: 1rem; padding: 1.4rem; border: 1px solid var(--color-border); border-radius: var(--radius-room); background: color-mix(in srgb, var(--color-surface) 90%, transparent); }
+.hero h2, .hero p, .listHeader h3, .settlementPanel h3 { margin: 0; }
+.hero h2 { margin-top: .2rem; font-family: var(--font-display-thai), var(--font-display), serif; font-size: clamp(2rem, 5vw, 3.3rem); font-weight: 400; line-height: 1.12; }
+.hero > div > p:last-child { max-width: 62ch; margin-top: .45rem; color: var(--color-text-muted); line-height: 1.65; }
+.eyebrow { color: var(--color-primary); font-size: var(--font-size-label); font-weight: 800; }
+.typeWorkspace { --finance-type-accent: var(--color-primary); display: grid; gap: 1rem; padding: 1.25rem; border: 1px solid var(--color-border); border-radius: var(--radius-room); background: color-mix(in srgb, var(--color-surface) 84%, transparent); }
+.typeWorkspace.friend { --finance-type-accent: #72b7d9; }
+.typeWorkspace.couple { --finance-type-accent: #e28aa2; }
+.typeWorkspace.family { --finance-type-accent: #8fc6a1; }
+.typeWorkspaceHeading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; }
+.typeWorkspaceHeading h3, .typeWorkspaceHeading p { margin: 0; }
+.typeWorkspaceHeading h3 { margin-top: .18rem; font-family: var(--font-ui-thai), var(--font-ui), sans-serif; font-size: clamp(1.25rem, 2vw, 1.55rem); line-height: 1.35; }
+.typeBadge { padding: .38rem .65rem; color: var(--finance-type-accent); font-size: .75rem; font-weight: 800; border: 1px solid color-mix(in srgb, var(--finance-type-accent) 45%, var(--color-border)); border-radius: 999px; background: color-mix(in srgb, var(--finance-type-accent) 10%, transparent); }
+.typeCardGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
+.typeCard { position: relative; display: grid; align-content: start; gap: .7rem; min-width: 0; min-height: 13rem; padding: 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-panel); background: color-mix(in srgb, var(--color-muted-surface) 68%, transparent); }
+.typeCardIcon { position: absolute; top: .9rem; right: .9rem; display: grid; place-items: center; width: 2rem; height: 2rem; color: var(--finance-type-accent); border-radius: .65rem; background: color-mix(in srgb, var(--finance-type-accent) 13%, transparent); }
+.typeCard > div:first-of-type { padding-right: 2.4rem; }
+.typeCard p, .typeCard strong { margin: 0; }
+.typeCard > div > p { color: var(--color-text-muted); font-size: .78rem; font-weight: 700; }
+.typeCard > div > strong { display: block; margin-top: .28rem; font-size: 1.15rem; line-height: 1.35; }
+.typeCardDetail, .fundProgress { color: var(--color-text-muted); font-size: .8rem; line-height: 1.55; }
+.typeCard select { width: 100%; min-height: 2.35rem; padding: .5rem .65rem; color: var(--color-text); border: 1px solid var(--color-border); border-radius: var(--radius-control); background: var(--color-surface); }
+.cardActions { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: auto; }
+.categoryMiniList { display: grid; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+.categoryMiniList li { display: flex; justify-content: space-between; gap: .6rem; padding-top: .35rem; color: var(--color-text-muted); font-size: .76rem; border-top: 1px solid var(--color-border); }
+.categoryMiniList strong { color: var(--color-text); font-size: .78rem; white-space: nowrap; }
+.summaryGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--color-border); border-radius: var(--radius-panel); background: color-mix(in srgb, var(--color-surface) 75%, transparent); }
+.summaryGrid article { display: grid; gap: .35rem; padding: 1rem 1.1rem; }
+.summaryGrid article + article { border-left: 1px solid var(--color-border); }
+.summaryGrid span { color: var(--color-text-muted); font-size: .78rem; font-weight: 700; }
+.summaryGrid strong { font-size: 1.2rem; }
+.contentGrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(17rem, 22rem); gap: 1rem; align-items: start; }
+.expenseArea, .settlementPanel { padding: 1.25rem; border: 1px solid var(--color-border); border-radius: var(--radius-panel); background: color-mix(in srgb, var(--color-surface) 88%, transparent); }
+.toolbar { display: grid; grid-template-columns: 11rem minmax(12rem, 1fr); gap: .75rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-border); }
+.toolbar > div, .editorForm > label, .twoColumns label, .customSplits label { display: grid; gap: .35rem; color: var(--color-text-muted); font-size: .82rem; font-weight: 700; }
+.toolbar input, .editorForm input, .editorForm select, .editorForm textarea, .quickForm input, .quickForm select { width: 100%; min-height: 2.55rem; padding: .6rem .75rem; color: var(--color-text); font: inherit; border: 1px solid var(--color-border); border-radius: var(--radius-control); background: var(--color-surface); }
+.listHeader { display: flex; justify-content: space-between; gap: 1rem; align-items: center; margin: 1rem 0 .7rem; }
+.listHeader span { color: var(--color-text-muted); font-size: .82rem; }
+.expenseList { display: grid; gap: .55rem; margin: 0; padding: 0; list-style: none; }
+.expenseList li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: .8rem; padding: .85rem; border: 1px solid var(--color-border); border-radius: var(--radius-control); background: color-mix(in srgb, var(--color-muted-surface) 55%, transparent); }
+.expenseMain { display: grid; gap: .22rem; min-width: 0; }
+.expenseMain strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.expenseMain span { color: var(--color-text-muted); font-size: .78rem; }
+.expenseTitle { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
+.expenseTitle > span { padding: .16rem .42rem; color: var(--color-primary); font-size: .68rem; font-weight: 800; border-radius: 999px; background: var(--color-primary-soft); }
+.amount { white-space: nowrap; }
+.rowActions { display: flex; gap: .4rem; }
+.empty { padding: 2.5rem 1rem; text-align: center; color: var(--color-text-muted); }
+.empty p { margin: .35rem 0 0; }
+.settlementPanel h3 { margin-bottom: .8rem; }
+.settlementPanel > p { margin: 0; color: var(--color-text-muted); line-height: 1.6; }
+.settlementPanel ul { display: grid; gap: .6rem; margin: 0; padding: 0; list-style: none; }
+.settlementPanel li { display: grid; gap: .25rem; padding: .75rem; border-radius: var(--radius-control); background: var(--color-muted-surface); font-size: .85rem; }
+.editorForm { display: grid; gap: 1rem; }
+.quickForm { display: grid; gap: .9rem; }
+.quickForm > label, .quickForm .twoColumns label { display: grid; gap: .35rem; color: var(--color-text-muted); font-size: .82rem; font-weight: 700; }
+.quickForm small { font-weight: 500; }
+.twoColumns, .customSplits { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.editorForm fieldset { margin: 0; padding: .8rem; border: 1px solid var(--color-border); border-radius: var(--radius-control); }
+.editorForm legend { padding-inline: .3rem; font-size: .85rem; font-weight: 700; }
+.memberChoices, .modeChoices { display: flex; flex-wrap: wrap; gap: .55rem; }
+.memberChoices label, .modeChoices label { display: inline-flex; align-items: center; gap: .4rem; padding: .45rem .65rem; border-radius: 999px; background: var(--color-muted-surface); font-size: .82rem; }
+.memberChoices input, .modeChoices input { width: auto; min-height: auto; }
+.modalActions { display: flex; justify-content: flex-end; gap: .6rem; }
+@media (max-width: 60rem) { .typeCardGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .summaryGrid { grid-template-columns: repeat(2, 1fr); } .summaryGrid article:nth-child(3) { border-left: 0; border-top: 1px solid var(--color-border); } .summaryGrid article:nth-child(4) { border-top: 1px solid var(--color-border); } .contentGrid { grid-template-columns: 1fr; } }
+@media (max-width: 40rem) { .hero { align-items: stretch; flex-direction: column; } .summaryGrid { grid-template-columns: 1fr; } .summaryGrid article + article { border-top: 1px solid var(--color-border); border-left: 0; } .toolbar, .twoColumns, .customSplits { grid-template-columns: 1fr; } .expenseList li { grid-template-columns: minmax(0, 1fr) auto; } .rowActions { grid-column: 1 / -1; } }
+@media (max-width: 40rem) { .typeWorkspaceHeading { align-items: flex-start; flex-direction: column; } .typeCardGrid { grid-template-columns: 1fr; } }

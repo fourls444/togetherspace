@@ -16,8 +16,8 @@ const ROOM_TYPES = [
     value: "friend",
     title: "กลุ่มเพื่อน",
     description: "คุยเล่น นัดเจอ เก็บโมเมนต์ด้วยกัน",
-    namePlaceholder: "เช่น แก๊งหลังเลิกงาน",
-    imageHelper: "เหมาะกับรูปกลุ่ม รูปทริป หรือสัญลักษณ์ของแก๊ง",
+    namePlaceholder: "เช่น เพื่อนหลังเลิกงาน",
+    imageHelper: "เหมาะกับรูปกลุ่ม รูปทริป หรือสัญลักษณ์ของเพื่อน",
   },
   {
     value: "couple",
@@ -74,7 +74,7 @@ export function RoomForm() {
             return (
               <button
                 aria-pressed={selected}
-                className={`${styles.typeCard} ${selected ? styles.typeCardSelected : ""}`}
+                className={`${styles.typeCard} ${styles[option.value]} ${selected ? styles.typeCardSelected : ""}`}
                 key={option.value}
                 onClick={() => setType(option.value)}
                 type="button"

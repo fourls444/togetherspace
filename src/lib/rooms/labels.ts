@@ -11,13 +11,35 @@ export const ROOM_ROLE_LABEL: Record<RoomRole, string> = {
   member: "สมาชิก",
 };
 
-type RoomModuleKey = "album" | "board" | "calendar" | "map" | "members";
+type RoomModuleKey =
+  "album" | "board" | "calendar" | "finance" | "map" | "members";
 
 export type RoomModule = {
   key: RoomModuleKey;
   title: string;
   description: string;
   href: RoomModuleKey;
+};
+
+const FINANCE_MODULES: Record<RoomType, RoomModule> = {
+  couple: {
+    key: "finance",
+    title: "ค่าใช้จ่ายของเรา",
+    description: "เก็บค่าเดต ค่าเดินทาง และยอดที่เราช่วยกันจ่ายไว้ในที่เดียว",
+    href: "finance",
+  },
+  family: {
+    key: "finance",
+    title: "ค่าใช้จ่ายครอบครัว",
+    description: "ดูรายรับ งบประมาณ และค่าใช้จ่ายของบ้านได้อย่างชัดเจน",
+    href: "finance",
+  },
+  friend: {
+    key: "finance",
+    title: "หารค่าใช้จ่าย",
+    description: "รวมเงินทริป คนที่ออกให้ก่อน และยอดที่คืนกันแล้ว",
+    href: "finance",
+  },
 };
 
 const COUPLE_MODULES: RoomModule[] = [
@@ -30,7 +52,7 @@ const COUPLE_MODULES: RoomModule[] = [
   {
     key: "album",
     title: "อัลบั้มของเรา",
-    description: "รวมรูปเดต ทริป และโมเมนต์เล็ก ๆ ของสองคน",
+    description: "รวมรูปเดต ทริป และโมเมนต์เล็กๆ ของเราสองคน",
     href: "album",
   },
   {
@@ -90,7 +112,7 @@ const FRIEND_MODULES: RoomModule[] = [
   {
     key: "calendar",
     title: "ปฏิทินกลุ่ม",
-    description: "นัดเจอ วันเกิด และแผนเที่ยวของเพื่อน ๆ ในที่เดียว",
+    description: "รวมนัดเจอ วันเกิด และแผนเที่ยวของเพื่อนๆ ไว้ในที่เดียว",
     href: "calendar",
   },
   {
@@ -102,12 +124,12 @@ const FRIEND_MODULES: RoomModule[] = [
   {
     key: "board",
     title: "บอร์ดเพื่อน",
-    description: "โยนไอเดีย โหวตแผน และทำเช็คลิสต์ของแก๊ง",
+    description: "โยนไอเดีย โหวตแผน และทำเช็คลิสต์ของกลุ่ม",
     href: "board",
   },
   {
     key: "map",
-    title: "แผนที่แก๊ง",
+    title: "แผนที่กลุ่ม",
     description: "ปักหมุดร้านนัดเจอ คาเฟ่ ที่เที่ยว และจุดหมายรอบหน้า",
     href: "map",
   },
@@ -121,7 +143,16 @@ const FRIEND_MODULES: RoomModule[] = [
 
 /** คืนข้อความโมดูลหน้าหลักให้เหมาะกับประเภทห้อง */
 export function getRoomHomeModules(type: RoomType): RoomModule[] {
-  if (type === "couple") return COUPLE_MODULES;
-  if (type === "family") return FAMILY_MODULES;
-  return FRIEND_MODULES;
+  const modules =
+    type === "couple"
+      ? COUPLE_MODULES
+      : type === "family"
+        ? FAMILY_MODULES
+        : FRIEND_MODULES;
+  const memberIndex = modules.findIndex((module) => module.key === "members");
+  return [
+    ...modules.slice(0, memberIndex),
+    FINANCE_MODULES[type],
+    ...modules.slice(memberIndex),
+  ];
 }
