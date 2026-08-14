@@ -1,0 +1,24 @@
+.draggable-card-stage {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.draggable-card-table {
+  overflow: visible;
+  isolation: auto;
+}
+
+.album-print-flight {
+  transform-origin: 50% 50%;
+}
+
+.draggable-card-body {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .album-print-flight {
+    transform: none;
+  }
+}

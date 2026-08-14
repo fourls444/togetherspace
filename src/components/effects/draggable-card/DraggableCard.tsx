@@ -1,10 +1,9 @@
 "use client";
 
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -12,13 +11,13 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent,
   type ReactNode,
-  type RefObject,
 } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import {
   AnimatePresence,
   motion,
+  useInView,
   useMotionValue,
   useReducedMotion,
   useSpring,
@@ -26,6 +25,7 @@ import {
 } from "motion/react";
 
 import "./DraggableCard.css";
+import "./album-print-toss.css";
 
 const SPRING = {
   stiffness: 120,
@@ -43,9 +43,15 @@ const PUT_DOWN = {
   ease: [0.16, 1, 0.3, 1] as const,
 };
 
-const TableRefContext = createContext<RefObject<HTMLDivElement | null> | null>(
-  null,
-);
+const TOSS_STAGGER_S = 0.05;
+const TOSS_SETTLE_S = 0.78;
+
+const DRAG_BOUNDS = {
+  bottom: 220,
+  left: -240,
+  right: 240,
+  top: -220,
+};
 
 type DraggableCardBodyProps = {
   away?: boolean;
@@ -53,7 +59,7 @@ type DraggableCardBodyProps = {
   className?: string;
   dragEnabled?: boolean;
   label: string;
-  onActivate?: (node: HTMLButtonElement | null) => void;
+  onActivate?: (node: HTMLElement | null) => void;
   onLift?: () => void;
 };
 
@@ -67,10 +73,9 @@ export function DraggableCardBody({
   onLift,
 }: DraggableCardBodyProps) {
   const reduceMotion = useReducedMotion();
-  const tableRef = useContext(TableRefContext);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const cardRef = useRef<HTMLButtonElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const dragged = useRef(false);
 
   useEffect(
@@ -87,7 +92,7 @@ export function DraggableCardBody({
     SPRING,
   );
 
-  const handleMouseMove = (event: MouseEvent<HTMLButtonElement>) => {
+  const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
     if (reduceMotion || dragged.current || away) return;
     const box = cardRef.current?.getBoundingClientRect();
     if (!box) return;
@@ -109,7 +114,7 @@ export function DraggableCardBody({
     onActivate?.(cardRef.current);
   };
 
-  const onKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>) => {
+  const onKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       resetTilt();
@@ -118,7 +123,7 @@ export function DraggableCardBody({
   };
 
   return (
-    <motion.button
+    <motion.div
       aria-hidden={away || undefined}
       aria-label={label}
       className={
@@ -131,16 +136,18 @@ export function DraggableCardBody({
           .join(" ")
       }
       drag={dragEnabled && !away}
-      dragConstraints={tableRef ?? undefined}
-      dragElastic={0.08}
+      dragConstraints={DRAG_BOUNDS}
+      dragElastic={0.38}
       dragMomentum={false}
+      dragPropagation={false}
       onClick={activate}
       onDragEnd={(_, info) => {
         document.body.style.cursor = "";
-        dragged.current = Math.hypot(info.offset.x, info.offset.y) > 6;
+        dragged.current = Math.hypot(info.offset.x, info.offset.y) > 8;
         resetTilt();
       }}
       onDragStart={() => {
+        dragged.current = true;
         document.body.style.cursor = "grabbing";
         onLift?.();
       }}
@@ -148,6 +155,7 @@ export function DraggableCardBody({
       onMouseLeave={resetTilt}
       onMouseMove={handleMouseMove}
       ref={cardRef}
+      role="button"
       style={
         reduceMotion || away
           ? undefined
@@ -157,7 +165,6 @@ export function DraggableCardBody({
             }
       }
       tabIndex={away ? -1 : 0}
-      type="button"
       whileHover={reduceMotion || away ? undefined : { scale: 1.02 }}
     >
       {children}
@@ -168,7 +175,7 @@ export function DraggableCardBody({
           style={{ opacity: glareOpacity }}
         />
       )}
-    </motion.button>
+    </motion.div>
   );
 }
 
@@ -183,27 +190,22 @@ export function DraggableCardContainer({
   className?: string;
   inspecting?: boolean;
 }) {
-  const tableRef = useRef<HTMLDivElement>(null);
-
   return (
-    <TableRefContext.Provider value={tableRef}>
-      <div
-        aria-hidden={inspecting || undefined}
-        aria-label={ariaLabel}
-        className={
-          [
-            "draggable-card-table",
-            inspecting ? "is-inspecting" : "",
-            className,
-          ]
-            .filter(Boolean)
-            .join(" ")
-        }
-        ref={tableRef}
-      >
-        {children}
-      </div>
-    </TableRefContext.Provider>
+    <div
+      aria-hidden={inspecting || undefined}
+      aria-label={ariaLabel}
+      className={
+        [
+          "draggable-card-table",
+          inspecting ? "is-inspecting" : "",
+          className,
+        ]
+          .filter(Boolean)
+          .join(" ")
+      }
+    >
+      {children}
+    </div>
   );
 }
 
@@ -223,6 +225,24 @@ const SCATTER = [
 ] as const;
 
 const SINGLE = { x: "0%", y: "0%", rotate: "-3deg" };
+
+const THROW = [
+  { jitterX: 8, jitterY: -6, spin: -14 },
+  { jitterX: -10, jitterY: 8, spin: 12 },
+  { jitterX: 4, jitterY: -3, spin: 7 },
+  { jitterX: -6, jitterY: 10, spin: -10 },
+  { jitterX: 12, jitterY: 2, spin: 15 },
+] as const;
+
+const SINGLE_THROW = { jitterX: 6, jitterY: -4, spin: -9 };
+
+function throwFor(index: number, count: number) {
+  const next = count === 1 ? SINGLE_THROW : (THROW[index] ?? SINGLE_THROW);
+  return {
+    ...next,
+    delay: (count - 1 - index) * TOSS_STAGGER_S,
+  };
+}
 
 let liftOrder = 20;
 
@@ -378,6 +398,85 @@ function HeldPrintStage({
   );
 }
 
+function PrintFlight({
+  delay,
+  reduced,
+  restRotate,
+  throwing,
+  toss,
+  children,
+}: {
+  children: ReactNode;
+  delay: number;
+  reduced: boolean;
+  restRotate: number;
+  throwing: boolean;
+  toss: ReturnType<typeof throwFor>;
+}) {
+  const measureRef = useRef<HTMLDivElement>(null);
+  const [origin, setOrigin] = useState<{ x: number; y: number } | null>(null);
+  const handRotate = toss.spin - restRotate;
+
+  useLayoutEffect(() => {
+    if (reduced) return;
+    const node = measureRef.current;
+    const table = node?.closest(".draggable-card-table");
+    if (!node || !table) return;
+
+    const tableBox = table.getBoundingClientRect();
+    const box = node.getBoundingClientRect();
+    const restX = box.left + box.width / 2;
+    const restY = box.top + box.height / 2;
+
+    setOrigin({
+      x: tableBox.left + tableBox.width * 0.5 + toss.jitterX - restX,
+      y: tableBox.top - 40 + toss.jitterY - restY,
+    });
+  }, [reduced, toss.jitterX, toss.jitterY]);
+
+  if (reduced) return children;
+
+  if (!origin) {
+    return (
+      <div className="album-print-flight" ref={measureRef} style={{ visibility: "hidden" }}>
+        {children}
+      </div>
+    );
+  }
+
+  const hand = {
+    rotate: handRotate,
+    scale: 1.04,
+    x: origin.x,
+    y: origin.y,
+  };
+
+  return (
+    <motion.div
+      animate={
+        throwing
+          ? { rotate: 0, scale: 1, x: 0, y: 0 }
+          : hand
+      }
+      className="album-print-flight"
+      initial={hand}
+      transition={
+        throwing
+          ? {
+              delay,
+              rotate: { bounce: 0.05, duration: 0.86, type: "spring" },
+              scale: { bounce: 0, duration: 0.56, type: "spring" },
+              x: { bounce: 0, duration: 0.76, type: "spring" },
+              y: { bounce: 0, duration: 0.64, type: "spring" },
+            }
+          : { duration: 0 }
+      }
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 function AlbumPrint({
   away,
   dragEnabled,
@@ -385,14 +484,20 @@ function AlbumPrint({
   item,
   onActivate,
   pose,
+  reduced,
+  throwing,
+  toss,
   zIndex,
 }: {
   away: boolean;
   dragEnabled: boolean;
   index: number;
   item: PrintItem;
-  onActivate: (item: PrintItem, index: number, node: HTMLButtonElement | null) => void;
+  onActivate: (item: PrintItem, index: number, node: HTMLElement | null) => void;
   pose: (typeof SCATTER)[number] | typeof SINGLE;
+  reduced: boolean;
+  throwing: boolean;
+  toss: ReturnType<typeof throwFor>;
   zIndex: number;
 }) {
   const [stack, setStack] = useState(zIndex);
@@ -411,18 +516,26 @@ function AlbumPrint({
         } as CSSProperties
       }
     >
-      <DraggableCardBody
-        away={away}
-        dragEnabled={dragEnabled}
-        label={label}
-        onActivate={(node) => onActivate(item, index, node)}
-        onLift={() => {
-          liftOrder += 1;
-          setStack(liftOrder);
-        }}
+      <PrintFlight
+        delay={toss.delay}
+        reduced={reduced}
+        restRotate={poseDegrees(pose)}
+        throwing={throwing}
+        toss={toss}
       >
-        <PrintFace caption={caption} image={item.image} />
-      </DraggableCardBody>
+        <DraggableCardBody
+          away={away}
+          dragEnabled={dragEnabled}
+          label={label}
+          onActivate={(node) => onActivate(item, index, node)}
+          onLift={() => {
+            liftOrder += 1;
+            setStack(liftOrder);
+          }}
+        >
+          <PrintFace caption={caption} image={item.image} />
+        </DraggableCardBody>
+      </PrintFlight>
     </div>
   );
 }
@@ -435,24 +548,71 @@ export function AlbumPrints({
   items: PrintItem[];
 }) {
   const prints = items.filter((item) => item.image && item.id).slice(0, 5);
+  const reduceMotion = useReducedMotion();
+  const stageRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(stageRef, {
+    amount: 0.12,
+    margin: "100px 0px 0px 0px",
+    once: true,
+  });
+  const [forceToss, setForceToss] = useState(false);
+  const tossing = Boolean((inView || forceToss) && !reduceMotion);
   const [held, setHeld] = useState<HeldPrint | null>(null);
   const [awayId, setAwayId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [dealt, setDealt] = useState(false);
   const closeHeld = useCallback(() => setHeld(null), []);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (reduceMotion || inView) return;
+
+    const id = window.setTimeout(() => {
+      const node = stageRef.current;
+      if (!node) return;
+      const rect = node.getBoundingClientRect();
+      const visible =
+        rect.height > 0 &&
+        rect.bottom > 48 &&
+        rect.top < window.innerHeight - 48;
+      if (visible) setForceToss(true);
+    }, 700);
+
+    return () => window.clearTimeout(id);
+  }, [inView, reduceMotion]);
+
+  useEffect(() => {
+    if (reduceMotion || prints.length === 0) {
+      setDealt(true);
+      return;
+    }
+
+    if (!tossing) return;
+
+    setDealt(false);
+    const id = window.setTimeout(
+      () => setDealt(true),
+      (TOSS_SETTLE_S + (prints.length - 1) * TOSS_STAGGER_S) * 1000 + 60,
+    );
+    return () => window.clearTimeout(id);
+  }, [prints.length, reduceMotion, tossing]);
+
   if (prints.length === 0) return null;
 
   return (
     <>
-      <DraggableCardContainer ariaLabel={ariaLabel} inspecting={Boolean(held || awayId)}>
+      <div className="draggable-card-stage" ref={stageRef}>
+        <DraggableCardContainer
+          ariaLabel={ariaLabel}
+          inspecting={Boolean(held || awayId)}
+        >
         {prints.map((item, index) => (
           <AlbumPrint
             away={awayId === item.id}
-            dragEnabled={!held && !awayId}
+            dragEnabled={dealt && !held && !awayId}
             index={index}
             item={item}
             key={item.id}
@@ -463,10 +623,14 @@ export function AlbumPrints({
               setHeld(measureHeld(node, poseDegrees(pose), next));
             }}
             pose={prints.length === 1 ? SINGLE : (SCATTER[index] ?? SINGLE)}
+            reduced={Boolean(reduceMotion)}
+            throwing={tossing}
+            toss={throwFor(index, prints.length)}
             zIndex={prints.length - index}
           />
         ))}
-      </DraggableCardContainer>
+        </DraggableCardContainer>
+      </div>
       {mounted
         ? createPortal(
             <AnimatePresence onExitComplete={() => setAwayId(null)}>
