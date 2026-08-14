@@ -155,7 +155,8 @@ export default async function RoomSettingsPage({
 
       <div className={`${styles.primaryGrid} ${isOwner ? "" : styles.single}`}>
         <GlowCard
-          contentClassName={`${styles.panel} ${styles.profilePanel}`}
+          className={styles.pairCard}
+          contentClassName={`${styles.panel} ${styles.pairPanel} ${styles.profilePanel}`}
           roomType={room.type}
           tone="room"
         >
@@ -175,7 +176,12 @@ export default async function RoomSettingsPage({
         </GlowCard>
 
         {isOwner ? (
-          <GlowCard contentClassName={styles.panel} roomType={room.type} tone="room">
+          <GlowCard
+            className={styles.pairCard}
+            contentClassName={`${styles.panel} ${styles.pairPanel}`}
+            roomType={room.type}
+            tone="room"
+          >
             <h3 className={styles.title}>ข้อมูลห้อง</h3>
             <p className={styles.lead}>
               แก้ชื่อและรูปที่สมาชิกทุกคนเห็นร่วมกัน
@@ -187,31 +193,35 @@ export default async function RoomSettingsPage({
               roomId={roomId}
               roomType={room.type}
             />
-
-            <div className={styles.sectionDivider} id="invite">
-              <h3 className={styles.subTitle}>สร้างคำเชิญชั่วคราว</h3>
-              <p className={styles.lead}>
-                สร้างลิงก์ที่จำกัดจำนวนการใช้หรือกำหนดวันหมดอายุได้
-              </p>
-              <CreateInviteForm roomCode={roomCode} roomId={roomId} />
-
-              <details className={styles.inviteHistory}>
-                <summary>ดูคำเชิญที่สร้างไว้ ({invites.length})</summary>
-                <InviteList
-                  invites={invites}
-                  roomCode={roomCode}
-                  roomId={roomId}
-                />
-              </details>
-            </div>
           </GlowCard>
         ) : null}
       </div>
 
+      {isOwner ? (
+        <GlowCard contentClassName={styles.panel} roomType={room.type} tone="room">
+          <div className={styles.inviteBlock} id="invite">
+            <h3 className={styles.title}>สร้างคำเชิญชั่วคราว</h3>
+            <p className={styles.lead}>
+              สร้างลิงก์ที่จำกัดจำนวนการใช้หรือกำหนดวันหมดอายุได้
+            </p>
+            <CreateInviteForm roomCode={roomCode} roomId={roomId} />
+
+            <details className={styles.inviteHistory}>
+              <summary>ดูคำเชิญที่สร้างไว้ ({invites.length})</summary>
+              <InviteList
+                invites={invites}
+                roomCode={roomCode}
+                roomId={roomId}
+              />
+            </details>
+          </div>
+        </GlowCard>
+      ) : null}
+
       <GlowCard contentClassName={styles.panel} roomType={room.type} tone="room">
         <h3 className={styles.title}>ธีมห้อง</h3>
         <p className={styles.lead}>
-          เลือกบรรยากาศที่เหมาะกับห้องนี้ โดยธีม TogetherSpace จะเป็นค่าเริ่มต้นเสมอ
+          เลือกโทนภายในห้อง ค่าเริ่มต้นคือ Private Atelier
         </p>
         <RoomThemeSelector />
       </GlowCard>

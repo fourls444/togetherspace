@@ -5,6 +5,7 @@ import {
   useId,
   useRef,
   useState,
+  type CSSProperties,
   type PropsWithChildren,
 } from "react";
 import { createPortal } from "react-dom";
@@ -30,6 +31,17 @@ const FOCUSABLE_SELECTOR = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(",");
 
+function copyThemeStyle(from: HTMLElement | null): CSSProperties | undefined {
+  if (!from) return undefined;
+  const next: Record<string, string> = {};
+  for (let index = 0; index < from.style.length; index += 1) {
+    const name = from.style.item(index);
+    if (!name) continue;
+    next[name] = from.style.getPropertyValue(name);
+  }
+  return Object.keys(next).length ? (next as CSSProperties) : undefined;
+}
+
 /** คอมโพเนนต์ Modal อเนกประสงค์ ควบคุม focus และกด ESC เพื่อปิด */
 export function Modal({
   children,
@@ -45,6 +57,8 @@ export function Modal({
   const [mounted, setMounted] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     setMounted(true);
@@ -60,15 +74,14 @@ export function Modal({
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
-    // ตั้งเวลาให้ focus แต่อย่าให้ focus ดึงจอไปถ้ามี input (เดี๋ยวค่อยจัดการใน form)
-    setTimeout(() => {
+    const focusTimer = window.setTimeout(() => {
       closeButtonRef.current?.focus({ preventScroll: true });
     }, 10);
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -92,21 +105,28 @@ export function Modal({
 
     document.addEventListener("keydown", handleKeyDown);
     return () => {
+      window.clearTimeout(focusTimer);
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = previousOverflow;
       previousFocus?.focus({ preventScroll: true });
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen || !mounted) return null;
+
+  const themeScope = document.querySelector<HTMLElement>("[data-room-theme]");
 
   return createPortal(
     <div
       className={styles.backdrop}
+      data-room-theme={themeScope?.getAttribute("data-room-theme") ?? undefined}
       onMouseDown={(event) => {
-        if (closeOnBackdrop && event.target === event.currentTarget) onClose();
+        if (closeOnBackdrop && event.target === event.currentTarget) {
+          onCloseRef.current();
+        }
       }}
       role="presentation"
+      style={copyThemeStyle(themeScope)}
     >
       <div
         aria-describedby={description ? descriptionId : undefined}
@@ -131,7 +151,7 @@ export function Modal({
           <button
             aria-label="ปิด"
             className={styles.closeButton}
-            onClick={onClose}
+            onClick={() => onCloseRef.current()}
             ref={closeButtonRef}
             type="button"
           >

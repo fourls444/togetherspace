@@ -7,7 +7,7 @@
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  background: transparent;
+  background: var(--color-background);
 }
 
 .stageAura {
@@ -16,27 +16,26 @@
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  background:
-    radial-gradient(
-      70% 80% at 78% 18%,
-      color-mix(in srgb, var(--color-primary) 22%, transparent),
-      transparent 62%
-    ),
-    radial-gradient(
-      50% 60% at 12% 88%,
-      color-mix(in srgb, var(--color-primary-hover) 10%, transparent),
-      transparent 58%
-    );
+  background: var(--color-background);
+}
+
+.stageAura :global(.iridescence-container) {
+  opacity: 0.46;
+}
+
+:global([data-room-theme="warm-light"]) .stageAura :global(.iridescence-container) {
+  opacity: 0.2;
 }
 
 .stageVeil {
   position: absolute;
   inset: 0;
+  z-index: 1;
   background: linear-gradient(
     105deg,
-    color-mix(in srgb, var(--color-background) 78%, transparent),
-    color-mix(in srgb, var(--color-background) 38%, transparent) 52%,
-    color-mix(in srgb, var(--color-surface) 22%, transparent)
+    color-mix(in srgb, var(--color-background) 92%, transparent),
+    color-mix(in srgb, var(--color-background) 78%, transparent) 48%,
+    color-mix(in srgb, var(--color-surface) 62%, transparent)
   );
 }
 
@@ -81,6 +80,10 @@
   z-index: 1;
 }
 
+.stage {
+  padding-bottom: 6rem;
+}
+
 .scrim {
   display: none;
 }
@@ -89,6 +92,10 @@
   .stage,
   .guest {
     padding: 1.5rem var(--app-inline) 2.5rem;
+  }
+
+  .stage {
+    padding-bottom: 6.25rem;
   }
 }
 

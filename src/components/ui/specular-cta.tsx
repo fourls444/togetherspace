@@ -5,6 +5,8 @@ import type { ReactNode } from "react";
 import SpecularButton, {
   type SpecularButtonProps,
 } from "@/components/effects/specular-button/SpecularButton";
+import { useOptionalRoomTheme } from "@/components/rooms/room-theme-provider";
+import type { RoomThemePalette } from "@/lib/rooms/themes";
 
 /** Private Atelier — ปุ่มหลักทึบ (แชมเปญ) + ขอบ specular */
 export const SPECULAR_PRIMARY = {
@@ -41,6 +43,30 @@ export const SPECULAR_SECONDARY = {
 
 type SpecularTone = "primary" | "secondary";
 
+function getThemedSpecularPreset(
+  tone: SpecularTone,
+  palette: RoomThemePalette | undefined,
+) {
+  const preset = tone === "primary" ? SPECULAR_PRIMARY : SPECULAR_SECONDARY;
+  if (!palette) return preset;
+  if (tone === "primary") {
+    return {
+      ...preset,
+      tint: palette.primary,
+      textColor: palette.primaryText,
+      lineColor: palette.text,
+      baseColor: palette.borderStrong,
+    };
+  }
+  return {
+    ...preset,
+    tint: palette.surface,
+    textColor: palette.text,
+    lineColor: palette.primary,
+    baseColor: palette.borderStrong,
+  };
+}
+
 type SpecularCtaProps = Omit<
   SpecularButtonProps,
   "children" | "href" | "disabled"
@@ -63,7 +89,8 @@ export function SpecularCta({
   size,
   ...overrides
 }: SpecularCtaProps) {
-  const preset = tone === "primary" ? SPECULAR_PRIMARY : SPECULAR_SECONDARY;
+  const palette = useOptionalRoomTheme()?.currentTheme.palette;
+  const preset = getThemedSpecularPreset(tone, palette);
 
   return (
     <SpecularButton
@@ -95,7 +122,8 @@ export function SpecularCtaLink({
   size,
   ...overrides
 }: SpecularCtaLinkProps) {
-  const preset = tone === "primary" ? SPECULAR_PRIMARY : SPECULAR_SECONDARY;
+  const palette = useOptionalRoomTheme()?.currentTheme.palette;
+  const preset = getThemedSpecularPreset(tone, palette);
 
   return (
     <SpecularButton

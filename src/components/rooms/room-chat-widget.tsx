@@ -154,6 +154,15 @@ export function RoomChatWidget({
   }, [isOpen]);
 
   useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen]);
+
+  useEffect(() => {
     const supabase = createClient();
     const channel = supabase
       .channel(`room-chat:${roomId}`)
@@ -284,13 +293,14 @@ export function RoomChatWidget({
   if (!isOpen) {
     return (
       <button
+        aria-expanded="false"
+        aria-label={`เปิดแชทของห้อง ${roomName}`}
         className={styles.launcher}
         onClick={() => {
           setIsOpen(true);
           setUnreadCount(0);
         }}
         type="button"
-        aria-label={`เปิดแชทของห้อง ${roomName}`}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className={styles.launcherImage} src={roomImage} alt="" />
@@ -300,13 +310,10 @@ export function RoomChatWidget({
           </span>
         ) : null}
         <span className={styles.launcherText}>
-          <span className={styles.eyebrow}>แชทของห้อง</span>
-          <strong>{roomName}</strong>
-          {latestMessage ? (
-            <small>{latestMessage.body}</small>
-          ) : (
-            <small>เริ่มคุยกับสมาชิกในห้องนี้</small>
-          )}
+          <strong>แชท</strong>
+          <small>
+            {latestMessage ? latestMessage.body : roomName}
+          </small>
         </span>
       </button>
     );
@@ -319,8 +326,8 @@ export function RoomChatWidget({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className={styles.roomImage} src={roomImage} alt="" />
           <div>
-            <p className={styles.eyebrow}>แชทของห้อง</p>
-            <h2>{roomName}</h2>
+            <h2>แชท</h2>
+            <p className={styles.roomLabel}>{roomName}</p>
           </div>
         </div>
         <button

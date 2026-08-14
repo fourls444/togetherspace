@@ -43,6 +43,10 @@
   transform-origin: center top;
 }
 
+.animated-list__item + .animated-list__item {
+  border-top: 1px solid var(--color-border);
+}
+
 .animated-list__fade {
   position: absolute;
   right: 0;

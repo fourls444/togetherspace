@@ -1,43 +1,35 @@
 .launcher,
 .panel {
   position: fixed;
-  right: clamp(1rem, 2.4vw, 1.6rem);
-  bottom: clamp(1rem, 2.4vw, 1.6rem);
+  right: var(--app-inline);
+  bottom: 1.25rem;
   z-index: 45;
   color: var(--color-text);
 }
 
 .launcher {
-  position: fixed;
   display: grid;
-  grid-template-columns: 3.4rem minmax(0, 1fr);
-  gap: 0.85rem;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: 0.7rem;
   align-items: center;
-  width: min(22rem, calc(100vw - 2rem));
-  padding: 0.85rem 1rem;
+  width: min(12.75rem, calc(100vw - (var(--app-inline) * 2)));
+  padding: 0.45rem 0.8rem 0.45rem 0.45rem;
   text-align: left;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-panel);
-  background:
-    linear-gradient(
-      140deg,
-      color-mix(in srgb, var(--color-primary) 10%, transparent),
-      transparent 46%
-    ),
-    var(--color-surface);
+  background: var(--color-surface);
   box-shadow: var(--shadow-panel);
   cursor: pointer;
 }
 
 .launcher:hover {
   border-color: var(--color-border-strong);
-  background:
-    linear-gradient(
-      140deg,
-      color-mix(in srgb, var(--color-primary) 16%, transparent),
-      transparent 52%
-    ),
-    var(--color-muted-surface);
+  background: var(--color-muted-surface);
+}
+
+.launcher:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
 }
 
 .launcherImage,
@@ -50,34 +42,34 @@
 }
 
 .launcherImage {
-  width: 3.4rem;
-  height: 3.4rem;
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: var(--radius-control);
 }
 
 .unreadBadge {
   position: absolute;
-  top: -0.45rem;
-  right: -0.45rem;
+  top: -0.4rem;
+  right: -0.35rem;
   display: inline-grid;
   place-items: center;
-  min-width: 1.65rem;
-  height: 1.65rem;
-  padding: 0 0.42rem;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.35rem;
   color: var(--color-primary-text);
-  font-size: 0.74rem;
-  font-weight: 900;
+  font-size: var(--font-size-label);
+  font-weight: 700;
   line-height: 1;
   border: 2px solid var(--color-background);
   border-radius: 999px;
   background: var(--color-primary);
-  box-shadow: var(--shadow-metal);
+  box-shadow: var(--shadow-extrude-primary);
 }
 
 .launcherText {
   display: grid;
   min-width: 0;
-  gap: 0.15rem;
+  gap: 0.1rem;
 }
 
 .launcherText strong,
@@ -87,37 +79,39 @@
   color: var(--color-text);
   font-family: var(--font-display-thai), var(--font-display), serif;
   font-weight: 500;
-  line-height: 1.08;
+  line-height: 1.15;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .launcherText strong {
-  font-size: 1.45rem;
+  font-size: var(--font-size-brand);
 }
 
 .launcherText small {
   overflow: hidden;
   color: var(--color-text-muted);
-  font-size: 0.82rem;
+  font-size: var(--font-size-caption);
   line-height: 1.45;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.eyebrow {
+.roomLabel {
   margin: 0;
-  color: var(--color-primary);
-  font-size: 0.74rem;
-  font-weight: 700;
-  line-height: 1.2;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .panel {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto auto;
-  width: min(26rem, calc(100vw - 1.5rem));
-  height: min(36rem, calc(100dvh - 2rem));
+  width: min(23.5rem, calc(100vw - (var(--app-inline) * 2)));
+  height: min(34rem, calc(100dvh - var(--app-topbar-height) - 2.5rem));
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-panel);
@@ -130,7 +124,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1.15rem;
+  padding: 1rem 1.15rem;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -142,16 +136,15 @@
 }
 
 .roomImage {
-  width: 3.85rem;
-  height: 3.85rem;
+  width: 2.75rem;
+  height: 2.75rem;
   flex: 0 0 auto;
   border-radius: var(--radius-control);
 }
 
 .header h2 {
   max-width: 14rem;
-  margin-top: 0.1rem;
-  font-size: 1.55rem;
+  font-size: var(--font-size-brand);
 }
 
 .closeButton,
@@ -160,7 +153,7 @@
   place-items: center;
   flex: 0 0 auto;
   border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border-radius: var(--radius-control);
   font: inherit;
   cursor: pointer;
 }
@@ -169,13 +162,19 @@
   width: 2.5rem;
   height: 2.5rem;
   color: var(--color-text);
-  font-size: 1.6rem;
+  font-size: var(--font-size-brand);
   line-height: 1;
   background: var(--color-muted-surface);
 }
 
 .closeButton:hover {
   border-color: var(--color-border-strong);
+}
+
+.closeButton:focus-visible,
+.sendButton:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
 }
 
 .messages {
@@ -185,13 +184,7 @@
   min-height: 0;
   padding: 1rem;
   overflow-y: auto;
-  background:
-    radial-gradient(
-      circle at top right,
-      color-mix(in srgb, var(--color-primary) 7%, transparent),
-      transparent 38%
-    ),
-    var(--color-background);
+  background: var(--color-background);
 }
 
 .empty {
@@ -206,13 +199,13 @@
 .empty p {
   margin: 0;
   color: var(--color-text);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .empty span {
   max-width: 16rem;
   margin-top: 0.3rem;
-  font-size: 0.9rem;
+  font-size: var(--font-size-body-sm);
   line-height: 1.55;
 }
 
@@ -229,7 +222,7 @@
 .avatar {
   width: 2rem;
   height: 2rem;
-  border-radius: 50%;
+  border-radius: 999px;
 }
 
 .bubbleWrap {
@@ -241,7 +234,7 @@
 .senderName {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.78rem;
+  font-size: var(--font-size-label);
 }
 
 .bubble {
@@ -261,15 +254,20 @@
 
 .bubble p {
   margin: 0;
+  color: var(--color-text);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   line-height: 1.55;
 }
 
+.mine .bubble p {
+  color: var(--color-primary-text);
+}
+
 .bubble time {
   justify-self: end;
   color: inherit;
-  font-size: 0.72rem;
+  font-size: var(--font-size-mark);
   opacity: 0.68;
 }
 
@@ -291,7 +289,7 @@
   padding: 0.75rem 0.9rem;
   color: var(--color-text);
   border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border-radius: var(--radius-control);
   outline: none;
   background: var(--color-background);
   font: inherit;
@@ -311,8 +309,8 @@
   width: 2.75rem;
   height: 2.75rem;
   color: var(--color-primary-text);
-  font-size: 1.35rem;
-  font-weight: 800;
+  font-size: var(--font-size-brand);
+  font-weight: 600;
   background: var(--color-primary);
 }
 
@@ -325,18 +323,6 @@
   margin: 0;
   padding: 0 1rem 0.85rem;
   color: var(--color-error-text);
-  font-size: 0.82rem;
+  font-size: var(--font-size-caption);
 }
 
-@media (max-width: 38rem) {
-  .launcher,
-  .panel {
-    right: 0.75rem;
-    bottom: 0.75rem;
-  }
-
-  .panel {
-    width: calc(100vw - 1.5rem);
-    height: min(34rem, calc(100dvh - 1.5rem));
-  }
-}

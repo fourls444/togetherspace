@@ -4,7 +4,10 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useRef,
+  useState,
   useSyncExternalStore,
   type CSSProperties,
   type PropsWithChildren,
@@ -14,6 +17,8 @@ import styles from "@/components/rooms/room-theme.module.css";
 import {
   DEFAULT_ROOM_THEME_ID,
   getRoomThemes,
+  hexToHslSpace,
+  hexToRgbChannel,
   resolveRoomTheme,
   type RoomTheme,
   type RoomThemePalette,
@@ -27,8 +32,16 @@ type RoomThemeContextValue = {
   themes: RoomTheme[];
 };
 
+type ThemeFlash = {
+  id: number;
+  ink: string;
+  sheen: string;
+};
+
 const RoomThemeContext = createContext<RoomThemeContextValue | null>(null);
 const ROOM_THEME_CHANGE_EVENT = "togetherspace:room-theme-change";
+const THEME_FLASH_PEAK_MS = 240;
+const THEME_FLASH_MS = 720;
 
 const THEME_VARIABLES: Record<keyof RoomThemePalette, string> = {
   background: "--color-background",
@@ -64,6 +77,10 @@ function getThemeStyle(theme: RoomTheme): CSSProperties {
     "--color-focus": theme.palette.primaryHover,
     "--color-sidebar": theme.palette.mutedSurface,
     "--color-sidebar-hover": theme.palette.hover,
+    "--control-bg": theme.palette.background,
+    "--control-border": theme.palette.border,
+    "--glow-color": hexToRgbChannel(theme.palette.primary),
+    "--room-glow-hsl": hexToHslSpace(theme.palette.primary),
   } as CSSProperties;
 }
 
@@ -98,8 +115,20 @@ export function RoomThemeProvider({
     () => resolveRoomTheme(roomType, themeId),
     [roomType, themeId],
   );
+  const [flash, setFlash] = useState<ThemeFlash | null>(null);
+  const flashLock = useRef(false);
+  const peakTimer = useRef(0);
+  const endTimer = useRef(0);
 
-  const selectTheme = useCallback(
+  useEffect(
+    () => () => {
+      window.clearTimeout(peakTimer.current);
+      window.clearTimeout(endTimer.current);
+    },
+    [],
+  );
+
+  const applyTheme = useCallback(
     (nextThemeId: string) => {
       const nextTheme = resolveRoomTheme(roomType, nextThemeId);
       window.localStorage.setItem(getThemeStorageKey(roomCode), nextTheme.id);
@@ -107,6 +136,44 @@ export function RoomThemeProvider({
     },
     [roomCode, roomType],
   );
+
+  const selectTheme = useCallback(
+    (nextThemeId: string) => {
+      const nextTheme = resolveRoomTheme(roomType, nextThemeId);
+      if (nextTheme.id === currentTheme.id || flashLock.current) return;
+
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        applyTheme(nextTheme.id);
+        return;
+      }
+
+      flashLock.current = true;
+      setFlash({
+        id: Date.now(),
+        ink: nextTheme.palette.background,
+        sheen:
+          nextTheme.id === "warm-light"
+            ? nextTheme.palette.primaryText
+            : nextTheme.palette.primary,
+      });
+      window.clearTimeout(peakTimer.current);
+      window.clearTimeout(endTimer.current);
+      peakTimer.current = window.setTimeout(() => {
+        applyTheme(nextTheme.id);
+      }, THEME_FLASH_PEAK_MS);
+      endTimer.current = window.setTimeout(() => {
+        flashLock.current = false;
+        setFlash(null);
+      }, THEME_FLASH_MS);
+    },
+    [applyTheme, currentTheme.id, roomType],
+  );
+
+  const endFlash = useCallback(() => {
+    window.clearTimeout(endTimer.current);
+    flashLock.current = false;
+    setFlash(null);
+  }, []);
 
   const contextValue = useMemo(
     () => ({ currentTheme, roomType, selectTheme, themes }),
@@ -121,6 +188,22 @@ export function RoomThemeProvider({
         style={getThemeStyle(currentTheme)}
       >
         {children}
+        {flash ? (
+          <div
+            aria-hidden
+            className={styles.flash}
+            key={flash.id}
+            style={
+              {
+                "--flash-ink": flash.ink,
+                "--flash-sheen": flash.sheen,
+              } as CSSProperties
+            }
+          >
+            <span className={styles.flashWash} />
+            <span className={styles.flashSheen} onAnimationEnd={endFlash} />
+          </div>
+        ) : null}
       </div>
     </RoomThemeContext.Provider>
   );
@@ -133,4 +216,9 @@ export function useRoomTheme(): RoomThemeContextValue {
     throw new Error("useRoomTheme must be used inside RoomThemeProvider");
   }
   return context;
+}
+
+/** อ่านธีมห้องถ้ามี — ใช้กับการ์ดที่อยู่ทั้งในและนอกห้อง */
+export function useOptionalRoomTheme(): RoomThemeContextValue | null {
+  return useContext(RoomThemeContext);
 }

@@ -158,7 +158,26 @@
 .row {
   display: grid;
   gap: 1rem;
-  align-items: start;
+  align-items: stretch;
+}
+
+.row .liveShelf {
+  display: flex;
+  flex-direction: column;
+  height: 12.5rem;
+  min-height: 0;
+}
+
+.row .section {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.shelfList,
+.row .empty {
+  flex: 1;
+  min-height: 0;
 }
 
 .stills {
@@ -171,6 +190,7 @@
   position: relative;
   width: 100%;
   height: 22rem;
+  overflow: hidden;
 }
 
 .stills:has(.still:nth-child(2)) {
@@ -236,9 +256,13 @@
 .item {
   display: grid;
   gap: 0.15rem;
-  padding: 0.55rem 0;
+  padding: 0.55rem 0.15rem;
   color: inherit;
   text-decoration: none;
+}
+
+.item:hover .itemTitle {
+  color: var(--color-text);
 }
 
 .itemTitle,
@@ -306,6 +330,7 @@
 
 .invite,
 .remainder {
+  flex-shrink: 0;
   margin-top: 0.75rem;
 }
 

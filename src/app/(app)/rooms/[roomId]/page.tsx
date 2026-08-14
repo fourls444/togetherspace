@@ -1,10 +1,11 @@
 import Link from "next/link";
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { LivingCard } from "@/components/effects/living-card";
 import { LivingStage } from "@/components/effects/living-stage";
 import { RoomCodeCopy } from "@/components/rooms/room-code-copy";
 import { RoomPhotoWall } from "@/components/rooms/room-photo-wall";
+import { RoomShelfList } from "@/components/rooms/room-shelf-list";
 import styles from "@/components/rooms/room-home.module.css";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
@@ -12,11 +13,7 @@ import {
   formatDateKey,
   formatThaiCalendarPanelDate,
 } from "@/lib/calendar/calendar";
-import {
-  getRoomHomeModules,
-  ROOM_TYPE_BLURB,
-  ROOM_TYPE_THEME,
-} from "@/lib/rooms/labels";
+import { getRoomHomeModules, ROOM_TYPE_BLURB } from "@/lib/rooms/labels";
 import { getRoomPath, getRoomSubPath } from "@/lib/rooms/room-path";
 import { getRoomContext } from "@/lib/rooms/server";
 import type { BoardItemType } from "@/lib/types/database";
@@ -33,6 +30,7 @@ const PLACE_DATE_FORMATTER = new Intl.DateTimeFormat("th-TH", {
   timeZone: "UTC",
 });
 const PREVIEW_LIMIT = 4;
+const SHELF_SCROLL_LIMIT = 12;
 
 function formatPlaceDate(date: string | null) {
   if (!date) return null;
@@ -68,7 +66,6 @@ function Shelf({
   children,
   emptyAction,
   emptyCopy,
-  glowRgb,
   label,
   title,
 }: {
@@ -77,12 +74,11 @@ function Shelf({
   children?: ReactNode;
   emptyAction: string;
   emptyCopy: string;
-  glowRgb: string;
   label: string;
   title: string;
 }) {
   return (
-    <LivingCard className={styles.liveShelf} glowRgb={glowRgb}>
+    <LivingCard className={styles.liveShelf}>
       <section aria-label={label} className={styles.section}>
         <div className={styles.sectionHead}>
           <h2 className={styles.sectionTitle}>{title}</h2>
@@ -177,7 +173,7 @@ export default async function RoomPage({
       .select("id, name, place_date", { count: "exact" })
       .eq("room_id", roomId)
       .order("created_at", { ascending: false })
-      .limit(PREVIEW_LIMIT),
+      .limit(SHELF_SCROLL_LIMIT),
   ]);
 
   if (membershipsResult.error) {
@@ -206,7 +202,7 @@ export default async function RoomPage({
         .eq("board_id", boardId)
         .is("archived_at", null)
         .order("created_at", { ascending: false })
-        .limit(PREVIEW_LIMIT)
+        .limit(SHELF_SCROLL_LIMIT)
     : {
         count: 0,
         data: [] as { id: string; item_type: BoardItemType; title: string }[],
@@ -248,18 +244,8 @@ export default async function RoomPage({
   const previewMembers = members.slice(0, PREVIEW_LIMIT);
   const lampOnAlbum = !nextEvent && photos.length === 0;
   const lampOnInvite = isOwner && !nextEvent && photos.length > 0;
-  const glowRgb = ROOM_TYPE_THEME[room.type].sparkRgb;
-
   return (
-    <LivingStage
-      className={styles.home}
-      glowRgb={glowRgb}
-      style={
-        {
-          "--room-accent": ROOM_TYPE_THEME[room.type].accent,
-        } as CSSProperties
-      }
-    >
+    <LivingStage className={styles.home}>
       <header className={styles.head}>
         <div className={styles.headCopy}>
           <h1 className={styles.title}>{room.name}</h1>
@@ -298,7 +284,7 @@ export default async function RoomPage({
       </section>
 
       {nextEvent ? (
-        <LivingCard className={styles.liveShelf} glowRgb={glowRgb}>
+        <LivingCard className={styles.liveShelf}>
           <section
             aria-label={calendarModule?.title ?? "นัดถัดไป"}
             className={styles.moment}
@@ -320,7 +306,7 @@ export default async function RoomPage({
         </LivingCard>
       ) : null}
 
-      <LivingCard className={styles.liveShelf} glowRgb={glowRgb}>
+      <LivingCard className={styles.liveShelf}>
         <section
           aria-label={membersModule?.title ?? "คนในห้อง"}
           className={styles.people}
@@ -380,22 +366,17 @@ export default async function RoomPage({
             actionLabel="ไปบอร์ด"
             emptyAction="เปิดบอร์ด"
             emptyCopy="ยังไม่มีโน้ตหรือโพล ไปเขียนอะไรสั้นๆ ให้ห้องนี้ได้"
-            glowRgb={glowRgb}
             label={boardModule?.title ?? "บนบอร์ด"}
             title={boardModule?.title ?? "บนบอร์ด"}
           >
-            <ul className={styles.list}>
-              {boardItems.map((item) => (
-                <li key={item.id}>
-                  <Link className={styles.item} href={boardHref} prefetch>
-                    <span className={styles.itemTitle}>{item.title}</span>
-                    <span className={styles.itemMeta}>
-                      {BOARD_TYPE_LABEL[item.item_type]}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <RoomShelfList
+              href={boardHref}
+              items={boardItems.map((item) => ({
+                id: item.id,
+                meta: BOARD_TYPE_LABEL[item.item_type],
+                title: item.title,
+              }))}
+            />
             <RemainderLink
               action="ไปบอร์ด"
               href={boardHref}
@@ -410,7 +391,6 @@ export default async function RoomPage({
             actionLabel="ไปบอร์ด"
             emptyAction="เปิดบอร์ด"
             emptyCopy="ยังไม่มีโน้ตหรือโพล ไปเขียนอะไรสั้นๆ ให้ห้องนี้ได้"
-            glowRgb={glowRgb}
             label={boardModule?.title ?? "บนบอร์ด"}
             title={boardModule?.title ?? "บนบอร์ด"}
           />
@@ -422,22 +402,17 @@ export default async function RoomPage({
             actionLabel="ไปแผนที่"
             emptyAction="เปิดแผนที่"
             emptyCopy="ยังไม่มีหมุดในแผนที่ ปักร้านโปรดหรือที่เที่ยวไว้ได้"
-            glowRgb={glowRgb}
             label={mapModule?.title ?? "สถานที่"}
             title={mapModule?.title ?? "สถานที่"}
           >
-            <ul className={styles.list}>
-              {places.map((place) => (
-                <li key={place.id}>
-                  <Link className={styles.item} href={mapHref} prefetch>
-                    <span className={styles.itemTitle}>{place.name}</span>
-                    <span className={styles.itemMeta}>
-                      {formatPlaceDate(place.place_date) ?? "ยังไม่ระบุวันที่"}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <RoomShelfList
+              href={mapHref}
+              items={places.map((place) => ({
+                id: place.id,
+                meta: formatPlaceDate(place.place_date) ?? "ยังไม่ระบุวันที่",
+                title: place.name,
+              }))}
+            />
             <RemainderLink
               action="ไปแผนที่"
               href={mapHref}
@@ -452,7 +427,6 @@ export default async function RoomPage({
             actionLabel="ไปแผนที่"
             emptyAction="เปิดแผนที่"
             emptyCopy="ยังไม่มีหมุดในแผนที่ ปักร้านโปรดหรือที่เที่ยวไว้ได้"
-            glowRgb={glowRgb}
             label={mapModule?.title ?? "สถานที่"}
             title={mapModule?.title ?? "สถานที่"}
           />

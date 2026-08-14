@@ -17,7 +17,7 @@
   height: 4.5rem;
   overflow: hidden;
   color: var(--color-text-muted);
-  font-size: 0.8rem;
+  font-size: var(--font-size-label);
   font-weight: 700;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-panel);
@@ -70,7 +70,7 @@
   font-weight: 700;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-control);
-  background: var(--color-surface);
+  background: var(--color-background);
   cursor: pointer;
   gap: 0.45rem;
 }
@@ -89,7 +89,7 @@
 .hint,
 .error {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: var(--font-size-caption);
   line-height: 1.5;
 }
 
@@ -102,7 +102,7 @@
   gap: 0.15rem;
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.82rem;
+  font-size: var(--font-size-caption);
   line-height: 1.55;
 }
 
@@ -137,7 +137,7 @@
   user-select: none;
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-panel);
-  background: #0b1220;
+  background: var(--color-background);
 }
 
 .cropFrame:active {
@@ -166,8 +166,15 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(rgb(13 20 36 / 0.46), rgb(13 20 36 / 0.46)),
-    radial-gradient(circle at center, transparent 0 34%, rgb(13 20 36 / 0.3) 35%);
+    linear-gradient(
+      color-mix(in srgb, var(--color-background) 46%, transparent),
+      color-mix(in srgb, var(--color-background) 46%, transparent)
+    ),
+    radial-gradient(
+      circle at center,
+      transparent 0 34%,
+      color-mix(in srgb, var(--color-background) 30%, transparent) 35%
+    );
 }
 
 .cropWindow {
@@ -177,10 +184,10 @@
   width: min(68%, 24rem);
   aspect-ratio: 1;
   overflow: hidden;
-  border: 1px solid rgb(243 237 227 / 0.36);
+  border: 1px solid color-mix(in srgb, var(--color-text) 36%, transparent);
   border-radius: var(--radius-panel);
   box-shadow:
-    0 0 0 999px rgb(13 20 36 / 0.3),
+    0 0 0 999px color-mix(in srgb, var(--color-background) 30%, transparent),
     0 14px 34px rgb(0 0 0 / 0.28);
   background: var(--color-muted-surface);
   transform: translate(-50%, -50%);
@@ -197,8 +204,22 @@
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(to right, transparent 33%, rgb(243 237 227 / 0.24) 33% 34%, transparent 34% 66%, rgb(243 237 227 / 0.24) 66% 67%, transparent 67%),
-    linear-gradient(to bottom, transparent 33%, rgb(243 237 227 / 0.24) 33% 34%, transparent 34% 66%, rgb(243 237 227 / 0.24) 66% 67%, transparent 67%);
+    linear-gradient(
+      to right,
+      transparent 33%,
+      color-mix(in srgb, var(--color-text) 24%, transparent) 33% 34%,
+      transparent 34% 66%,
+      color-mix(in srgb, var(--color-text) 24%, transparent) 66% 67%,
+      transparent 67%
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 33%,
+      color-mix(in srgb, var(--color-text) 24%, transparent) 33% 34%,
+      transparent 34% 66%,
+      color-mix(in srgb, var(--color-text) 24%, transparent) 66% 67%,
+      transparent 67%
+    );
 }
 
 .cropSource {
@@ -214,20 +235,20 @@
   gap: 0.35rem;
   padding: 0.4rem 0.65rem;
   color: var(--color-text);
-  font-size: 0.75rem;
+  font-size: var(--font-size-label);
   font-weight: 700;
   white-space: nowrap;
   pointer-events: none;
-  border: 1px solid rgb(243 237 227 / 0.18);
+  border: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
   border-radius: 999px;
-  background: rgb(13 20 36 / 0.78);
+  background: color-mix(in srgb, var(--color-background) 78%, transparent);
   transform: translateX(-50%);
 }
 
 .cropHint {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: 0.78rem;
+  font-size: var(--font-size-label);
   line-height: 1.55;
   text-align: center;
 }
@@ -254,14 +275,14 @@
 
 .cropControlIntro strong {
   color: var(--color-text);
-  font-size: 0.9rem;
+  font-size: var(--font-size-body-sm);
   line-height: 1.45;
 }
 
 .cropControlIntro p {
   margin-top: 0.2rem;
   color: var(--color-text-muted);
-  font-size: 0.76rem;
+  font-size: var(--font-size-label);
   line-height: 1.55;
 }
 
@@ -280,7 +301,7 @@
   display: grid;
   gap: 0.3rem;
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: var(--font-size-caption);
   font-weight: 600;
 }
 

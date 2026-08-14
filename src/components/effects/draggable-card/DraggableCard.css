@@ -1,0 +1,171 @@
+.draggable-card-table {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: 100%;
+  min-height: 22rem;
+  overflow: hidden;
+  perspective: 2400px;
+  container-type: size;
+  touch-action: pan-y;
+}
+
+.draggable-card-slot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  translate: calc(-50% + var(--print-x, 0px)) calc(-50% + var(--print-y, 0px));
+  rotate: var(--print-rot, 0deg);
+}
+
+.draggable-card-body {
+  position: relative;
+  display: block;
+  width: min(13.25rem, 58vw);
+  padding: 0.55rem 0.55rem 1.4rem;
+  overflow: hidden;
+  color: var(--color-primary-text);
+  appearance: none;
+  -webkit-appearance: none;
+  background: color-mix(in srgb, var(--color-text) 86%, var(--color-primary) 14%);
+  border: 0;
+  border-radius: var(--radius-control);
+  box-shadow: var(--shadow-extrude);
+  font: inherit;
+  text-align: inherit;
+  transform-style: preserve-3d;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+}
+
+.draggable-card-body:active {
+  cursor: grabbing;
+}
+
+.draggable-card-body:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.draggable-card-photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  height: auto;
+  object-fit: cover;
+  object-position: center;
+  background: var(--color-muted-surface);
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.draggable-card-caption {
+  display: block;
+  margin: 0.65rem 0.2rem 0;
+  overflow: hidden;
+  color: var(--color-primary-text);
+  font-family: var(--font-display-thai), var(--font-display), serif;
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.3;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.draggable-card-glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--color-primary) 55%, var(--color-text));
+  mix-blend-mode: soft-light;
+}
+
+@media (min-width: 48rem) {
+  .draggable-card-table {
+    min-height: 26rem;
+  }
+
+  .draggable-card-body {
+    width: 14.5rem;
+  }
+}
+
+.draggable-card-body.is-away {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.draggable-card-table.is-inspecting {
+  pointer-events: none;
+}
+
+.held-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+}
+
+.held-veil {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  border: 0;
+  background: color-mix(in srgb, var(--color-background) 82%, transparent);
+  cursor: pointer;
+}
+
+.held-print {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: auto;
+  max-width: none;
+  pointer-events: auto;
+  cursor: zoom-out;
+  transform-origin: 50% 50%;
+  box-shadow: var(--shadow-panel);
+}
+
+.held-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  pointer-events: auto;
+  color: var(--color-text);
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--color-muted-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  box-shadow: var(--shadow-extrude-sm);
+  cursor: pointer;
+  place-items: center;
+}
+
+.held-close:hover {
+  color: var(--color-primary-text);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.held-close:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .draggable-card-body {
+    will-change: auto;
+  }
+}

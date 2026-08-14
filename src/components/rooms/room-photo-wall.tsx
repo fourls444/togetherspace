@@ -1,8 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
-import DepthCarousel from "@/components/effects/depth-carousel/DepthCarousel";
+import { AlbumPrints } from "@/components/effects/draggable-card/DraggableCard";
 import styles from "@/components/rooms/room-home.module.css";
 
 type Photo = {
@@ -16,23 +14,19 @@ type RoomPhotoWallProps = {
   photos: Photo[];
 };
 
-export function RoomPhotoWall({ albumHref, photos }: RoomPhotoWallProps) {
-  const router = useRouter();
-
+export function RoomPhotoWall({ photos }: RoomPhotoWallProps) {
   if (photos.length === 0) return null;
 
   return (
     <div className={styles.carousel}>
-      <DepthCarousel
+      <AlbumPrints
         ariaLabel="รูปล่าสุดในอัลบั้ม"
-        autoplay={photos.length > 1}
         items={photos.map((photo) => ({
           alt: photo.caption?.trim() || "รูปในอัลบั้ม",
+          caption: photo.caption,
+          id: photo.id,
           image: photo.image_url,
         }))}
-        loop
-        onActivate={() => router.push(albumHref)}
-        tint="#0A0908"
       />
     </div>
   );

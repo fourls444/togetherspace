@@ -24,6 +24,8 @@ export type PlaceMapItem = PlacePosition & {
   name: string;
   description: string | null;
   placeDate: string | null;
+  creatorAvatarUrl?: string;
+  creatorName?: string;
 };
 
 type PlaceMapProps = {
