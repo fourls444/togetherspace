@@ -33,11 +33,10 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
   return (
     <form action={formAction} className={styles.editorForm}>
       <div className={`${formStyles.field} ${styles.avatarColumn}`}>
-        <span className={formStyles.label}>รูปโปรไฟล์</span>
         <ImageUploadField
           initialUrl={defaultValues.avatarUrl}
           kind="profile"
-          label="เลือกรูปโปรไฟล์"
+          label="เลือกรูป"
           layout="stacked"
         />
         <FieldErrors
@@ -49,7 +48,7 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
       <div className={styles.identityFields}>
         <div className={formStyles.field}>
           <label className={formStyles.label} htmlFor="displayName">
-            ชื่อที่แสดง
+            ชื่อที่แสดง (Displayname)
           </label>
           <input
             aria-describedby={
@@ -107,13 +106,14 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
         </p>
       ) : null}
 
-      <SpecularCta
-        className={formStyles.fullWidth}
-        pending={isPending}
-        pendingText="กำลังบันทึก…"
-      >
-        บันทึกโปรไฟล์
-      </SpecularCta>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+        <SpecularCta
+          pending={isPending}
+          pendingText="กำลังบันทึก…"
+        >
+          บันทึกโปรไฟล์
+        </SpecularCta>
+      </div>
       <ActionSuccessToast
         message="บันทึกโปรไฟล์แล้ว"
         signal={state}

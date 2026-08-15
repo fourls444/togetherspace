@@ -51,9 +51,8 @@ export function AppTopbar({ account }: AppTopbarProps) {
       <div className={styles.brandCluster}>
         <SidebarToggle />
         <Link className={styles.brand} href="/dashboard" prefetch>
-          <span className={styles.brandMark} aria-hidden>
-            TS
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className={styles.brandLogo} src="/images/logo.jpg" alt="TogetherSpace" />
           <span className={styles.brandName}>TogetherSpace</span>
         </Link>
       </div>

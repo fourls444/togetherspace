@@ -44,7 +44,7 @@ export function FriendProfileForm({ roomCode, roomId, values }: FriendProfileFor
         <label className={formStyles.label} htmlFor="friend-instagram">Instagram</label>
         <input className={formStyles.control} defaultValue={values.instagramUrl ?? ""} id="friend-instagram" name="instagramUrl" placeholder="https://instagram.com/..." type="url" />
         <FieldErrors id="friend-instagram-errors" messages={state.fieldErrors?.instagramUrl} />
-        <label className={formStyles.label} htmlFor="friend-phone">เบอร์โทร</label>
+        <label className={formStyles.label} htmlFor="friend-phone">Phone</label>
         <input className={formStyles.control} defaultValue={values.phone ?? ""} id="friend-phone" name="phone" placeholder="08x-xxx-xxxx" type="tel" />
         <FieldErrors id="friend-phone-errors" messages={state.fieldErrors?.phone} />
       </div>

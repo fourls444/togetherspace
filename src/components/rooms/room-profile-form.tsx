@@ -20,6 +20,13 @@ type RoomProfileFormProps = {
     avatarUrl: string | null;
     displayName: string | null;
   };
+  friendValues?: {
+    bio: string | null;
+    facebookUrl: string | null;
+    lineId: string | null;
+    instagramUrl: string | null;
+    phone: string | null;
+  };
   mainDisplayName: string;
   roomCode: string;
   roomId: string;
@@ -28,6 +35,7 @@ type RoomProfileFormProps = {
 /** ฟอร์มตั้งชื่อและรูปเฉพาะห้อง ใช้ทับโปรไฟล์หลักเฉพาะในห้องนี้เท่านั้น */
 export function RoomProfileForm({
   defaultValues,
+  friendValues,
   mainDisplayName,
   roomCode,
   roomId,
@@ -43,11 +51,10 @@ export function RoomProfileForm({
       <input name="roomId" type="hidden" value={roomId} />
 
       <div className={`${formStyles.field} ${styles.avatarColumn}`}>
-        <span className={formStyles.label}>รูปที่ใช้ในห้องนี้</span>
         <ImageUploadField
           initialUrl={defaultValues.avatarUrl}
           kind="roomProfile"
-          label="เลือกรูปในห้องนี้"
+          label="เลือกรูป"
           layout="stacked"
           roomId={roomId}
         />
@@ -59,7 +66,7 @@ export function RoomProfileForm({
 
       <div className={`${formStyles.field} ${styles.identityField}`}>
         <label className={formStyles.label} htmlFor="roomDisplayName">
-          ชื่อที่ใช้ในห้องนี้
+          ชื่อที่แสดง
         </label>
         <input
           aria-describedby={
@@ -79,7 +86,55 @@ export function RoomProfileForm({
           id="room-display-name-errors"
           messages={state.fieldErrors?.displayName}
         />
+        {friendValues ? (
+          <div className={formStyles.field} style={{ marginTop: "1.25rem" }}>
+            <label className={formStyles.label} htmlFor="friend-bio">
+              แนะนำตัว
+            </label>
+            <textarea
+              className={formStyles.control}
+              defaultValue={friendValues.bio ?? ""}
+              id="friend-bio"
+              maxLength={500}
+              name="bio"
+              placeholder="เล่าเรื่องสั้นๆ เกี่ยวกับตัวเอง"
+              rows={4}
+            />
+            <FieldErrors id="friend-bio-errors" messages={state.fieldErrors?.bio} />
+          </div>
+        ) : null}
       </div>
+
+      {friendValues ? (
+        <div className={`${styles.fullRow} ${styles.friendSection}`}>
+
+          <div className={styles.contactsGrid}>
+            <div className={formStyles.field}>
+              <label className={formStyles.label} htmlFor="friend-facebook">Facebook</label>
+              <input className={formStyles.control} defaultValue={friendValues.facebookUrl ?? ""} id="friend-facebook" name="facebookUrl" placeholder="https://facebook.com/..." type="url" />
+              <FieldErrors id="friend-facebook-errors" messages={state.fieldErrors?.facebookUrl} />
+            </div>
+            
+            <div className={formStyles.field}>
+              <label className={formStyles.label} htmlFor="friend-line">Line ID</label>
+              <input className={formStyles.control} defaultValue={friendValues.lineId ?? ""} id="friend-line" name="lineId" placeholder="เช่น together_01" />
+              <FieldErrors id="friend-line-errors" messages={state.fieldErrors?.lineId} />
+            </div>
+            
+            <div className={formStyles.field}>
+              <label className={formStyles.label} htmlFor="friend-instagram">Instagram</label>
+              <input className={formStyles.control} defaultValue={friendValues.instagramUrl ?? ""} id="friend-instagram" name="instagramUrl" placeholder="https://instagram.com/..." type="url" />
+              <FieldErrors id="friend-instagram-errors" messages={state.fieldErrors?.instagramUrl} />
+            </div>
+            
+            <div className={formStyles.field}>
+              <label className={formStyles.label} htmlFor="friend-phone">Phone</label>
+              <input className={formStyles.control} defaultValue={friendValues.phone ?? ""} id="friend-phone" name="phone" placeholder="08x-xxx-xxxx" type="tel" />
+              <FieldErrors id="friend-phone-errors" messages={state.fieldErrors?.phone} />
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {state.error ? (
         <p

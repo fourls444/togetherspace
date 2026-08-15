@@ -3,7 +3,6 @@
 import { AtSign, Link2, MessageCircle, Phone, X } from "lucide-react";
 import { useState, useTransition } from "react";
 
-import { FriendProfileForm } from "@/components/rooms/friend-profile-form";
 import { RoomProfileForm } from "@/components/rooms/room-profile-form";
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
@@ -60,10 +59,7 @@ export function FriendMemberProfiles({ currentUserId, members, profiles, roomCod
   return (
     <section className={styles.section} aria-labelledby="friend-profiles-title">
       <div className={styles.heading}>
-        <div>
-          <h3 id="friend-profiles-title">โปรไฟล์เพื่อน</h3>
-          <p>กดที่สมาชิกเพื่อดูรายละเอียด และกดโปรไฟล์ของตัวเองเพื่อแก้ไขข้อมูลเพิ่มเติม</p>
-        </div>
+        <p id="friend-profiles-title">กดที่สมาชิกเพื่อดูรายละเอียด และกดโปรไฟล์ของตัวเองเพื่อแก้ไขข้อมูลเพิ่มเติม</p>
       </div>
       <div className={styles.grid}>
         {members.map((member) => {
@@ -101,20 +97,16 @@ export function FriendMemberProfiles({ currentUserId, members, profiles, roomCod
                 <div className={styles.modalHeading}><h3 id="member-profile-title">แก้ไขโปรไฟล์ในห้อง</h3><p>ข้อมูลนี้จะแสดงให้สมาชิกในห้องเห็น</p></div>
                 <RoomProfileForm
                   defaultValues={{ avatarUrl: selected.avatarUrl, displayName: selected.displayName }}
-                  mainDisplayName={selected.displayName}
-                  roomCode={roomCode}
-                  roomId={roomId}
-                />
-                <FriendProfileForm
-                  roomCode={roomCode}
-                  roomId={roomId}
-                  values={{
+                  friendValues={{
                     bio: selectedProfile?.bio ?? null,
                     facebookUrl: selectedProfile?.facebook_url ?? null,
                     lineId: selectedProfile?.line_id ?? null,
                     instagramUrl: selectedProfile?.instagram_url ?? null,
                     phone: selectedProfile?.phone ?? null,
                   }}
+                  mainDisplayName={selected.displayName}
+                  roomCode={roomCode}
+                  roomId={roomId}
                 />
               </>
             ) : (
@@ -125,11 +117,12 @@ export function FriendMemberProfiles({ currentUserId, members, profiles, roomCod
                 </div>
                 <p className={styles.bio}>{selectedProfile?.bio || "ยังไม่มีคำแนะนำตัวเพิ่มเติม"}</p>
                 <div className={styles.contacts}>
-                  {selectedProfile?.facebook_url ? <a href={selectedProfile.facebook_url} target="_blank" rel="noreferrer"><Link2 size={16} /> Facebook</a> : null}
-                  {selectedProfile?.instagram_url ? <a href={selectedProfile.instagram_url} target="_blank" rel="noreferrer"><AtSign size={16} /> Instagram</a> : null}
-                  {selectedProfile?.line_id ? <span><MessageCircle size={16} /> Line: {selectedProfile.line_id}</span> : null}
-                  {selectedProfile?.phone ? <a href={`tel:${selectedProfile.phone}`}><Phone size={16} /> {selectedProfile.phone}</a> : null}
+                  {selectedProfile?.facebook_url ? <a aria-label="Facebook" href={selectedProfile.facebook_url} target="_blank" rel="noreferrer" title="Facebook"><Link2 size={18} /></a> : null}
+                  {selectedProfile?.instagram_url ? <a aria-label="Instagram" href={selectedProfile.instagram_url} target="_blank" rel="noreferrer" title="Instagram"><AtSign size={18} /></a> : null}
+                  {selectedProfile?.line_id ? <span aria-label={`Line ${selectedProfile.line_id}`} title={`Line: ${selectedProfile.line_id}`}><MessageCircle size={18} /></span> : null}
+                  {selectedProfile?.phone ? <a aria-label="Phone" href={`tel:${selectedProfile.phone}`} title="Phone"><Phone size={18} /></a> : null}
                 </div>
+                {!selectedProfile?.facebook_url && !selectedProfile?.instagram_url && !selectedProfile?.line_id && !selectedProfile?.phone ? <p className={styles.emptyContacts}><MessageCircle size={16} /> ยังไม่ได้เพิ่มช่องทางติดต่อ</p> : null}
               </>
             )}
           </div>

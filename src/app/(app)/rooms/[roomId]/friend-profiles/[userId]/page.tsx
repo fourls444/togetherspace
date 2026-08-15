@@ -104,11 +104,12 @@ export default async function FriendProfileDetailPage({
           <h2>ข้อมูลแนะนำตัว</h2>
           {friendProfileResult.data?.bio ? <p>{friendProfileResult.data.bio}</p> : <p>ยังไม่มีคำแนะนำตัว</p>}
           <div className={detailStyles.contacts}>
-            {friendProfileResult.data?.facebook_url ? <a href={friendProfileResult.data.facebook_url} rel="noreferrer" target="_blank"><Link2 size={16} /> Facebook</a> : null}
-            {friendProfileResult.data?.line_id ? <span><MessageCircle size={16} /> {friendProfileResult.data.line_id}</span> : null}
-            {friendProfileResult.data?.instagram_url ? <a href={friendProfileResult.data.instagram_url} rel="noreferrer" target="_blank"><AtSign size={16} /> Instagram</a> : null}
-            {friendProfileResult.data?.phone ? <a href={`tel:${friendProfileResult.data.phone}`}><Phone size={16} /> {friendProfileResult.data.phone}</a> : null}
+            {friendProfileResult.data?.facebook_url ? <a aria-label="Facebook" href={friendProfileResult.data.facebook_url} rel="noreferrer" target="_blank" title="Facebook"><Link2 size={18} /></a> : null}
+            {friendProfileResult.data?.line_id ? <span aria-label={`Line ${friendProfileResult.data.line_id}`} title={`Line: ${friendProfileResult.data.line_id}`}><MessageCircle size={18} /></span> : null}
+            {friendProfileResult.data?.instagram_url ? <a aria-label="Instagram" href={friendProfileResult.data.instagram_url} rel="noreferrer" target="_blank" title="Instagram"><AtSign size={18} /></a> : null}
+            {friendProfileResult.data?.phone ? <a aria-label="Phone" href={`tel:${friendProfileResult.data.phone}`} title="Phone"><Phone size={18} /></a> : null}
           </div>
+          {!friendProfileResult.data?.facebook_url && !friendProfileResult.data?.line_id && !friendProfileResult.data?.instagram_url && !friendProfileResult.data?.phone ? <p>ยังไม่ได้เพิ่มช่องทางติดต่อ</p> : null}
         </div>
 
         {isSelf ? (

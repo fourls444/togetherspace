@@ -284,6 +284,7 @@ export default async function RoomPage({
       {/* ── Header ── */}
       <header className={styles.head}>
           <div className={styles.headIdentity}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className={styles.roomImage} src={roomImage} alt="" />
             <div className={styles.headCopy}>
             <h1 className={styles.title}>{room.name}</h1>

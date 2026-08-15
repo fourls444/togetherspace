@@ -30,6 +30,9 @@ const taviraj = Taviraj({
 export const metadata: Metadata = {
   title: "TogetherSpace",
   description: "พื้นที่ร่วมกันสำหรับคนสำคัญ",
+  icons: {
+    icon: "/images/favicon.ico",
+  },
 };
 
 const DESIGN_CONTRACT = `<!--

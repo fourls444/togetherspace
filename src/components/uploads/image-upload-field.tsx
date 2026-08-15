@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { Modal } from "@/components/ui/modal";
 import {
   createImageObjectPath,
@@ -142,6 +143,7 @@ export function ImageUploadField({
   const pointersRef = useRef(new Map<number, { x: number; y: number }>());
   const [cropState, setCropState] = useState<CropState | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [imageReady, setImageReady] = useState(false);
   const [offsetX, setOffsetX] = useState(0);
@@ -409,22 +411,14 @@ export function ImageUploadField({
             />
           </label>
           {url ? (
-            <Button
-              onClick={async () => {
-                setStatus({ title: "กำลังเอารูปออก…" });
-                if (removeOldOnUpload) await removeStoredImage(url);
-                setUrl("");
-                setStatus({
-                  title: "เลือกลบรูปแล้ว",
-                  detail: removeOldOnUpload
-                    ? "กรุณากดบันทึกเพื่อใช้รูปเริ่มต้น"
-                    : "กรุณากดบันทึกเพื่อยืนยัน",
-                });
-              }}
+            <button
+              className={styles.deleteButton}
+              onClick={() => setIsConfirmOpen(true)}
               type="button"
             >
-              <Trash2 aria-hidden size={16} /> เอารูปออก
-            </Button>
+              <Trash2 size={16} aria-hidden />
+              ลบรูป
+            </button>
           ) : null}
         </div>
       </div>
@@ -440,6 +434,27 @@ export function ImageUploadField({
           {error}
         </p>
       ) : null}
+
+      <ConfirmationDialog
+        confirmLabel="ใช่, ลบรูป"
+        description="คุณแน่ใจหรือไม่ที่จะลบรูปนี้และกลับไปใช้รูปเริ่มต้น?"
+        onCancel={() => setIsConfirmOpen(false)}
+        onConfirm={async () => {
+          setIsConfirmOpen(false);
+          setStatus({ title: "กำลังเอารูปออก…" });
+          if (removeOldOnUpload) await removeStoredImage(url);
+          setUrl("");
+          setStatus({
+            title: "เลือกลบรูปแล้ว",
+            detail: removeOldOnUpload
+              ? "กรุณากดบันทึกเพื่อยืนยัน"
+              : "กรุณากดบันทึกเพื่อยืนยัน",
+          });
+        }}
+        open={isConfirmOpen}
+        title="นำรูปออก?"
+        variant="danger"
+      />
 
       <Modal
         description="ปรับขนาดและตำแหน่งให้ส่วนสำคัญของภาพอยู่ในกรอบ"

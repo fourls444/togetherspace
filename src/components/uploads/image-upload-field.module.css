@@ -22,6 +22,28 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-panel);
   background: var(--color-muted-surface);
+  position: relative;
+}
+
+.deleteButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0.3rem 0.75rem;
+  color: var(--color-error-text);
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--radius-control);
+  background: var(--color-error-surface);
+  cursor: pointer;
+  gap: 0.45rem;
+}
+
+.deleteButton:hover {
+  background: color-mix(in srgb, var(--color-error-surface) 80%, var(--color-text));
 }
 
 .preview img {
@@ -32,8 +54,10 @@
 
 .controls {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 0.55rem;
+  align-items: stretch;
+  width: max-content;
 }
 
 .stacked .previewRow {
@@ -63,10 +87,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.35rem;
-  padding: 0.45rem 0.85rem;
+  min-height: 2rem;
+  padding: 0.3rem 0.75rem;
   color: var(--color-text);
-  font-size: var(--font-size-label);
+  font-size: 0.85rem;
   font-weight: 700;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-control);
@@ -148,6 +172,8 @@
 .cropWindow.profileShape {
   border-radius: 50%;
 }
+
+
 
 .cropBackdrop {
   position: absolute;
