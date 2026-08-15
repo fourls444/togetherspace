@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { SendHorizontal } from "lucide-react";
 
 import { sendRoomMessage } from "@/features/chat/actions";
 import { shouldSubmitRoomChat } from "@/lib/chat/keyboard";
@@ -412,7 +413,7 @@ export function RoomChatWidget({
           disabled={!trimmedBody || isPending}
           type="submit"
         >
-          ↗
+          <SendHorizontal size={18} strokeWidth={2.5} />
         </button>
       </form>
       {error ? <p className={styles.error}>{error}</p> : null}
