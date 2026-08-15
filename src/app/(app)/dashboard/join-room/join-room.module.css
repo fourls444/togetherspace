@@ -4,7 +4,9 @@
 }
 
 .backButton {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   margin-bottom: 1rem;
 }
 

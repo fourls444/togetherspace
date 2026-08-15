@@ -23,7 +23,7 @@
   min-height: 0;
   width: min(100%, 72rem);
   margin-inline: auto;
-  padding: 1.25rem var(--app-inline) 3.5rem;
+  padding: 1.25rem var(--app-inline) 6rem;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
 }

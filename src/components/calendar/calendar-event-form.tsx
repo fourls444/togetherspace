@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 
 import {
   createCalendarEvent,
@@ -17,6 +17,7 @@ type CalendarEventFormProps = {
   defaultDate: string;
   roomCode: string;
   roomId: string;
+  onSuccess?: () => void;
 };
 
 /** ฟอร์มเพิ่มกิจกรรมลงวันที่ที่เลือก */
@@ -24,11 +25,16 @@ export function CalendarEventForm({
   defaultDate,
   roomCode,
   roomId,
+  onSuccess,
 }: CalendarEventFormProps) {
   const [state, formAction, isPending] = useActionState(
     createCalendarEvent,
     initialState,
   );
+
+  useEffect(() => {
+    if (state.success) onSuccess?.();
+  }, [onSuccess, state.success]);
 
   return (
     <form action={formAction} className={formStyles.form}>

@@ -31,7 +31,8 @@ export function RoomPhotoWall({ albumHref, photos }: RoomPhotoWallProps) {
           image: photo.image_url,
         }))}
         loop
-        onActivate={() => router.push(albumHref)}
+        showControls={false}
+        showIndicators={false}
         tint="#0A0908"
       />
     </div>

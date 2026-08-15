@@ -46,7 +46,6 @@ export function CalendarEventModal({
       {open ? (
         <div
           className={styles.modalOverlay}
-          onClick={() => setOpen(false)}
           role="presentation"
         >
           <div
@@ -78,6 +77,7 @@ export function CalendarEventModal({
 
             <CalendarEventForm
               defaultDate={defaultDate}
+              onSuccess={() => setOpen(false)}
               roomCode={roomCode}
               roomId={roomId}
             />

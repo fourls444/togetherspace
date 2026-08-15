@@ -8,6 +8,8 @@ type LivingStageProps = {
   children: ReactNode;
   className?: string;
   glowRgb?: string;
+  /** เปิด/ปิด spotlight รวมของทั้งพื้นที่ ใช้ปิดในหน้าที่ต้องการ hover แยกเป็นรายการ์ด */
+  spotlight?: boolean;
   style?: CSSProperties;
 };
 
@@ -16,6 +18,7 @@ export function LivingStage({
   children,
   className = "",
   glowRgb = "201, 184, 150",
+  spotlight = true,
   style,
 }: LivingStageProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -26,7 +29,11 @@ export function LivingStage({
       ref={ref}
       style={{ "--glow-color": glowRgb, ...style } as CSSProperties}
     >
-      <MagicBentoSpotlight glowColor={glowRgb} sectionRef={ref} />
+      <MagicBentoSpotlight
+        enabled={spotlight}
+        glowColor={glowRgb}
+        sectionRef={ref}
+      />
       {children}
     </div>
   );

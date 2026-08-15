@@ -75,7 +75,7 @@
   overflow: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  padding: 1.25rem var(--app-inline) 2rem;
+  padding: 1.25rem var(--app-inline) 6rem;
   background: transparent;
   position: relative;
   z-index: 1;
@@ -88,7 +88,7 @@
 @media (min-width: 48rem) {
   .stage,
   .guest {
-    padding: 1.5rem var(--app-inline) 2.5rem;
+    padding: 1.5rem var(--app-inline) 6rem;
   }
 }
 

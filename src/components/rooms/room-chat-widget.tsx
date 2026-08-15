@@ -9,6 +9,7 @@ import {
   collectRoomChatMessageIds,
   countNewUnreadMessages,
 } from "@/lib/chat/unread";
+import { formatRoomChatPreview } from "@/lib/rooms/chat-preview";
 import { createClient } from "@/lib/supabase/client";
 import { getDefaultImageUrl } from "@/lib/uploads/image-upload";
 import styles from "@/components/rooms/room-chat-widget.module.css";
@@ -303,7 +304,14 @@ export function RoomChatWidget({
           <span className={styles.eyebrow}>แชทของห้อง</span>
           <strong>{roomName}</strong>
           {latestMessage ? (
-            <small>{latestMessage.body}</small>
+            <small>
+              {formatRoomChatPreview({
+                body: latestMessage.body,
+                currentUserId,
+                senderName: latestMessage.senderName,
+                userId: latestMessage.userId,
+              })}
+            </small>
           ) : (
             <small>เริ่มคุยกับสมาชิกในห้องนี้</small>
           )}

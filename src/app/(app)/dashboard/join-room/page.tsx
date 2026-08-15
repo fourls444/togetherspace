@@ -2,12 +2,13 @@ import styles from "@/app/(app)/dashboard/join-room/join-room.module.css";
 import { JoinForm } from "@/components/rooms/join-form";
 import { ButtonLink } from "@/components/ui/button-link";
 import { GlowCard } from "@/components/ui/glow-card";
+import { ArrowLeft } from "lucide-react";
 
 export default function JoinRoomPage() {
   return (
     <div className={styles.wrap}>
       <ButtonLink className={styles.backButton} href="/dashboard">
-        กลับหน้าแรก
+        <ArrowLeft aria-hidden size={16} /> กลับหน้าแรก
       </ButtonLink>
       <GlowCard contentClassName={styles.panel} tone="room" animated>
         <div className={styles.intro}>

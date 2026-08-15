@@ -1,6 +1,5 @@
 import {
   CalendarMonthView,
-  type CalendarEventDetailView,
   type CalendarMonthDayView,
 } from "@/components/calendar/calendar-month-view";
 import { CalendarPeriodSelect } from "@/components/calendar/calendar-period-select";
@@ -208,14 +207,6 @@ export default async function RoomCalendarPage({
       date: event.event_date,
     }),
   );
-  const eventDetails: CalendarEventDetailView[] = (eventsResult.data ?? []).map(
-    (event) => ({
-      id: event.id,
-      title: event.title,
-      date: event.event_date,
-      description: event.description,
-    }),
-  );
   const visibleHolidayDates =
     view === "year"
       ? null
@@ -336,7 +327,6 @@ export default async function RoomCalendarPage({
 
       {view === "month" ? (
         <CalendarMonthView
-          eventDetails={eventDetails}
           initialSelectedDate={selectedDate}
           key={getMonthKey(year, monthIndex)}
           roomCode={context.roomCode}

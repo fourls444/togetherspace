@@ -32,6 +32,7 @@ export function CalendarEventEditor({
   roomId,
 }: CalendarEventEditorProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [toast, setToast] = useState<{
     message: string;
@@ -48,6 +49,7 @@ export function CalendarEventEditor({
         message: result.error ?? "บันทึกกิจกรรมแล้ว",
         tone: result.error ? "error" : "success",
       });
+      if (!result.error) setOpen(false);
     });
   }
 
@@ -68,8 +70,35 @@ export function CalendarEventEditor({
   }
 
   return (
-    <details className={styles.editBox}>
-      <summary>แก้ไขกิจกรรม</summary>
+    <>
+      <Button onClick={() => setOpen(true)} type="button">
+        แก้ไขกิจกรรม
+      </Button>
+      {open ? (
+        <div className={styles.modalOverlay} role="presentation">
+          <div
+            aria-labelledby={`${event.id}-edit-title`}
+            aria-modal="true"
+            className={styles.modal}
+            onClick={(clickEvent) => clickEvent.stopPropagation()}
+            role="dialog"
+          >
+            <div className={styles.modalHeader}>
+              <div>
+                <p className={styles.panelMeta}>แก้ไขกิจกรรม</p>
+                <h2 className={styles.modalTitle} id={`${event.id}-edit-title`}>
+                  {event.title}
+                </h2>
+              </div>
+              <button
+                aria-label="ปิดหน้าต่างแก้ไขกิจกรรม"
+                className={styles.closeButton}
+                onClick={() => setOpen(false)}
+                type="button"
+              >
+                ×
+              </button>
+            </div>
       <form className={styles.eventEditForm} onSubmit={handleUpdate}>
         <input name="roomId" type="hidden" value={roomId} />
         <input name="roomCode" type="hidden" value={roomCode} />
@@ -127,6 +156,9 @@ export function CalendarEventEditor({
         onDismiss={() => setToast(null)}
         tone={toast?.tone}
       />
-    </details>
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 }

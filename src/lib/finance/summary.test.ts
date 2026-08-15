@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { calculateFinanceSummary } from "./summary.ts";
+import { calculateFinanceSummary, formatBaht } from "./summary.ts";
 
 test("สรุปหนี้แบบง่ายเมื่อมีผู้จ่ายคนเดียว", () => {
   const result = calculateFinanceSummary([
@@ -64,4 +64,8 @@ test("หักยอดที่สมาชิกคืนแล้วออ�
   assert.deepEqual(result.settlements, [
     { fromUserId: "b", toUserId: "a", amountCents: 2000 },
   ]);
+});
+
+test("แสดงจำนวนเงินด้วยคำว่าบาทแทนสัญลักษณ์สกุลเงิน", () => {
+  assert.equal(formatBaht(123450), "1,234.50 บาท");
 });

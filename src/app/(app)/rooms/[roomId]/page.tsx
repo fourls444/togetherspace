@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
+import { CalendarDays, ClipboardList, Images, MapPinned, Users, WalletCards } from "lucide-react";
 
 import { LivingCard } from "@/components/effects/living-card";
 import { LivingStage } from "@/components/effects/living-stage";
@@ -14,13 +15,14 @@ import {
 } from "@/lib/calendar/calendar";
 import {
   getRoomHomeModules,
-  ROOM_TYPE_BLURB,
   ROOM_TYPE_THEME,
 } from "@/lib/rooms/labels";
+import { sortRoomMembers } from "@/lib/rooms/member-sort";
 import { getRoomPath, getRoomSubPath } from "@/lib/rooms/room-path";
 import { getRoomContext } from "@/lib/rooms/server";
 import type { BoardItemType } from "@/lib/types/database";
 import { getDefaultImageUrl } from "@/lib/uploads/image-upload";
+import { formatBaht } from "@/lib/finance/summary";
 
 const BOARD_TYPE_LABEL: Record<BoardItemType, string> = {
   note: "โน้ต",
@@ -32,72 +34,85 @@ const PLACE_DATE_FORMATTER = new Intl.DateTimeFormat("th-TH", {
   dateStyle: "medium",
   timeZone: "UTC",
 });
-const PREVIEW_LIMIT = 4;
+const PREVIEW_LIMIT = 3;
+const MINI_WEEKDAYS = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
+
+function MiniCalendar({
+  todayKey,
+  markedDates,
+}: {
+  todayKey: string;
+  markedDates: string[];
+}) {
+  const [year, month] = todayKey.split("-").map(Number);
+  const firstDay = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const monthLabel = new Intl.DateTimeFormat("th-TH", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(year, month - 1, 1)));
+  const cells = Array.from({ length: firstDay + daysInMonth }, (_, index) =>
+    index < firstDay ? null : index - firstDay + 1,
+  );
+  const markedSet = new Set(markedDates);
+
+  return (
+    <div className={styles.miniCalendar} aria-label={`ปฏิทินเดือน${monthLabel}`}>
+      <div className={styles.miniCalendarHead}>
+        <strong>{monthLabel}</strong>
+      </div>
+      <div className={styles.miniWeekdays} aria-hidden="true">
+        {MINI_WEEKDAYS.map((weekday) => <span key={weekday}>{weekday}</span>)}
+      </div>
+      <div className={styles.miniDays}>
+        {cells.map((day, index) => {
+          if (!day) return <span aria-hidden="true" className={styles.miniDayEmpty} key={`empty-${index}`} />;
+          const dateKey = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const stateClass = `${dateKey === todayKey ? ` ${styles.miniDayToday}` : ""}${markedSet.has(dateKey) ? ` ${styles.miniDayEvent}` : ""}`;
+          return <span className={`${styles.miniDay}${stateClass}`} key={dateKey}>{day}</span>;
+        })}
+      </div>
+    </div>
+  );
+}
 
 function formatPlaceDate(date: string | null) {
   if (!date) return null;
   return PLACE_DATE_FORMATTER.format(new Date(`${date}T00:00:00.000Z`));
 }
 
-function RemainderLink({
-  action,
-  href,
-  shown,
-  total,
-  unit,
+function SectionHeader({
+  title,
+  description,
+  icon,
 }: {
-  action: string;
-  href: string;
-  shown: number;
-  total: number;
-  unit: string;
+  title: string;
+  description?: string;
+  icon: ReactNode;
 }) {
-  const leftover = total - shown;
-  if (leftover <= 0) return null;
-
   return (
-    <Link className={styles.remainder} href={href} prefetch>
-      อีก {leftover} {unit} · {action}
-    </Link>
+    <div className={styles.sectionHead}>
+      <div>
+        <h2 className={styles.sectionTitle}><span className={styles.sectionIcon} aria-hidden>{icon}</span>{title}</h2>
+        {description ? <p className={styles.sectionDescription}>{description}</p> : null}
+      </div>
+    </div>
   );
 }
 
-function Shelf({
-  actionHref,
-  actionLabel,
-  children,
-  emptyAction,
-  emptyCopy,
-  glowRgb,
-  label,
-  title,
+function EmptySlot({
+  icon,
+  copy,
 }: {
-  actionHref: string;
-  actionLabel: string;
-  children?: ReactNode;
-  emptyAction: string;
-  emptyCopy: string;
-  glowRgb: string;
-  label: string;
-  title: string;
+  icon: string;
+  copy: string;
 }) {
   return (
-    <LivingCard className={styles.liveShelf} glowRgb={glowRgb}>
-      <section aria-label={label} className={styles.section}>
-        <div className={styles.sectionHead}>
-          <h2 className={styles.sectionTitle}>{title}</h2>
-          <Link className={styles.more} href={actionHref} prefetch>
-            {actionLabel}
-          </Link>
-        </div>
-        {children ?? (
-          <div className={styles.empty}>
-            <p>{emptyCopy}</p>
-            <ButtonLink href={actionHref}>{emptyAction}</ButtonLink>
-          </div>
-        )}
-      </section>
-    </LivingCard>
+    <div className={styles.emptySlot}>
+      <span className={styles.emptyIcon} aria-hidden>{icon}</span>
+      <p className={styles.emptyCopy}>{copy}</p>
+    </div>
   );
 }
 
@@ -125,19 +140,21 @@ export default async function RoomPage({
 
   const { currentUserId, room, roomCode, roomId, supabase } = context;
   const roomHref = getRoomPath(roomCode);
+  const roomImage = room.avatar_url || getDefaultImageUrl("room");
   const todayKey = formatDateKey(new Date());
   const albumHref = getRoomSubPath(roomCode, "album");
   const boardHref = getRoomSubPath(roomCode, "board");
   const calendarHref = getRoomSubPath(roomCode, "calendar");
   const mapHref = getRoomSubPath(roomCode, "map");
+  const financeHref = getRoomSubPath(roomCode, "finance");
   const membersHref = getRoomSubPath(roomCode, "members");
-  const inviteHref = `${getRoomSubPath(roomCode, "settings")}#invite`;
   const modules = getRoomHomeModules(room.type);
   const albumModule = modules.find((module) => module.key === "album");
   const boardModule = modules.find((module) => module.key === "board");
   const calendarModule = modules.find((module) => module.key === "calendar");
   const mapModule = modules.find((module) => module.key === "map");
   const membersModule = modules.find((module) => module.key === "members");
+  const financeModule = modules.find((module) => module.key === "finance");
 
   const [
     membershipsResult,
@@ -146,6 +163,7 @@ export default async function RoomPage({
     eventsResult,
     photosResult,
     placesResult,
+    financeExpensesResult,
   ] = await Promise.all([
     supabase
       .from("room_members")
@@ -165,7 +183,7 @@ export default async function RoomPage({
       .eq("room_id", roomId)
       .gte("event_date", todayKey)
       .order("event_date")
-      .limit(1),
+      .limit(PREVIEW_LIMIT),
     supabase
       .from("album_photos")
       .select("id, image_url, caption", { count: "exact" })
@@ -177,6 +195,12 @@ export default async function RoomPage({
       .select("id, name, place_date", { count: "exact" })
       .eq("room_id", roomId)
       .order("created_at", { ascending: false })
+      .limit(PREVIEW_LIMIT),
+    supabase
+      .from("finance_expenses")
+      .select("id, title, amount_cents, expense_date", { count: "exact" })
+      .eq("room_id", roomId)
+      .order("expense_date", { ascending: false })
       .limit(PREVIEW_LIMIT),
   ]);
 
@@ -206,21 +230,17 @@ export default async function RoomPage({
         .eq("board_id", boardId)
         .is("archived_at", null)
         .order("created_at", { ascending: false })
-        .limit(PREVIEW_LIMIT)
+        .limit(20)
     : {
         count: 0,
         data: [] as { id: string; item_type: BoardItemType; title: string }[],
       };
 
   const memberships = membershipsResult.data ?? [];
-  const currentMember = memberships.find(
-    (membership) => membership.user_id === currentUserId,
-  );
-  const isOwner = currentMember?.role === "owner";
   const roomProfiles = new Map(
     (roomProfilesResult.data ?? []).map((profile) => [profile.user_id, profile]),
   );
-  const members = memberships.map((membership) => {
+  const members = sortRoomMembers(memberships.map((membership) => {
     const profile = Array.isArray(membership.profiles)
       ? membership.profiles[0]
       : membership.profiles;
@@ -236,35 +256,39 @@ export default async function RoomPage({
       userId: membership.user_id,
       username: profile?.username ?? "unknown",
     };
-  });
+  }), currentUserId);
   const photos = photosResult.data ?? [];
-  const photoCount = photosResult.count ?? photos.length;
-  const nextEvent = eventsResult.data?.[0] ?? null;
-  const eventCount = eventsResult.count ?? (nextEvent ? 1 : 0);
+  const events = eventsResult.data ?? [];
   const boardItems = boardItemsResult.data ?? [];
-  const boardCount = boardItemsResult.count ?? boardItems.length;
+
+  const polls = boardItems.filter(i => i.item_type === "poll");
+  const checklists = boardItems.filter(i => i.item_type === "checklist");
+  const notes = boardItems.filter(i => i.item_type === "note");
   const places = placesResult.data ?? [];
-  const placeCount = placesResult.count ?? places.length;
+  const financeExpenses = financeExpensesResult.data ?? [];
   const previewMembers = members.slice(0, PREVIEW_LIMIT);
-  const lampOnAlbum = !nextEvent && photos.length === 0;
-  const lampOnInvite = isOwner && !nextEvent && photos.length > 0;
   const glowRgb = ROOM_TYPE_THEME[room.type].sparkRgb;
+  const markedDates = events.map((e) => e.event_date);
 
   return (
     <LivingStage
       className={styles.home}
       glowRgb={glowRgb}
+      spotlight={false}
       style={
         {
           "--room-accent": ROOM_TYPE_THEME[room.type].accent,
         } as CSSProperties
       }
     >
+      {/* ── Header ── */}
       <header className={styles.head}>
-        <div className={styles.headCopy}>
-          <h1 className={styles.title}>{room.name}</h1>
-          <p className={styles.lead}>{ROOM_TYPE_BLURB[room.type]}</p>
-        </div>
+          <div className={styles.headIdentity}>
+            <img className={styles.roomImage} src={roomImage} alt="" />
+            <div className={styles.headCopy}>
+            <h1 className={styles.title}>{room.name}</h1>
+            </div>
+          </div>
         <div className={styles.roomStats} aria-label="ข้อมูลย่อของห้อง">
           <div className={styles.statBox}>
             <span>สมาชิก</span>
@@ -274,189 +298,206 @@ export default async function RoomPage({
         </div>
       </header>
 
-      <section aria-label={albumModule?.title ?? "รูปล่าสุด"} className={styles.wall}>
-        <div className={styles.wallHead}>
-          <h2 className={styles.sectionTitle}>
-            {albumModule?.title ?? "รูปล่าสุด"}
-          </h2>
-          <Link className={styles.more} href={albumHref} prefetch>
-            {photoCount > photos.length
-              ? `อีก ${photoCount - photos.length} รูป · ไปอัลบั้ม`
-              : "ไปอัลบั้ม"}
-          </Link>
-        </div>
-        {photos.length > 0 ? (
-          <RoomPhotoWall albumHref={albumHref} photos={photos} />
-        ) : (
-          <div className={styles.empty}>
-            <p>ยังไม่มีรูปในอัลบั้ม เริ่มจากโมเมนต์แรกของห้องนี้ได้เลย</p>
-            <ButtonLink href={albumHref} variant={lampOnAlbum ? "primary" : "default"}>
-              เปิดอัลบั้ม
-            </ButtonLink>
-          </div>
-        )}
-      </section>
+      {/* ── 2-col grid: Album + (Calendar & Board) ── */}
+      <div className={styles.twoCol}>
 
-      {nextEvent ? (
+        {/* Album */}
         <LivingCard className={styles.liveShelf} glowRgb={glowRgb}>
-          <section
-            aria-label={calendarModule?.title ?? "นัดถัดไป"}
-            className={styles.moment}
-          >
-            <div className={styles.momentCopy}>
-              <h2 className={styles.momentTitle}>{nextEvent.title}</h2>
-              <p className={styles.momentMeta}>
-                {formatThaiCalendarPanelDate(nextEvent.event_date)}
-                {eventCount > 1 ? ` · อีก ${eventCount - 1} นัด` : null}
-              </p>
-            </div>
-            <ButtonLink
-              href={`${calendarHref}?month=${nextEvent.event_date.slice(0, 7)}`}
-              variant="primary"
-            >
-              ไปปฏิทิน
-            </ButtonLink>
+          <Link href={albumHref} className={styles.cardLink} prefetch>
+            <section aria-label={albumModule?.title ?? "รูปล่าสุด"} className={styles.wall}>
+              <div className={styles.wallHead}>
+                <div>
+                  <h2 className={styles.sectionTitle}><span className={styles.sectionIcon} aria-hidden><Images size={20} /></span>{albumModule?.title ?? "อัลบั้ม"}</h2>
+                  {albumModule?.description ? <p className={styles.sectionDescription}>{albumModule.description}</p> : null}
+                </div>
+              </div>
+            {photos.length > 0 ? (
+              <RoomPhotoWall albumHref={albumHref} photos={photos} />
+            ) : (
+              <EmptySlot
+                icon="🖼️"
+                copy="ยังไม่มีรูปในอัลบั้ม เริ่มจากโมเมนต์แรกของห้องนี้ได้เลย"
+              />
+            )}
           </section>
-        </LivingCard>
-      ) : null}
-
-      <LivingCard className={styles.liveShelf} glowRgb={glowRgb}>
-        <section
-          aria-label={membersModule?.title ?? "คนในห้อง"}
-          className={styles.people}
-        >
-        <div className={styles.sectionHead}>
-          <h2 className={styles.sectionTitle}>
-            {membersModule?.title ?? "คนในห้อง"} · {members.length}
-          </h2>
-          <Link className={styles.more} href={membersHref} prefetch>
-            ดูทั้งหมด
           </Link>
+        </LivingCard>
+
+        <div className={styles.colStack}>
+          {/* Calendar */}
+          <LivingCard className={styles.liveShelf} glowRgb={glowRgb}>
+            <Link href={calendarHref} className={styles.cardLink} prefetch>
+              <section aria-label={calendarModule?.title ?? "ปฏิทิน"} className={`${styles.section} ${styles.calendarSection}`}>
+                <SectionHeader icon={<CalendarDays size={20} />} title={calendarModule?.title ?? "ปฏิทิน"} description={calendarModule?.description} />
+                <div className={styles.calendarLayout}>
+                  <MiniCalendar todayKey={todayKey} markedDates={markedDates} />
+                  {events.length > 0 ? (
+                    <ul className={styles.eventList}>
+                      {events.map((event) => (
+                        <li key={event.id}>
+                          <div className={styles.eventItem}>
+                            <span className={styles.eventDot} aria-hidden />
+                            <span className={styles.eventTitle}>{event.title}</span>
+                            <span className={styles.eventDate}>{formatThaiCalendarPanelDate(event.event_date)}</span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className={styles.calendarEmpty}>
+                      <span className={styles.calendarEmptyIcon} aria-hidden>○</span>
+                      <div>
+                        <p className={styles.calendarEmptyTitle}>ยังไม่มีนัดหมาย</p>
+                        <p className={styles.emptyCopy}>เพิ่มกิจกรรมแรกของห้องนี้ได้เลย</p>
+                      </div>
+                    </div>
+                  )}
+              </div>
+            </section>
+          </Link>
+          </LivingCard>
+
+          {/* Board */}
+          <LivingCard className={styles.liveShelf} glowRgb={glowRgb}>
+            <Link href={boardHref} className={styles.cardLink} prefetch>
+              <section aria-label={boardModule?.title ?? "บอร์ด"} className={styles.section}>
+                <SectionHeader icon={<ClipboardList size={20} />} title={boardModule?.title ?? "บอร์ด"} description={boardModule?.description} />
+                {boardItems.length > 0 ? (
+                  <>
+                    <ul className={styles.list}>
+                      {(["poll", "checklist", "note"] as BoardItemType[]).map((type) => {
+                        const itemsOfType = type === "poll" ? polls : type === "checklist" ? checklists : notes;
+                        return (
+                          <li key={type}>
+                            <div className={styles.item}>
+                              <span className={styles.boardTag} data-type={type}>
+                                {BOARD_TYPE_LABEL[type]}
+                              </span>
+                              <span className={styles.itemDetail}>
+                                {itemsOfType.length > 0
+                                  ? itemsOfType.map((i) => i.title).join(", ")
+                                  : "-"}
+                              </span>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </>
+              ) : (
+                <EmptySlot
+                  icon="📋"
+                  copy="ยังไม่มีโน้ตหรือโพล ไปเขียนอะไรสั้นๆ ให้ห้องนี้ได้"
+                />
+              )}
+            </section>
+          </Link>
+        </LivingCard>
         </div>
-        {previewMembers.length > 0 ? (
-          <ul className={styles.faces}>
-            {previewMembers.map((member) => (
-              <li key={member.userId}>
-                <Link className={styles.person} href={membersHref} prefetch>
-                  <span className={styles.personAvatar} aria-hidden>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      alt=""
-                      src={member.avatarUrl || getDefaultImageUrl("profile")}
-                    />
-                  </span>
-                  <span className={styles.personName}>{member.displayName}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className={styles.emptyText}>ยังไม่มีรายชื่อสมาชิกให้แสดง</p>
-        )}
-        <RemainderLink
-          action="ดูทั้งหมด"
-          href={membersHref}
-          shown={previewMembers.length}
-          total={members.length}
-          unit="คน"
-        />
-        {isOwner ? (
-          <div className={styles.invite}>
-            <ButtonLink
-              href={inviteHref}
-              variant={lampOnInvite ? "primary" : "default"}
+      </div>
+
+      {/* ── 3-col grid: Places + Finance + Members ── */}
+      <div className={styles.bottomGrid}>
+
+        {/* Places */}
+        <LivingCard className={styles.liveShelf} glowRgb={glowRgb}>
+          <Link href={mapHref} className={styles.cardLink} prefetch>
+            <section aria-label={mapModule?.title ?? "สถานที่"} className={styles.section}>
+              <SectionHeader icon={<MapPinned size={20} />} title={mapModule?.title ?? "สถานที่"} description={mapModule?.description} />
+              {places.length > 0 ? (
+                <>
+                  <ul className={styles.list}>
+                    {places.map((place) => (
+                      <li key={place.id}>
+                        <div className={styles.item}>
+                          <span className={styles.itemTitle}>{place.name}</span>
+                          <span className={styles.itemMeta}>
+                            {formatPlaceDate(place.place_date) ?? "ยังไม่ระบุวันที่"}
+                          </span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+            ) : (
+              <EmptySlot
+                icon="📍"
+                copy="ยังไม่มีหมุดในแผนที่ ปักร้านโปรดหรือที่เที่ยวไว้ได้"
+              />
+            )}
+          </section>
+          </Link>
+        </LivingCard>
+
+      {/* Finance */}
+        <LivingCard className={styles.liveShelf} glowRgb={glowRgb}>
+          <Link href={financeHref} className={styles.cardLink} prefetch>
+            <section aria-label={financeModule?.title ?? "การเงิน"} className={styles.section}>
+              <SectionHeader icon={<WalletCards size={20} />} title={financeModule?.title ?? "การเงิน"} description={financeModule?.description} />
+              {financeExpenses.length > 0 ? (
+                <>
+                  <ul className={styles.list}>
+                    {financeExpenses.map((expense) => (
+                      <li key={expense.id}>
+                        <div className={styles.item}>
+                          <span className={styles.itemTitle}>{expense.title}</span>
+                          <span className={styles.itemMeta}>
+                            {formatBaht(expense.amount_cents)}
+                            {expense.expense_date ? ` · ${new Intl.DateTimeFormat("th-TH", { dateStyle: "short" }).format(new Date(`${expense.expense_date}T00:00:00.000Z`))}` : ""}
+                          </span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+            ) : (
+              <EmptySlot
+                icon="💰"
+                copy="ยังไม่มีรายการค่าใช้จ่าย เริ่มบันทึกรายการแรกได้เลย"
+              />
+            )}
+          </section>
+          </Link>
+        </LivingCard>
+
+        {/* Members (Small box) */}
+        <LivingCard className={styles.liveShelf} glowRgb={glowRgb}>
+          <Link href={membersHref} className={styles.cardLink} prefetch>
+            <section
+              aria-label={membersModule?.title ?? "สมาชิกในห้อง"}
+              className={styles.section}
             >
-              เชิญคนเข้ามา
-            </ButtonLink>
-          </div>
-        ) : null}
-        </section>
-      </LivingCard>
-
-      <div className={styles.row}>
-        {boardItems.length > 0 ? (
-          <Shelf
-            actionHref={boardHref}
-            actionLabel="ไปบอร์ด"
-            emptyAction="เปิดบอร์ด"
-            emptyCopy="ยังไม่มีโน้ตหรือโพล ไปเขียนอะไรสั้นๆ ให้ห้องนี้ได้"
-            glowRgb={glowRgb}
-            label={boardModule?.title ?? "บนบอร์ด"}
-            title={boardModule?.title ?? "บนบอร์ด"}
-          >
-            <ul className={styles.list}>
-              {boardItems.map((item) => (
-                <li key={item.id}>
-                  <Link className={styles.item} href={boardHref} prefetch>
-                    <span className={styles.itemTitle}>{item.title}</span>
-                    <span className={styles.itemMeta}>
-                      {BOARD_TYPE_LABEL[item.item_type]}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <RemainderLink
-              action="ไปบอร์ด"
-              href={boardHref}
-              shown={boardItems.length}
-              total={boardCount}
-              unit="รายการ"
-            />
-          </Shelf>
-        ) : (
-          <Shelf
-            actionHref={boardHref}
-            actionLabel="ไปบอร์ด"
-            emptyAction="เปิดบอร์ด"
-            emptyCopy="ยังไม่มีโน้ตหรือโพล ไปเขียนอะไรสั้นๆ ให้ห้องนี้ได้"
-            glowRgb={glowRgb}
-            label={boardModule?.title ?? "บนบอร์ด"}
-            title={boardModule?.title ?? "บนบอร์ด"}
-          />
-        )}
-
-        {places.length > 0 ? (
-          <Shelf
-            actionHref={mapHref}
-            actionLabel="ไปแผนที่"
-            emptyAction="เปิดแผนที่"
-            emptyCopy="ยังไม่มีหมุดในแผนที่ ปักร้านโปรดหรือที่เที่ยวไว้ได้"
-            glowRgb={glowRgb}
-            label={mapModule?.title ?? "สถานที่"}
-            title={mapModule?.title ?? "สถานที่"}
-          >
-            <ul className={styles.list}>
-              {places.map((place) => (
-                <li key={place.id}>
-                  <Link className={styles.item} href={mapHref} prefetch>
-                    <span className={styles.itemTitle}>{place.name}</span>
-                    <span className={styles.itemMeta}>
-                      {formatPlaceDate(place.place_date) ?? "ยังไม่ระบุวันที่"}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <RemainderLink
-              action="ไปแผนที่"
-              href={mapHref}
-              shown={places.length}
-              total={placeCount}
-              unit="หมุด"
-            />
-          </Shelf>
-        ) : (
-          <Shelf
-            actionHref={mapHref}
-            actionLabel="ไปแผนที่"
-            emptyAction="เปิดแผนที่"
-            emptyCopy="ยังไม่มีหมุดในแผนที่ ปักร้านโปรดหรือที่เที่ยวไว้ได้"
-            glowRgb={glowRgb}
-            label={mapModule?.title ?? "สถานที่"}
-            title={mapModule?.title ?? "สถานที่"}
-          />
-        )}
+              <SectionHeader icon={<Users size={20} />} title={membersModule?.title ?? "สมาชิก"} description={membersModule?.description} />
+              {previewMembers.length > 0 ? (
+                <ul className={styles.faces}>
+                  {previewMembers.map((member) => (
+                    <li key={member.userId}>
+                      <div className={styles.person}>
+                        <span className={styles.personAvatar} aria-hidden>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            alt=""
+                            src={member.avatarUrl || getDefaultImageUrl("profile")}
+                          />
+                        </span>
+                        <span className={styles.personName}>{member.displayName}</span>
+                      </div>
+                    </li>
+                  ))}
+                  {members.length > previewMembers.length && (
+                    <li>
+                      <span className={styles.moreFaces}>
+                        +{members.length - previewMembers.length}
+                      </span>
+                    </li>
+                  )}
+                </ul>
+              ) : (
+                <p className={styles.emptyCopy}>ยังไม่มีรายชื่อสมาชิกให้แสดง</p>
+              )}
+            </section>
+          </Link>
+        </LivingCard>
       </div>
     </LivingStage>
   );

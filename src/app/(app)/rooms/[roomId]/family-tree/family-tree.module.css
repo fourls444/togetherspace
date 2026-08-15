@@ -1,0 +1,361 @@
+.stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.hero {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.kicker,
+.lead,
+.canvasHeader p,
+.sectionHead p,
+.muted,
+.error {
+  margin: 0;
+}
+
+.kicker {
+  color: var(--color-primary);
+  font-size: var(--font-size-label);
+  font-weight: 800;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-display-thai), var(--font-display), serif;
+  font-size: var(--font-size-display);
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.lead,
+.canvasHeader p,
+.sectionHead p,
+.muted {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-body-sm);
+  line-height: 1.65;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(19rem, 24rem);
+  gap: 1rem;
+  align-items: start;
+}
+
+.canvasPanel,
+.sidePanel,
+.formCard {
+  min-width: 0;
+}
+
+.canvasPanel {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-extrude);
+}
+
+.canvasHeader {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.canvasHeader h2,
+.formCard h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--font-size-title);
+  line-height: 1.35;
+}
+
+.canvasHeader span {
+  flex: 0 0 auto;
+  padding: 0.45rem 0.65rem;
+  color: var(--color-primary);
+  font-size: var(--font-size-label);
+  font-weight: 800;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 32%, transparent);
+  border-radius: var(--radius-control);
+  background: var(--color-primary-soft);
+}
+
+.canvas {
+  position: relative;
+  overflow: auto;
+  min-height: 34rem;
+  background:
+    linear-gradient(
+        color-mix(in srgb, var(--color-border) 28%, transparent) 1px,
+        transparent 1px
+      )
+      0 0 / 4rem 4rem,
+    linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--color-border) 28%, transparent) 1px,
+        transparent 1px
+      )
+      0 0 / 4rem 4rem,
+    color-mix(in srgb, var(--color-background) 72%, var(--color-surface));
+}
+
+.canvas::before {
+  content: "";
+  display: block;
+  width: 2800px;
+  height: 1800px;
+}
+
+.lines {
+  position: absolute;
+  inset: 0;
+  width: 2800px;
+  height: 1800px;
+  pointer-events: none;
+}
+
+.lines line {
+  stroke: color-mix(in srgb, var(--color-primary) 72%, var(--color-text));
+  stroke-linecap: round;
+  stroke-width: 3;
+}
+
+.lines line[data-type="sibling"] {
+  stroke: #9fd0ff;
+  stroke-dasharray: 8 8;
+}
+
+.emptyCanvas {
+  position: absolute;
+  inset: 1.25rem;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  min-height: 20rem;
+  text-align: center;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-panel);
+  background: color-mix(in srgb, var(--color-surface) 74%, transparent);
+}
+
+.emptyCanvas h3,
+.emptyCanvas p {
+  margin: 0;
+}
+
+.emptyCanvas p {
+  margin-top: 0.4rem;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 44rem) {
+  .emptyCanvas {
+    inset: 0.75rem;
+    min-height: 15rem;
+    padding: 1rem;
+  }
+}
+
+.personCard {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  gap: 0.65rem;
+  width: 11rem;
+  min-height: 5.75rem;
+  padding: 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  background:
+    radial-gradient(
+      circle at top right,
+      color-mix(in srgb, var(--color-primary) 16%, transparent),
+      transparent 48%
+    ),
+    var(--color-surface);
+  box-shadow: var(--shadow-panel);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.personCard[data-dragging="true"] {
+  z-index: 3;
+  border-color: var(--color-primary);
+  cursor: grabbing;
+  opacity: 0.94;
+}
+
+.personCard img {
+  width: 3rem;
+  height: 3rem;
+  object-fit: cover;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-muted-surface);
+}
+
+.personCard strong,
+.personCard span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.personCard strong {
+  color: var(--color-text);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.personCard span {
+  color: var(--color-primary);
+  font-size: var(--font-size-label);
+  font-weight: 700;
+}
+
+.cardActions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.cardActions button,
+.relationshipList button {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--color-muted-surface) 62%, transparent);
+  cursor: pointer;
+}
+
+.cardActions button:hover,
+.relationshipList button:hover {
+  color: var(--color-text);
+  border-color: var(--color-primary);
+}
+
+.sidePanel {
+  display: grid;
+  gap: 1rem;
+}
+
+.formCard {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-extrude);
+}
+
+.sectionHead {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.7rem;
+  align-items: start;
+}
+
+.sectionHead svg {
+  margin-top: 0.15rem;
+  color: var(--color-primary);
+}
+
+.form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.form label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--color-text);
+  font-size: var(--font-size-label);
+  font-weight: 800;
+}
+
+.form input,
+.form select {
+  min-height: 2.7rem;
+  padding: 0.65rem 0.75rem;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-background);
+  font: inherit;
+}
+
+.form input:focus,
+.form select:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
+.error {
+  color: var(--color-error-text);
+  font-size: var(--font-size-label);
+}
+
+@media (max-width: 64rem) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidePanel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 44rem) {
+  .hero,
+  .canvasHeader {
+    padding: 0.9rem;
+  }
+
+  .canvasHeader,
+  .sidePanel {
+    grid-template-columns: 1fr;
+  }
+
+  .canvasHeader span {
+    width: fit-content;
+  }
+
+  .canvas {
+    min-height: 28rem;
+  }
+
+  .formActions {
+    justify-content: stretch;
+  }
+
+  .formActions > * {
+    flex: 1;
+  }
+}

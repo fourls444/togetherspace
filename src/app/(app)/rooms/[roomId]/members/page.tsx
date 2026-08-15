@@ -4,9 +4,11 @@ import {
   type ManageMemberItem,
 } from "@/components/rooms/member-management";
 import { MemberList, type MemberListItem } from "@/components/rooms/member-list";
+import { FriendMemberProfiles } from "@/components/rooms/friend-member-profiles";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
 import { GlowCard } from "@/components/ui/glow-card";
+import { sortRoomMembers } from "@/lib/rooms/member-sort";
 import { getRoomContext } from "@/lib/rooms/server";
 
 export default async function RoomMembersPage({
@@ -32,7 +34,7 @@ export default async function RoomMembersPage({
 
   const { currentUserId, room, roomCode, roomId, supabase } = context;
 
-  const [membershipsResult, meResult, roomProfilesResult] = await Promise.all([
+  const [membershipsResult, meResult, roomProfilesResult, friendProfilesResult] = await Promise.all([
     supabase
       .from("room_members")
       .select(
@@ -50,6 +52,12 @@ export default async function RoomMembersPage({
       .from("room_profiles")
       .select("user_id, display_name, avatar_url")
       .eq("room_id", roomId),
+    room.type === "friend"
+      ? supabase
+          .from("friend_profiles")
+          .select("user_id, bio, facebook_url, line_id, instagram_url, phone")
+          .eq("room_id", roomId)
+      : Promise.resolve({ data: [] as { user_id: string; bio: string | null; facebook_url: string | null; line_id: string | null; instagram_url: string | null; phone: string | null }[] }),
   ]);
 
   const memberships = membershipsResult.data ?? [];
@@ -57,7 +65,7 @@ export default async function RoomMembersPage({
     (roomProfilesResult.data ?? []).map((profile) => [profile.user_id, profile]),
   );
   const isOwner = meResult.data?.role === "owner";
-  const members: MemberListItem[] = memberships.map((m) => {
+  const members: MemberListItem[] = sortRoomMembers(memberships.map((m) => {
     const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles;
     const roomProfile = roomProfiles.get(m.user_id);
     return {
@@ -68,11 +76,11 @@ export default async function RoomMembersPage({
       username: profile?.username ?? "unknown",
       role: m.role,
     };
-  });
+  }), currentUserId);
 
   return (
     <GlowCard
-      aria-label="คนในห้อง"
+      aria-label="สมาชิก"
       contentClassName={styles.panel}
       role="region"
       roomType={room.type}
@@ -80,11 +88,20 @@ export default async function RoomMembersPage({
     >
       <div className={styles.head}>
         <div>
-          <h2 className={styles.title}>สมาชิกในห้อง</h2>
+          <h2 className={styles.title}>สมาชิก</h2>
           <p className={styles.meta}>{members.length} คน</p>
         </div>
       </div>
-      {isOwner ? (
+      {room.type === "friend" ? (
+        <FriendMemberProfiles
+          canManage={isOwner}
+          currentUserId={currentUserId}
+          members={members}
+          profiles={friendProfilesResult.data ?? []}
+          roomCode={roomCode}
+          roomId={roomId}
+        />
+      ) : isOwner ? (
         <MemberManagement
           currentUserId={currentUserId}
           members={members as ManageMemberItem[]}

@@ -1,15 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { CalendarEventModal } from "@/components/calendar/calendar-event-modal";
-import { CalendarEventEditor } from "@/components/calendar/calendar-event-editor";
 import styles from "@/components/calendar/calendar.module.css";
 import {
   formatEventCountLabel,
   formatThaiCalendarPanelDate,
   type CalendarDayMarkers,
-  type CalendarEventMarker,
 } from "@/lib/calendar/calendar";
 
 export type CalendarMonthDayView = {
@@ -21,12 +19,7 @@ export type CalendarMonthDayView = {
   tooltip?: string;
 };
 
-export type CalendarEventDetailView = CalendarEventMarker & {
-  description: string | null;
-};
-
 type CalendarMonthViewProps = {
-  eventDetails: CalendarEventDetailView[];
   initialSelectedDate: string;
   roomCode: string;
   roomId: string;
@@ -48,7 +41,6 @@ function findSelectedMarkers(
 
 /** ปฏิทินรายเดือนที่เลือกวันและเปิดปิดแผงรายละเอียดได้โดยไม่เปลี่ยนหน้า */
 export function CalendarMonthView({
-  eventDetails,
   initialSelectedDate,
   roomCode,
   roomId,
@@ -57,10 +49,6 @@ export function CalendarMonthView({
 }: CalendarMonthViewProps) {
   const [selectedDate, setSelectedDate] = useState(initialSelectedDate);
   const [panelDate, setPanelDate] = useState<string | null>(null);
-  const detailById = useMemo(
-    () => new Map(eventDetails.map((event) => [event.id, event])),
-    [eventDetails],
-  );
   const activeDate = panelDate ?? selectedDate;
   const dayMarkers = findSelectedMarkers(weeks, activeDate);
 
@@ -111,8 +99,8 @@ export function CalendarMonthView({
                 </h2>
                 <p className={styles.panelMeta}>
                   {dayMarkers.holidays.length
-                    ? "วันสำคัญและกิจกรรมที่เพิ่มไว้ในห้องนี้"
-                    : "กิจกรรมที่เพิ่มไว้ในห้องนี้"}
+                    ? "วันสำคัญของไทยในวันนี้"
+                    : "วันนี้ไม่มีวันสำคัญของไทย"}
                 </p>
               </div>
             </div>
@@ -129,37 +117,6 @@ export function CalendarMonthView({
                 </ul>
               </section>
             ) : null}
-
-            <section>
-              <h3 className={styles.sectionTitle}>กิจกรรมของห้อง</h3>
-              {dayMarkers.events.length ? (
-                <ul className={styles.list}>
-                  {dayMarkers.events.map((event) => {
-                    const detail = detailById.get(event.id);
-
-                    return (
-                      <li className={styles.listItem} key={event.id}>
-                        <p className={styles.itemTitle}>{event.title}</p>
-                        {detail?.description ? (
-                          <p className={styles.itemText}>
-                            {detail.description}
-                          </p>
-                        ) : null}
-                        {detail ? (
-                          <CalendarEventEditor
-                            event={detail}
-                            roomCode={roomCode}
-                            roomId={roomId}
-                          />
-                        ) : null}
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : (
-                <p className={styles.empty}>ยังไม่มีกิจกรรมในวันนี้</p>
-              )}
-            </section>
 
             <section>
               <h3 className={styles.sectionTitle}>เพิ่มกิจกรรม</h3>

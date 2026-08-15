@@ -92,79 +92,96 @@ export function MemberManagement({
     getScrollElement: () => listParentRef.current,
     overscan: 6,
   });
+  const shouldVirtualize = visibleMembers.length > MEMBER_PAGE_SIZE;
+
+  /** แสดงแถวสมาชิกหนึ่งคน ใช้ซ้ำได้ทั้ง list ปกติและ list แบบ virtual */
+  const renderMember = (
+    member: ManageMemberItem,
+    virtualRow?: { index: number; start: number },
+  ) => {
+    const isSelf = member.userId === currentUserId;
+    const avatarUrl = member.avatarUrl?.trim() || getDefaultImageUrl("profile");
+
+    return (
+      <li
+        className={styles.member}
+        data-index={virtualRow?.index}
+        key={member.userId}
+        ref={virtualRow ? virtualizer.measureElement : undefined}
+        style={
+          virtualRow
+            ? { transform: `translateY(${virtualRow.start}px)` }
+            : undefined
+        }
+      >
+        <div className={styles.identity}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img alt="" className={styles.avatar} src={avatarUrl} />
+          <div className={styles.info}>
+            <p className={styles.name}>{member.displayName}</p>
+            <p className={styles.username}>@{member.username}</p>
+          </div>
+        </div>
+
+        <div className={styles.actions}>
+          {isSelf ? (
+            <Badge>
+              {ROOM_ROLE_LABEL[member.role]} (คุณ)
+            </Badge>
+          ) : (
+            <>
+              <select
+                className={styles.roleSelect}
+                disabled={isPending}
+                onChange={(e) =>
+                  handleRoleChange(member.userId, e.target.value as RoomRole)
+                }
+                value={member.role}
+              >
+                <option value="member">{ROOM_ROLE_LABEL.member}</option>
+                <option value="owner">{ROOM_ROLE_LABEL.owner}</option>
+              </select>
+
+              <Button
+                disabled={isPending}
+                onClick={() =>
+                  setKickTarget({
+                    name: member.displayName,
+                    userId: member.userId,
+                  })
+                }
+                type="button"
+                variant="danger"
+              >
+                ลบออก
+              </Button>
+            </>
+          )}
+        </div>
+      </li>
+    );
+  };
 
   return (
     <div className={styles.container}>
-      <div className={styles.virtualFrame} ref={listParentRef}>
-        <ul
-          className={styles.list}
-          style={{ height: `${virtualizer.getTotalSize()}px` }}
-        >
-          {virtualizer.getVirtualItems().map((virtualRow) => {
-          const member = visibleMembers[virtualRow.index];
-          if (!member) return null;
-          const isSelf = member.userId === currentUserId;
-          const avatarUrl = member.avatarUrl?.trim() || getDefaultImageUrl("profile");
-          return (
-            <li
-              className={styles.member}
-              data-index={virtualRow.index}
-              key={member.userId}
-              ref={virtualizer.measureElement}
-              style={{ transform: `translateY(${virtualRow.start}px)` }}
-            >
-              <div className={styles.identity}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img alt="" className={styles.avatar} src={avatarUrl} />
-                <div className={styles.info}>
-                  <p className={styles.name}>{member.displayName}</p>
-                  <p className={styles.username}>@{member.username}</p>
-                </div>
-              </div>
-
-              <div className={styles.actions}>
-                {isSelf ? (
-                  <Badge>
-                    {ROOM_ROLE_LABEL[member.role]} (คุณ)
-                  </Badge>
-                ) : (
-                  <>
-                    <select
-                      className={styles.roleSelect}
-                      disabled={isPending}
-                      onChange={(e) =>
-                        handleRoleChange(
-                          member.userId,
-                          e.target.value as RoomRole,
-                        )
-                      }
-                      value={member.role}
-                    >
-                      <option value="member">{ROOM_ROLE_LABEL.member}</option>
-                      <option value="owner">{ROOM_ROLE_LABEL.owner}</option>
-                    </select>
-
-                    <Button
-                      disabled={isPending}
-                      onClick={() =>
-                        setKickTarget({
-                          name: member.displayName,
-                          userId: member.userId,
-                        })
-                      }
-                      type="button"
-                      variant="danger"
-                    >
-                      ลบออก
-                    </Button>
-                  </>
-                )}
-              </div>
-            </li>
-          );
-        })}
+      {shouldVirtualize ? (
+        <div className={styles.virtualFrame} ref={listParentRef}>
+          <ul
+            className={styles.list}
+            style={{ height: `${virtualizer.getTotalSize()}px` }}
+          >
+            {virtualizer.getVirtualItems().map((virtualRow) => {
+              const member = visibleMembers[virtualRow.index];
+              if (!member) return null;
+              return renderMember(member, virtualRow);
+            })}
+          </ul>
+        </div>
+      ) : (
+        <ul className={styles.staticList}>
+          {visibleMembers.map((member) => renderMember(member))}
         </ul>
-      </div>
+      )}
       {visibleLimit < members.length ? (
         <Button onClick={handleLoadMore} type="button">
           โหลดสมาชิกเพิ่ม ({members.length - visibleLimit})

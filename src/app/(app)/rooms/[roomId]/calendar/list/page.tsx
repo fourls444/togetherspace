@@ -1,4 +1,5 @@
 import { CalendarEventEditor } from "@/components/calendar/calendar-event-editor";
+import { CalendarEventModal } from "@/components/calendar/calendar-event-modal";
 import styles from "@/components/calendar/calendar.module.css";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
@@ -110,7 +111,14 @@ export default async function CalendarMonthListPage({
             {formatMonthTitle(year, monthIndex)}
           </h1>
         </div>
-        <ButtonLink href={calendarHref}>กลับปฏิทิน</ButtonLink>
+        <div className={styles.calendarControls}>
+          <CalendarEventModal
+            defaultDate={formatDateKey(now)}
+            roomCode={context.roomCode}
+            roomId={context.roomId}
+          />
+          <ButtonLink href={calendarHref}>กลับปฏิทิน</ButtonLink>
+        </div>
       </div>
 
       <section className={styles.monthListLayout}>

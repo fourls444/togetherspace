@@ -34,9 +34,9 @@ export type BoardCopy = {
 };
 
 const COMMON_ITEM_LABELS: Record<BoardItemType, string> = {
-  checklist: "เช็คลิสต์",
+  checklist: "เช็คลิส",
   note: "โน้ต",
-  poll: "โพล",
+  poll: "โหวต",
 };
 
 const BOARD_COPY: Record<RoomType, BoardCopy> = {
@@ -44,21 +44,21 @@ const BOARD_COPY: Record<RoomType, BoardCopy> = {
     actions: {
       checklist: {
         description: "แตกสิ่งที่อยากทำด้วยกันให้เป็นขั้นตอนเล็กๆ",
-        label: "เช็คลิสต์เดต",
+        label: "เช็คลิส",
         modalTitle: "เพิ่มเช็คลิสต์เดต",
         pendingText: "กำลังเพิ่มเช็คลิสต์...",
         submitLabel: "เพิ่มเช็คลิสต์",
       },
       note: {
         description: "เก็บไอเดีย ข้อความ หรือสิ่งที่อยากจำไว้ด้วยกัน",
-        label: "ความคิด",
+        label: "โน้ต",
         modalTitle: "เพิ่มความคิด",
         pendingText: "กำลังเพิ่มความคิด...",
         submitLabel: "เพิ่มความคิด",
       },
       poll: {
         description: "ให้ทั้งสองคนช่วยกันเลือกแบบไม่ต้องไถแชทยาวๆ",
-        label: "โหวตกัน",
+        label: "โหวต",
         modalTitle: "เพิ่มโพลของเรา",
         pendingText: "กำลังเพิ่มโพล...",
         submitLabel: "เพิ่มโพล",
@@ -66,12 +66,12 @@ const BOARD_COPY: Record<RoomType, BoardCopy> = {
     },
     empty: {
       description: "เริ่มจากไอเดียเดต เช็คลิสต์ทริป หรือโพลเล็กๆ ของสองคน",
-      title: "ยังไม่มีอะไรบนบอร์ดของเรา",
+      title: "ยังไม่มีรายการบนบอร์ด",
     },
     itemTypeLabels: COMMON_ITEM_LABELS,
     lead: "เก็บไอเดียเดต เรื่องที่อยากทำ และตัวเลือกที่อยากตัดสินใจด้วยกัน",
-    pageTitle: "บอร์ดของเรา",
-    panelTitle: "บนบอร์ดตอนนี้",
+    pageTitle: "บอร์ด",
+    panelTitle: "รายการบนบอร์ด",
     placeholders: {
       body: "เล่าเพิ่มสั้นๆ ว่าคิดอะไรอยู่",
       checklistItems: "เลือกร้าน\nจองเวลา\nเตรียมของเล็กๆ",
@@ -102,21 +102,21 @@ const BOARD_COPY: Record<RoomType, BoardCopy> = {
     actions: {
       checklist: {
         description: "แบ่งงานบ้าน ธุระ หรือของที่ต้องเตรียมให้เห็นชัด",
-        label: "งานที่ต้องช่วยกัน",
+        label: "เช็คลิส",
         modalTitle: "เพิ่มงานที่ต้องช่วยกัน",
         pendingText: "กำลังเพิ่มงาน...",
         submitLabel: "เพิ่มงาน",
       },
       note: {
         description: "ฝากข้อความหรือเรื่องสำคัญให้ทุกคนในบ้านเห็นร่วมกัน",
-        label: "ประกาศบ้าน",
+        label: "โน้ต",
         modalTitle: "เพิ่มประกาศบ้าน",
         pendingText: "กำลังเพิ่มประกาศ...",
         submitLabel: "เพิ่มประกาศ",
       },
       poll: {
         description: "ใช้ตัดสินใจเรื่องของบ้านหรือแผนครอบครัวร่วมกัน",
-        label: "ขอความเห็น",
+        label: "โหวต",
         modalTitle: "เพิ่มคำถามครอบครัว",
         pendingText: "กำลังเพิ่มคำถาม...",
         submitLabel: "เพิ่มคำถาม",
@@ -125,16 +125,16 @@ const BOARD_COPY: Record<RoomType, BoardCopy> = {
     empty: {
       description:
         "เริ่มจากประกาศบ้าน เช็คลิสต์ซื้อของ หรือคำถามที่อยากให้ทุกคนช่วยเลือก",
-      title: "บอร์ดบ้านยังว่างอยู่",
+      title: "ยังไม่มีรายการบนบอร์ด",
     },
     itemTypeLabels: {
-      checklist: "งานบ้าน",
-      note: "ประกาศ",
-      poll: "คำถาม",
+      checklist: "เช็คลิส",
+      note: "โน้ต",
+      poll: "โหวต",
     },
     lead: "ฝากเรื่องสำคัญ งานที่ต้องช่วยกันทำ และการตัดสินใจของครอบครัวไว้ในที่เดียว",
-    pageTitle: "บอร์ดของบ้าน",
-    panelTitle: "เรื่องบนบอร์ด",
+    pageTitle: "บอร์ด",
+    panelTitle: "รายการบนบอร์ด",
     placeholders: {
       body: "รายละเอียดที่ทุกคนควรรู้",
       checklistItems: "ซื้อของเข้าบ้าน\nจ่ายบิล\nเตรียมของสำหรับทริป",
@@ -165,21 +165,21 @@ const BOARD_COPY: Record<RoomType, BoardCopy> = {
     actions: {
       checklist: {
         description: "รวมของที่ต้องเตรียม งานที่แบ่งกันทำ หรือเช็คลิสต์ทริป",
-        label: "เช็คลิสต์",
+        label: "เช็คลิส",
         modalTitle: "เพิ่มเช็คลิสต์",
         pendingText: "กำลังเพิ่มเช็คลิสต์...",
         submitLabel: "เพิ่มเช็คลิสต์",
       },
       note: {
         description: "โยนไอเดีย นัดหมาย หรือเรื่องที่อยากแปะไว้ให้เพื่อนเห็น",
-        label: "ไอเดีย",
+        label: "โน้ต",
         modalTitle: "เพิ่มไอเดีย",
         pendingText: "กำลังเพิ่มไอเดีย...",
         submitLabel: "เพิ่มไอเดีย",
       },
       poll: {
         description: "โหวตวัน ร้าน หรือแผนต่อไปของกลุ่ม",
-        label: "โหวตแผน",
+        label: "โหวต",
         modalTitle: "เพิ่มโหวตแผน",
         pendingText: "กำลังเพิ่มโหวต...",
         submitLabel: "เพิ่มโหวต",
@@ -188,16 +188,16 @@ const BOARD_COPY: Record<RoomType, BoardCopy> = {
     empty: {
       description:
         "เริ่มจากไอเดียทริป เช็คลิสต์ของที่ต้องเตรียม หรือโหวตร้านนัดเจอ",
-      title: "บอร์ดยังโล่งอยู่",
+      title: "ยังไม่มีรายการบนบอร์ด",
     },
     itemTypeLabels: {
-      checklist: "เช็คลิสต์",
-      note: "ไอเดีย",
+      checklist: "เช็คลิส",
+      note: "โน้ต",
       poll: "โหวต",
     },
     lead: "โยนไอเดีย แบ่งงาน และโหวตแผนของกลุ่มโดยไม่ต้องย้อนหาในแชท",
     pageTitle: "บอร์ด",
-    panelTitle: "แผนและไอเดียตอนนี้",
+    panelTitle: "รายการบนบอร์ด",
     placeholders: {
       body: "ใส่รายละเอียดเพิ่มให้เพื่อนเข้าใจง่าย",
       checklistItems: "จองที่พัก\nหารถ\nซื้อของกิน",
