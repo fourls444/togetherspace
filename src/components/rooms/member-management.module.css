@@ -18,17 +18,28 @@
   padding-right: 0.25rem;
 }
 
-.list {
+.list,
+.staticList {
   position: relative;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+.staticList {
+  position: static;
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 52rem) {
+  .staticList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+}
+
 .member {
-  position: absolute;
-  inset-inline: 0;
-  top: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -41,6 +52,16 @@
   background: color-mix(in srgb, var(--color-muted-surface) 72%, transparent);
 }
 
+.list .member {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+}
+
+.staticList .member {
+  position: static;
+}
+
 .identity {
   display: flex;
   align-items: center;
@@ -49,8 +70,8 @@
 }
 
 .avatar {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3rem;
+  height: 3rem;
   flex: 0 0 auto;
   object-fit: cover;
   border: 1px solid var(--color-border);
@@ -67,6 +88,7 @@
 }
 
 .name {
+  font-size: 1.02rem;
   font-weight: 600;
 }
 

@@ -7,6 +7,7 @@ import { MemberList, type MemberListItem } from "@/components/rooms/member-list"
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
 import { GlowCard } from "@/components/ui/glow-card";
+import { sortRoomMembers } from "@/lib/rooms/member-sort";
 import { getRoomContext } from "@/lib/rooms/server";
 
 export default async function RoomMembersPage({
@@ -57,7 +58,7 @@ export default async function RoomMembersPage({
     (roomProfilesResult.data ?? []).map((profile) => [profile.user_id, profile]),
   );
   const isOwner = meResult.data?.role === "owner";
-  const members: MemberListItem[] = memberships.map((m) => {
+  const members: MemberListItem[] = sortRoomMembers(memberships.map((m) => {
     const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles;
     const roomProfile = roomProfiles.get(m.user_id);
     return {
@@ -68,11 +69,11 @@ export default async function RoomMembersPage({
       username: profile?.username ?? "unknown",
       role: m.role,
     };
-  });
+  }), currentUserId);
 
   return (
     <GlowCard
-      aria-label="คนในห้อง"
+      aria-label="สมาชิก"
       contentClassName={styles.panel}
       role="region"
       roomType={room.type}
@@ -80,7 +81,7 @@ export default async function RoomMembersPage({
     >
       <div className={styles.head}>
         <div>
-          <h2 className={styles.title}>สมาชิกในห้อง</h2>
+          <h2 className={styles.title}>สมาชิก</h2>
           <p className={styles.meta}>{members.length} คน</p>
         </div>
       </div>

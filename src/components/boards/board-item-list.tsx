@@ -712,7 +712,7 @@ function BoardEditModal({
       description="แก้ไขเนื้อหาและตัวเลือกของรายการนี้ได้จากจุดเดียว"
       isOpen
       onClose={onClose}
-      size="lg"
+      size="xl"
       title={`แก้ไข${copy.itemTypeLabels[item.itemType]}`}
     >
       <div className={styles.modalContent}>

@@ -23,7 +23,7 @@ const roomProfileSchema = z.object({
   displayName: z
     .string()
     .trim()
-    .max(80, "ชื่อในห้องต้องไม่เกิน 80 ตัวอักษร")
+    .max(40, "ชื่อในห้องต้องไม่เกิน 40 ตัวอักษร")
     .transform((value) => value || null),
   roomCode: z.string().trim().min(1),
   roomId: z.string().uuid(),

@@ -9,3 +9,4 @@ export * from "./calendar";
 export * from "./albums";
 export * from "./places";
 export * from "./finance";
+export * from "./family-tree";

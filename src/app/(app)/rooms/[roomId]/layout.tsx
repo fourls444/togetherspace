@@ -1,4 +1,15 @@
 import type { PropsWithChildren } from "react";
+import {
+  CalendarDays,
+  GitBranch,
+  Home,
+  Images,
+  MapPinned,
+  NotebookTabs,
+  Settings,
+  Users,
+  WalletCards,
+} from "lucide-react";
 
 import { RoomChrome } from "@/components/rooms/room-chrome";
 import {
@@ -105,16 +116,25 @@ export default async function RoomLayout({
         nav={
           <RoomNav
             items={[
-              { href: roomPath, label: "หน้าห้อง", exact: true },
-              { href: getRoomSubPath(roomCode, "board"), label: "บอร์ด" },
-              { href: getRoomSubPath(roomCode, "calendar"), label: "ปฏิทิน" },
-              { href: getRoomSubPath(roomCode, "album"), label: "อัลบั้ม" },
-              { href: getRoomSubPath(roomCode, "map"), label: "แผนที่" },
-              { href: getRoomSubPath(roomCode, "finance"), label: "การเงิน" },
-              { href: getRoomSubPath(roomCode, "members"), label: "คนในห้อง" },
+              { href: roomPath, icon: <Home size={17} />, label: "หน้าแรก", exact: true },
+              { href: getRoomSubPath(roomCode, "board"), icon: <NotebookTabs size={17} />, label: "บอร์ด" },
+              { href: getRoomSubPath(roomCode, "calendar"), icon: <CalendarDays size={17} />, label: "ปฏิทิน" },
+              { href: getRoomSubPath(roomCode, "album"), icon: <Images size={17} />, label: "อัลบั้ม" },
+              { href: getRoomSubPath(roomCode, "map"), icon: <MapPinned size={17} />, label: "แผนที่" },
+              { href: getRoomSubPath(roomCode, "finance"), icon: <WalletCards size={17} />, label: "บันทึกการเงิน" },
+              { href: getRoomSubPath(roomCode, "members"), icon: <Users size={17} />, label: "สมาชิก" },
+              ...(room.type === "family"
+                ? [
+                    {
+                      href: getRoomSubPath(roomCode, "family-tree"),
+                      icon: <GitBranch size={17} />,
+                      label: "ผังครอบครัว",
+                    },
+                  ]
+                : []),
             ]}
             footerItems={[
-              { href: getRoomSubPath(roomCode, "settings"), label: "ตั้งค่า" },
+              { href: getRoomSubPath(roomCode, "settings"), icon: <Settings size={17} />, label: "ตั้งค่าห้อง" },
             ]}
           />
         }

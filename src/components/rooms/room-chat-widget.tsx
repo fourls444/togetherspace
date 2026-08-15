@@ -303,7 +303,10 @@ export function RoomChatWidget({
           <span className={styles.eyebrow}>แชทของห้อง</span>
           <strong>{roomName}</strong>
           {latestMessage ? (
-            <small>{latestMessage.body}</small>
+            <small>
+              {latestMessage.userId === currentUserId ? "คุณ: " : `${latestMessage.senderName}: `}
+              {latestMessage.body}
+            </small>
           ) : (
             <small>เริ่มคุยกับสมาชิกในห้องนี้</small>
           )}

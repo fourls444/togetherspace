@@ -34,10 +34,10 @@
   max-width: 26rem;
 }
 .modal[data-size="lg"] {
-  max-width: 44rem;
+  max-width: 50rem;
 }
 .modal[data-size="xl"] {
-  max-width: 68rem;
+  max-width: min(72rem, calc(100vw - 2rem));
 }
 
 .header {

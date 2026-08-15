@@ -319,8 +319,16 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(8.75rem, 1fr));
-  gap: 0.65rem;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: 0.8rem;
+}
+
+.emptyCard {
+  min-height: 14rem;
+  place-content: center;
+  text-align: center;
+  border-style: dashed;
+  background: color-mix(in srgb, var(--color-muted-surface) 42%, transparent);
 }
 
 .photoCard {
@@ -554,6 +562,11 @@
 }
 
 @media (max-width: 42rem) {
+  .emptyCard,
+  .gallerySection {
+    padding: 1rem;
+  }
+
   .hero {
     grid-template-columns: 1fr;
   }
