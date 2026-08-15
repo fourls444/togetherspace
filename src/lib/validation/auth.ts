@@ -36,7 +36,7 @@ export const updateProfileSchema = z.object({
     .string()
     .trim()
     .min(1, "กรุณากรอกชื่อที่แสดง")
-    .max(40, "ชื่อที่แสดงต้องไม่เกิน 40 ตัวอักษร"),
+    .max(80, "ชื่อที่แสดงต้องไม่เกิน 80 ตัวอักษร"),
   username: z
     .string()
     .trim()

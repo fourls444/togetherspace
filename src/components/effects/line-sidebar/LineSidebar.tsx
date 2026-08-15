@@ -7,7 +7,6 @@ import {
   useState,
   type CSSProperties,
   type PointerEvent as ReactPointerEvent,
-  type ReactNode,
 } from "react";
 import Link from "next/link";
 
@@ -21,7 +20,6 @@ const FALLOFF_CURVES = {
 
 export type LineSidebarItem = {
   href: string;
-  icon?: ReactNode;
   label: string;
   compact?: "primary" | "more";
 };
@@ -214,12 +212,7 @@ export default function LineSidebar({
           onClick={() => setSelectedHref(item.href)}
           prefetch
         >
-            <span className="line-sidebar__label">
-            {item.icon ? (
-              <span aria-hidden="true" className="line-sidebar__icon">
-                {item.icon}
-              </span>
-            ) : null}
+          <span className="line-sidebar__label">
             {showIndex ? (
               <span className="line-sidebar__index">
                 {String(index + 1).padStart(2, "0")}

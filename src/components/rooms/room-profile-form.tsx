@@ -71,7 +71,7 @@ export function RoomProfileForm({
           className={formStyles.control}
           defaultValue={defaultValues.displayName ?? ""}
           id="roomDisplayName"
-          maxLength={40}
+          maxLength={80}
           name="displayName"
           placeholder={`เว้นว่างไว้เพื่อใช้ ${mainDisplayName}`}
         />

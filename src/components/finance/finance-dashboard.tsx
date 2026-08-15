@@ -165,6 +165,20 @@ export function FinanceDashboard({
     0,
   );
 
+  const toggleParticipant = (userId: string) => {
+    setEditor((current) => {
+      if (!current) return current;
+      const selected = current.participantIds.includes(userId);
+      if (selected && current.participantIds.length === 1) return current;
+      return {
+        ...current,
+        participantIds: selected
+          ? current.participantIds.filter((id) => id !== userId)
+          : [...current.participantIds, userId],
+      };
+    });
+  };
+
   /** ส่งฟอร์มไป Server Action และคงหน้าปัจจุบันไว้เพื่อแสดงผลลัพธ์ทันที */
   const handleSave = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -209,6 +223,9 @@ export function FinanceDashboard({
           <h2>{config.title}</h2>
           <p>{config.description}</p>
         </div>
+        <Button onClick={() => setEditor(createEditor(members, currentUserId))} type="button" variant="primary">
+          <Plus aria-hidden size={17} /> เพิ่มค่าใช้จ่าย
+        </Button>
       </section>
 
       <FinanceTypeWorkspace
@@ -224,9 +241,9 @@ export function FinanceDashboard({
 
       <div className={styles.summaryGrid}>
         <article><span>รวมเดือนนี้</span><strong>{formatBaht(summary.totalCents)}</strong></article>
-        <article><span>คุณจ่ายไปแล้ว</span><strong>{formatBaht(paidByMe)}</strong></article>
-        <article><span>ส่วนที่คุณต้องจ่าย</span><strong>{formatBaht(myShare)}</strong></article>
-        <article><span>ยอดคงเหลือของคุณ</span><strong>{formatBaht(summary.balances.get(currentUserId) ?? 0)}</strong></article>
+        <article><span>คุณออกไป</span><strong>{formatBaht(paidByMe)}</strong></article>
+        <article><span>ส่วนของคุณ</span><strong>{formatBaht(myShare)}</strong></article>
+        <article><span>ยอดสุทธิ</span><strong>{formatBaht(summary.balances.get(currentUserId) ?? 0)}</strong></article>
       </div>
 
       <section className={styles.contentGrid}>
@@ -242,13 +259,7 @@ export function FinanceDashboard({
             </div>
           </div>
           <div className={styles.listHeader}>
-            <div>
-              <h3>รายการค่าใช้จ่าย</h3>
-              <span>{visibleExpenses.length} รายการ</span>
-            </div>
-            <Button onClick={() => setEditor(createEditor(members, currentUserId))} type="button" variant="primary">
-              <Plus aria-hidden size={17} /> เพิ่มรายการ
-            </Button>
+            <h3>รายการค่าใช้จ่าย</h3><span>{visibleExpenses.length} รายการ</span>
           </div>
           {visibleExpenses.length ? (
             <ul className={styles.expenseList}>
@@ -300,7 +311,9 @@ export function FinanceDashboard({
               {roomType !== "family" ? <label>กองกลาง <small>ไม่บังคับ</small><select name="fundId" onChange={(e) => setEditor({ ...editor, fundId: e.target.value })} value={editor.fundId}><option value="">ไม่หักจากกองกลาง</option>{typeData.funds.map((fund) => <option key={fund.id} value={fund.id}>{fund.name}</option>)}</select></label> : null}
             </div>
             <label>ผู้จ่าย<select name="paidBy" onChange={(e) => setEditor({ ...editor, paidBy: e.target.value })} value={editor.paidBy}>{members.map((member) => <option key={member.userId} value={member.userId}>{member.displayName}</option>)}</select></label>
-            <input name="splitMode" type="hidden" value={editor.splitMode} />
+            <fieldset><legend>ผู้ร่วมจ่าย</legend><div className={styles.memberChoices}>{members.map((member) => <label key={member.userId}><input checked={editor.participantIds.includes(member.userId)} onChange={() => toggleParticipant(member.userId)} type="checkbox" />{member.displayName}</label>)}</div></fieldset>
+            <fieldset><legend>วิธีแบ่ง</legend><div className={styles.modeChoices}><label><input checked={editor.splitMode === "equal"} name="splitMode" onChange={() => setEditor({ ...editor, splitMode: "equal" })} type="radio" value="equal" />แบ่งเท่ากัน</label><label><input checked={editor.splitMode === "custom"} name="splitMode" onChange={() => setEditor({ ...editor, splitMode: "custom" })} type="radio" value="custom" />กำหนดเอง</label></div></fieldset>
+            {editor.splitMode === "custom" ? <div className={styles.customSplits}>{editor.participantIds.map((userId) => <label key={userId}>{memberNames.get(userId)}<input inputMode="decimal" onChange={(e) => setEditor({ ...editor, customAmounts: { ...editor.customAmounts, [userId]: e.target.value } })} placeholder="0.00" value={editor.customAmounts[userId] ?? ""} /></label>)}</div> : null}
             <label>รายละเอียด (ไม่บังคับ)<textarea name="note" onChange={(e) => setEditor({ ...editor, note: e.target.value })} rows={3} value={editor.note} /></label>
             <div className={styles.modalActions}><Button disabled={isPending} onClick={() => setEditor(null)} type="button">ยกเลิก</Button><Button pending={isPending} pendingText="กำลังบันทึก…" variant="primary">บันทึกค่าใช้จ่าย</Button></div>
           </form>

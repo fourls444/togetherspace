@@ -1,6 +1,5 @@
 .panel {
-  width: min(100%, 58rem);
-  margin-inline: auto;
+  width: min(100%, 48rem);
   padding: 1.25rem;
 }
 

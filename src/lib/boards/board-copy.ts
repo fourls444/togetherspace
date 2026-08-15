@@ -34,9 +34,9 @@ export type BoardCopy = {
 };
 
 const COMMON_ITEM_LABELS: Record<BoardItemType, string> = {
-  checklist: "เช็คลิส",
+  checklist: "เช็คลิสต์",
   note: "โน้ต",
-  poll: "โหวต",
+  poll: "โพล",
 };
 
 const BOARD_COPY: Record<RoomType, BoardCopy> = {
@@ -44,21 +44,21 @@ const BOARD_COPY: Record<RoomType, BoardCopy> = {
     actions: {
       checklist: {
         description: "แตกสิ่งที่อยากทำด้วยกันให้เป็นขั้นตอนเล็กๆ",
-        label: "เช็คลิส",
+        label: "เช็คลิสต์เดต",
         modalTitle: "เพิ่มเช็คลิสต์เดต",
         pendingText: "กำลังเพิ่มเช็คลิสต์...",
         submitLabel: "เพิ่มเช็คลิสต์",
       },
       note: {
         description: "เก็บไอเดีย ข้อความ หรือสิ่งที่อยากจำไว้ด้วยกัน",
-        label: "โน้ต",
+        label: "ความคิด",
         modalTitle: "เพิ่มความคิด",
         pendingText: "กำลังเพิ่มความคิด...",
         submitLabel: "เพิ่มความคิด",
       },
       poll: {
         description: "ให้ทั้งสองคนช่วยกันเลือกแบบไม่ต้องไถแชทยาวๆ",
-        label: "โหวต",
+        label: "โหวตกัน",
         modalTitle: "เพิ่มโพลของเรา",
         pendingText: "กำลังเพิ่มโพล...",
         submitLabel: "เพิ่มโพล",
@@ -102,21 +102,21 @@ const BOARD_COPY: Record<RoomType, BoardCopy> = {
     actions: {
       checklist: {
         description: "แบ่งงานบ้าน ธุระ หรือของที่ต้องเตรียมให้เห็นชัด",
-        label: "เช็คลิส",
+        label: "งานที่ต้องช่วยกัน",
         modalTitle: "เพิ่มงานที่ต้องช่วยกัน",
         pendingText: "กำลังเพิ่มงาน...",
         submitLabel: "เพิ่มงาน",
       },
       note: {
         description: "ฝากข้อความหรือเรื่องสำคัญให้ทุกคนในบ้านเห็นร่วมกัน",
-        label: "โน้ต",
+        label: "ประกาศบ้าน",
         modalTitle: "เพิ่มประกาศบ้าน",
         pendingText: "กำลังเพิ่มประกาศ...",
         submitLabel: "เพิ่มประกาศ",
       },
       poll: {
         description: "ใช้ตัดสินใจเรื่องของบ้านหรือแผนครอบครัวร่วมกัน",
-        label: "โหวต",
+        label: "ขอความเห็น",
         modalTitle: "เพิ่มคำถามครอบครัว",
         pendingText: "กำลังเพิ่มคำถาม...",
         submitLabel: "เพิ่มคำถาม",
@@ -128,9 +128,9 @@ const BOARD_COPY: Record<RoomType, BoardCopy> = {
       title: "บอร์ดบ้านยังว่างอยู่",
     },
     itemTypeLabels: {
-      checklist: "เช็คลิส",
-      note: "โน้ต",
-      poll: "โหวต",
+      checklist: "งานบ้าน",
+      note: "ประกาศ",
+      poll: "คำถาม",
     },
     lead: "ฝากเรื่องสำคัญ งานที่ต้องช่วยกันทำ และการตัดสินใจของครอบครัวไว้ในที่เดียว",
     pageTitle: "บอร์ดของบ้าน",
@@ -165,21 +165,21 @@ const BOARD_COPY: Record<RoomType, BoardCopy> = {
     actions: {
       checklist: {
         description: "รวมของที่ต้องเตรียม งานที่แบ่งกันทำ หรือเช็คลิสต์ทริป",
-        label: "เช็คลิส",
+        label: "เช็คลิสต์",
         modalTitle: "เพิ่มเช็คลิสต์",
         pendingText: "กำลังเพิ่มเช็คลิสต์...",
         submitLabel: "เพิ่มเช็คลิสต์",
       },
       note: {
         description: "โยนไอเดีย นัดหมาย หรือเรื่องที่อยากแปะไว้ให้เพื่อนเห็น",
-        label: "โน้ต",
+        label: "ไอเดีย",
         modalTitle: "เพิ่มไอเดีย",
         pendingText: "กำลังเพิ่มไอเดีย...",
         submitLabel: "เพิ่มไอเดีย",
       },
       poll: {
         description: "โหวตวัน ร้าน หรือแผนต่อไปของกลุ่ม",
-        label: "โหวต",
+        label: "โหวตแผน",
         modalTitle: "เพิ่มโหวตแผน",
         pendingText: "กำลังเพิ่มโหวต...",
         submitLabel: "เพิ่มโหวต",
@@ -191,8 +191,8 @@ const BOARD_COPY: Record<RoomType, BoardCopy> = {
       title: "บอร์ดยังโล่งอยู่",
     },
     itemTypeLabels: {
-      checklist: "เช็คลิส",
-      note: "โน้ต",
+      checklist: "เช็คลิสต์",
+      note: "ไอเดีย",
       poll: "โหวต",
     },
     lead: "โยนไอเดีย แบ่งงาน และโหวตแผนของกลุ่มโดยไม่ต้องย้อนหาในแชท",

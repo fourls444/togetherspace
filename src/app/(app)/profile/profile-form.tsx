@@ -60,7 +60,7 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
             className={formStyles.control}
             defaultValue={defaultValues.displayName}
             id="displayName"
-            maxLength={40}
+            maxLength={80}
             name="displayName"
             required
           />

@@ -10,8 +10,6 @@ export type RoomType = "friend" | "couple" | "family";
 export type RoomRole = "owner" | "member";
 export type BoardType = "main" | "notes" | "checklist" | "poll" | "custom";
 export type BoardItemType = "note" | "checklist" | "poll";
-export type FamilyTreeRole = "parent" | "child" | "sibling";
-export type FamilyTreeRelationshipType = "parent_child" | "sibling";
 
 export type Database = {
   public: {
@@ -634,66 +632,6 @@ export type Database = {
         Update: {
           amount_cents?: number;
         };
-        Relationships: [];
-      };
-      family_tree_people: {
-        Row: {
-          id: string;
-          room_id: string;
-          room_member_user_id: string | null;
-          display_name: string;
-          role: FamilyTreeRole;
-          avatar_url: string | null;
-          position_x: number;
-          position_y: number;
-          created_by: string;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          room_id: string;
-          room_member_user_id?: string | null;
-          display_name: string;
-          role?: FamilyTreeRole;
-          avatar_url?: string | null;
-          position_x?: number;
-          position_y?: number;
-          created_by: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          room_member_user_id?: string | null;
-          display_name?: string;
-          role?: FamilyTreeRole;
-          avatar_url?: string | null;
-          position_x?: number;
-          position_y?: number;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
-      family_tree_relationships: {
-        Row: {
-          id: string;
-          room_id: string;
-          from_person_id: string;
-          to_person_id: string;
-          relationship_type: FamilyTreeRelationshipType;
-          created_by: string;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          room_id: string;
-          from_person_id: string;
-          to_person_id: string;
-          relationship_type: FamilyTreeRelationshipType;
-          created_by: string;
-          created_at?: string;
-        };
-        Update: Record<string, never>;
         Relationships: [];
       };
     };

@@ -87,8 +87,9 @@ export function calculateFinanceSummary(
 
 /** แสดงจำนวนสตางค์เป็นเงินบาทโดยใช้รูปแบบภาษาไทย */
 export function formatBaht(amountCents: number): string {
-  return `${new Intl.NumberFormat("th-TH", {
+  return new Intl.NumberFormat("th-TH", {
+    style: "currency",
+    currency: "THB",
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amountCents / 100)} บาท`;
+  }).format(amountCents / 100);
 }

@@ -6,16 +6,12 @@
 
 .filters {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 0.5rem;
-  overflow-x: auto;
-  padding-bottom: 0.1rem;
-  scrollbar-width: thin;
 }
 
 .filterButton {
   display: inline-flex;
-  flex: 0 0 auto;
   align-items: center;
   gap: 0.5rem;
   min-height: 2.25rem;
@@ -120,10 +116,6 @@
   gap: 0.45rem;
 }
 
-.cardActions > * {
-  white-space: nowrap;
-}
-
 .dragHandle {
   display: inline-flex;
   align-items: center;
@@ -225,15 +217,11 @@
 .editForm {
   display: grid;
   gap: 0.75rem;
-  padding: 1rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-panel);
-  background: color-mix(in srgb, var(--color-muted-surface) 46%, transparent);
 }
 
 .modalContent {
   display: grid;
-  gap: 1rem;
+  gap: 1.15rem;
 }
 
 .modalSaveRow {
@@ -244,10 +232,8 @@
 .manageSection {
   display: grid;
   gap: 0.8rem;
-  padding: 1rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-panel);
-  background: color-mix(in srgb, var(--color-background) 42%, transparent);
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
 }
 
 .manageSection h3 {
@@ -267,13 +253,13 @@
 
 .checklistItem,
 .pollOption {
-  display: grid;
+  display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.75rem;
 }
 
 .checklistItem {
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
   padding: 0.55rem 0.65rem;
   border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
   border-radius: var(--radius-control);
@@ -314,8 +300,7 @@
 }
 
 .pollOption {
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
-  align-items: center;
+  align-items: stretch;
   padding: 0.65rem;
   border: 1px solid color-mix(in srgb, var(--color-border) 82%, transparent);
   border-radius: var(--radius-control);
@@ -397,24 +382,8 @@
 }
 
 .inlineEdit {
-  min-width: 0;
-}
-
-.inlineEdit[open] {
-  grid-column: 1 / -1;
-  padding: 0.7rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-control);
-  background: color-mix(in srgb, var(--color-background) 64%, transparent);
-}
-
-.inlineEdit summary {
-  width: fit-content;
-  padding: 0.35rem 0.55rem;
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-control);
-  background: color-mix(in srgb, var(--color-muted-surface) 56%, transparent);
+  width: 100%;
+  margin-left: 2.1rem;
 }
 
 .inlineEditForm {
@@ -444,15 +413,10 @@
 
 .empty {
   margin-top: 1rem;
-  display: grid;
-  place-items: center;
-  gap: 0.35rem;
-  min-height: 12rem;
-  padding: 1.5rem;
+  padding: 2rem;
   text-align: center;
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-panel);
-  background: color-mix(in srgb, var(--color-muted-surface) 34%, transparent);
 }
 
 .filteredEmpty {
@@ -541,31 +505,10 @@
 }
 
 @media (max-width: 32rem) {
-  .filters {
-    margin-inline: -0.25rem;
-    padding-inline: 0.25rem;
-  }
-
-  .filterButton {
-    min-height: 2rem;
-    padding: 0.35rem 0.6rem;
-  }
-
   .cardHeader,
   .checklistItem,
   .pollOption {
     align-items: stretch;
-  }
-
-  .checklistItem,
-  .pollOption {
-    grid-template-columns: auto minmax(0, 1fr);
-  }
-
-  .checklistItem > button:last-child,
-  .pollOption > button:last-child,
-  .inlineEdit {
-    grid-column: 1 / -1;
   }
 
   .inlineEditForm,
@@ -586,10 +529,6 @@
   .cardActions > *,
   .modalSaveRow > * {
     flex: 1;
-  }
-
-  .pollVoteButton {
-    width: 100%;
   }
 
   .starters {

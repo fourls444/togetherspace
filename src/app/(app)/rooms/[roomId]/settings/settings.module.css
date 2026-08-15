@@ -1,7 +1,7 @@
 .stack {
   display: grid;
   gap: 1.25rem;
-  width: 100%;
+  width: min(100%, 64rem);
 }
 
 .pageHead {
@@ -12,7 +12,7 @@
 .pageTitle {
   margin: 0;
   font-family: var(--font-display-thai), var(--font-display), serif;
-  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-size: var(--font-size-display);
   font-weight: 400;
   letter-spacing: -0.03em;
   line-height: 1.08;
@@ -21,8 +21,8 @@
 .pageLead {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: var(--font-size-body);
-  line-height: 1.75;
+  font-size: var(--font-size-body-sm);
+  line-height: 1.6;
 }
 
 .primaryGrid {
@@ -42,8 +42,7 @@
 
 .title {
   margin: 0;
-  font-size: clamp(1.2rem, 1.8vw, 1.55rem);
-  line-height: 1.35;
+  font-size: var(--font-size-title);
 }
 
 .subTitle {
@@ -55,8 +54,8 @@
 .lead {
   margin: 0.4rem 0 1rem;
   color: var(--color-text-muted);
-  font-size: var(--font-size-body-sm);
-  line-height: 1.75;
+  font-size: var(--font-size-label);
+  line-height: 1.6;
 }
 
 .sectionDivider {

@@ -36,7 +36,6 @@
 .toolbar > div, .editorForm > label, .twoColumns label, .customSplits label { display: grid; gap: .35rem; color: var(--color-text-muted); font-size: .82rem; font-weight: 700; }
 .toolbar input, .editorForm input, .editorForm select, .editorForm textarea, .quickForm input, .quickForm select { width: 100%; min-height: 2.55rem; padding: .6rem .75rem; color: var(--color-text); font: inherit; border: 1px solid var(--color-border); border-radius: var(--radius-control); background: var(--color-surface); }
 .listHeader { display: flex; justify-content: space-between; gap: 1rem; align-items: center; margin: 1rem 0 .7rem; }
-.listHeader > div { display: grid; gap: .22rem; }
 .listHeader span { color: var(--color-text-muted); font-size: .82rem; }
 .expenseList { display: grid; gap: .55rem; margin: 0; padding: 0; list-style: none; }
 .expenseList li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: .8rem; padding: .85rem; border: 1px solid var(--color-border); border-radius: var(--radius-control); background: color-mix(in srgb, var(--color-muted-surface) 55%, transparent); }
@@ -47,7 +46,7 @@
 .expenseTitle > span { padding: .16rem .42rem; color: var(--color-primary); font-size: .68rem; font-weight: 800; border-radius: 999px; background: var(--color-primary-soft); }
 .amount { white-space: nowrap; }
 .rowActions { display: flex; gap: .4rem; }
-.empty { display: grid; place-items: center; gap: .35rem; min-height: 11rem; padding: 1.5rem 1rem; text-align: center; color: var(--color-text-muted); border: 1px dashed var(--color-border); border-radius: var(--radius-control); background: color-mix(in srgb, var(--color-muted-surface) 32%, transparent); }
+.empty { padding: 2.5rem 1rem; text-align: center; color: var(--color-text-muted); }
 .empty p { margin: .35rem 0 0; }
 .settlementPanel h3 { margin-bottom: .8rem; }
 .settlementPanel > p { margin: 0; color: var(--color-text-muted); line-height: 1.6; }

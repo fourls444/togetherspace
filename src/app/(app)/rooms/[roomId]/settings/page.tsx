@@ -147,7 +147,7 @@ export default async function RoomSettingsPage({
   return (
     <div className={styles.stack}>
       <header className={styles.pageHead}>
-        <h2 className={styles.pageTitle}>ตั้งค่าห้อง</h2>
+        <h2 className={styles.pageTitle}>ตั้งค่า</h2>
         <p className={styles.pageLead}>
           โปรไฟล์ในห้อง คำเชิญ และการดูแลสมาชิก
         </p>

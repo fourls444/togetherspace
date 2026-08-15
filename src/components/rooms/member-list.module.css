@@ -1,26 +1,19 @@
 .list {
-  display: grid;
-  gap: 0.65rem;
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-@media (min-width: 52rem) {
-  .list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.75rem;
-  }
 }
 
 .member {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 0.9rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-control);
-  background: color-mix(in srgb, var(--color-muted-surface) 70%, transparent);
+  padding: 1rem 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.member:first-child {
+  border-top: 0;
 }
 
 .content {
@@ -58,7 +51,6 @@
 }
 
 .name {
-  font-size: 1.02rem;
   font-weight: 600;
 }
 
