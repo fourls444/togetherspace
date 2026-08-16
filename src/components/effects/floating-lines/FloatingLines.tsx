@@ -469,10 +469,10 @@ export default function FloatingLines({
     };
 
     if (interactive) {
-      const moveTarget =
-        pointerTarget === "window" ? window : renderer.domElement;
-      moveTarget.addEventListener("pointermove", handlePointerMove);
-      if (pointerTarget === "element") {
+      if (pointerTarget === "window") {
+        window.addEventListener("pointermove", handlePointerMove);
+      } else {
+        renderer.domElement.addEventListener("pointermove", handlePointerMove);
         renderer.domElement.addEventListener(
           "pointerleave",
           handlePointerLeave,
@@ -513,10 +513,13 @@ export default function FloatingLines({
       cancelAnimationFrame(raf);
       if (ro) ro.disconnect();
       if (interactive) {
-        const moveTarget =
-          pointerTarget === "window" ? window : renderer.domElement;
-        moveTarget.removeEventListener("pointermove", handlePointerMove);
-        if (pointerTarget === "element") {
+        if (pointerTarget === "window") {
+          window.removeEventListener("pointermove", handlePointerMove);
+        } else {
+          renderer.domElement.removeEventListener(
+            "pointermove",
+            handlePointerMove,
+          );
           renderer.domElement.removeEventListener(
             "pointerleave",
             handlePointerLeave,

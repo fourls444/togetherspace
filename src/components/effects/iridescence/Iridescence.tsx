@@ -261,8 +261,11 @@ export default function Iridescence({
       program.uniforms.uMouse.value[1] = y;
     };
     if (mouseReact) {
-      const mouseTarget = classic ? window : container;
-      mouseTarget.addEventListener("pointermove", onPointerMove);
+      if (classic) {
+        window.addEventListener("pointermove", onPointerMove);
+      } else {
+        container.addEventListener("pointermove", onPointerMove);
+      }
     }
 
     return () => {
@@ -271,8 +274,11 @@ export default function Iridescence({
       ro.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
       if (mouseReact) {
-        const mouseTarget = classic ? window : container;
-        mouseTarget.removeEventListener("pointermove", onPointerMove);
+        if (classic) {
+          window.removeEventListener("pointermove", onPointerMove);
+        } else {
+          container.removeEventListener("pointermove", onPointerMove);
+        }
       }
       if (canvas.parentElement === container) {
         container.removeChild(canvas);
