@@ -8,9 +8,13 @@ import { Search, Loader2 } from "lucide-react";
 
 type PlaceSearchProps = {
   onSelectResult: (result: GeocodeResult) => void;
+  variant?: "overlay" | "inline";
 };
 
-export function PlaceSearch({ onSelectResult }: PlaceSearchProps) {
+export function PlaceSearch({
+  onSelectResult,
+  variant = "overlay",
+}: PlaceSearchProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<GeocodeResult[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -49,7 +53,10 @@ export function PlaceSearch({ onSelectResult }: PlaceSearchProps) {
   }
 
   return (
-    <div className={styles.searchContainer} ref={containerRef}>
+    <div
+      className={`${styles.searchContainer}${variant === "inline" ? ` ${styles.searchInline}` : ""}`}
+      ref={containerRef}
+    >
       <form onSubmit={handleSearch} className={styles.searchForm}>
         <input
           type="text"

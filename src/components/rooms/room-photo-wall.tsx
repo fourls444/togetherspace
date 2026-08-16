@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 
 import DepthCarousel from "@/components/effects/depth-carousel/DepthCarousel";
+import { useOptionalRoomTheme } from "@/components/rooms/room-theme-provider";
 import styles from "@/components/rooms/room-home.module.css";
 
 type Photo = {
@@ -18,6 +19,8 @@ type RoomPhotoWallProps = {
 
 export function RoomPhotoWall({ albumHref, photos }: RoomPhotoWallProps) {
   const router = useRouter();
+  const tint =
+    useOptionalRoomTheme()?.currentTheme.palette.background ?? "#0A0908";
 
   if (photos.length === 0) return null;
 
@@ -33,7 +36,7 @@ export function RoomPhotoWall({ albumHref, photos }: RoomPhotoWallProps) {
         loop
         showControls={false}
         showIndicators={false}
-        tint="#0A0908"
+        tint={tint}
       />
     </div>
   );

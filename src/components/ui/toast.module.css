@@ -17,7 +17,7 @@
 }
 
 .success {
-  color: #141210; /* Dark text for contrast */
+  color: var(--color-primary-text);
   border-color: var(--color-primary);
   background: var(--color-primary);
 }

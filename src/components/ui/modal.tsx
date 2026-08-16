@@ -9,6 +9,8 @@ import {
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
+import { readActiveRoomThemePortalProps } from "@/components/rooms/room-theme-provider";
+
 import styles from "./modal.module.css";
 
 type ModalProps = PropsWithChildren<{
@@ -94,13 +96,17 @@ export function Modal({
 
   if (!isOpen || typeof document === "undefined") return null;
 
+  const portalTheme = readActiveRoomThemePortalProps();
+
   return createPortal(
     <div
       className={styles.backdrop}
+      data-room-theme={portalTheme["data-room-theme"]}
       onMouseDown={(event) => {
         if (closeOnBackdrop && event.target === event.currentTarget) onClose();
       }}
       role="presentation"
+      style={portalTheme.style}
     >
       <div
         aria-describedby={description ? descriptionId : undefined}

@@ -8,6 +8,8 @@ import "./Iridescence.css";
 export type IridescenceProps = {
   className?: string;
   color?: [number, number, number];
+  /** พื้นหมึกที่ไหมผสมเข้าไป — ตามธีมห้อง ไม่ล็อก Atelier */
+  ink?: [number, number, number];
   speed?: number;
   amplitude?: number;
   mouseReact?: boolean;
@@ -34,6 +36,7 @@ precision highp float;
 
 uniform float uTime;
 uniform vec3 uColor;
+uniform vec3 uInk;
 uniform vec3 uResolution;
 uniform vec2 uMouse;
 uniform float uAmplitude;
@@ -42,8 +45,12 @@ uniform float uSpeed;
 varying vec2 vUv;
 
 void main() {
-  float mr = min(uResolution.x, uResolution.y);
-  vec2 uv = (vUv.xy * 2.0 - 1.0) * uResolution.xy / mr;
+  vec2 uv = vUv.xy * 2.0 - 1.0;
+  float aspect = uResolution.x / max(uResolution.y, 1.0);
+  // การ์ดกว้างถ้ายืด UV ตามอัตราส่วนเต็ม จะแตกเป็นวงยับที่ขอบขวา
+  uv.x *= min(max(aspect, 1.0), 1.42);
+  uv.y *= min(max(1.0 / max(aspect, 0.0001), 1.0), 1.42);
+  uv *= 0.92;
 
   uv += (uMouse - vec2(0.5)) * uAmplitude;
 
@@ -58,7 +65,7 @@ void main() {
   wave = cos(wave * cos(vec3(d, a, 2.5)) * 0.5 + 0.5);
   float l = dot(wave, vec3(0.22, 0.55, 0.23));
   l = pow(clamp(l, 0.0, 1.0), 1.45);
-  vec3 ink = vec3(0.039, 0.035, 0.031);
+  vec3 ink = uInk;
   vec3 metal = uColor;
   vec3 sheen = mix(ink, metal, l * 0.78);
   sheen += metal * vec3(1.06, 1.02, 0.92) * pow(l, 7.0) * 0.28;
@@ -70,6 +77,7 @@ void main() {
 export default function Iridescence({
   className,
   color = [0.788, 0.722, 0.588],
+  ink = [0.039, 0.035, 0.031],
   speed = 0.45,
   amplitude = 0.1,
   mouseReact = false,
@@ -78,7 +86,7 @@ export default function Iridescence({
   live = true,
 }: IridescenceProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const colorKey = color.join(",");
+  const colorKey = `${color.join(",")}|${ink.join(",")}`;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -93,18 +101,24 @@ export default function Iridescence({
       antialias: false,
     });
     const gl = renderer.gl;
-    gl.clearColor(0.08, 0.07, 0.05, 1);
     const canvas = gl.canvas;
     canvas.style.width = "100%";
     canvas.style.height = "100%";
     canvas.style.display = "block";
     container.appendChild(canvas);
 
-    const [cr, cg, cb] = colorKey.split(",").map(Number) as [
+    const [metalPart, inkPart] = colorKey.split("|");
+    const [cr, cg, cb] = metalPart.split(",").map(Number) as [
       number,
       number,
       number,
     ];
+    const [ir, ig, ib] = inkPart.split(",").map(Number) as [
+      number,
+      number,
+      number,
+    ];
+    gl.clearColor(ir, ig, ib, 1);
     const mouse = { x: 0.5, y: 0.5 };
 
     const program = new Program(gl, {
@@ -113,6 +127,7 @@ export default function Iridescence({
       uniforms: {
         uTime: { value: 0 },
         uColor: { value: new Color(cr, cg, cb) },
+        uInk: { value: new Color(ir, ig, ib) },
         uResolution: {
           value: new Color(
             gl.canvas.width,

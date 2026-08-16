@@ -5,7 +5,6 @@ import type { CSSProperties } from "react";
 
 import styles from "@/components/rooms/room-theme.module.css";
 import { useRoomTheme } from "@/components/rooms/room-theme-provider";
-import { ROOM_TYPE_LABEL } from "@/lib/rooms/labels";
 import type { RoomTheme } from "@/lib/rooms/themes";
 
 /** สร้างพื้นตัวอย่างจากสีหลักของธีมโดยไม่เปลี่ยนหน้าจริงก่อนผู้ใช้เลือก */
@@ -17,15 +16,14 @@ function getPreviewStyle(theme: RoomTheme): CSSProperties {
   } as CSSProperties;
 }
 
-/** แสดงเฉพาะธีมที่ใช้ได้กับประเภทของห้องปัจจุบัน */
+/** เลือกบรรยากาศของห้องจากสี่ขั้วที่ต่างกันชัด */
 export function RoomThemeSelector() {
-  const { currentTheme, roomType, selectTheme, themes } = useRoomTheme();
+  const { currentTheme, selectTheme, themes } = useRoomTheme();
 
   return (
     <div>
       <p className={styles.selectorHint}>
-        ห้องประเภท{ROOM_TYPE_LABEL[roomType]}เลือกได้เฉพาะ 4 ชุดนี้
-        ใช้กับภายในห้อง ไม่เปลี่ยนแถบบนของเว็บ และจำไว้บนเครื่องนี้
+        ใช้ได้เฉพาะในห้องนี้ แถบบนของเว็บไม่เปลี่ยน และจำไว้บนเครื่องนี้
       </p>
       <div className={styles.themeGrid} aria-label="ตัวเลือกธีมห้อง">
         {themes.map((theme) => {

@@ -1,29 +1,39 @@
 .searchContainer {
   position: absolute;
   top: 1rem;
-  left: 3.5rem; /* ถัดจากปุ่ม zoom ของ leaflet */
-  z-index: 1000; /* อยู่เหนือแผนที่ */
+  left: 3.5rem;
+  z-index: 1000;
   width: min(100% - 4.5rem, 24rem);
-  font-family: var(--font-body), var(--font-body-thai), sans-serif;
+  font-family: var(--font-sans), var(--font-sans-thai), sans-serif;
+}
+
+.searchInline {
+  position: relative;
+  top: auto;
+  left: auto;
+  width: min(22rem, 100%);
+  flex: 0 1 22rem;
+  min-width: 0;
+  z-index: 2;
 }
 
 .searchForm {
   display: flex;
+  overflow: hidden;
   background: var(--color-surface);
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-control);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
+  box-shadow: var(--shadow-extrude-sm);
 }
 
 .searchInput {
   flex: 1;
-  border: none;
-  background: transparent;
   padding: 0.65rem 0.85rem;
   color: var(--color-text);
-  font-size: 0.95rem;
+  font-size: var(--font-size-body-sm);
+  border: 0;
   outline: none;
+  background: transparent;
 }
 
 .searchInput::placeholder {
@@ -31,39 +41,38 @@
 }
 
 .searchButton {
-  background: color-mix(in srgb, var(--color-muted-surface) 50%, transparent);
-  border: none;
-  border-left: 1px solid var(--color-border);
   padding: 0 0.85rem;
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: all 0.2s;
+  border: 0;
+  border-left: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-muted-surface) 50%, transparent);
 }
 
 .searchButton:hover:not(:disabled) {
-  background: var(--color-hover);
   color: var(--color-text);
+  background: var(--color-hover);
 }
 
 .searchButton:disabled {
-  opacity: 0.7;
   cursor: wait;
+  opacity: 0.7;
 }
 
 .resultsList {
   position: absolute;
   top: calc(100% + 0.35rem);
-  left: 0;
   right: 0;
+  left: 0;
+  max-height: 18rem;
   margin: 0;
   padding: 0.35rem 0;
+  overflow-y: auto;
   list-style: none;
   background: var(--color-surface);
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-control);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  max-height: 18rem;
-  overflow-y: auto;
+  box-shadow: var(--shadow-panel);
 }
 
 .resultItem {
@@ -72,15 +81,14 @@
 
 .resultButton {
   width: 100%;
-  text-align: left;
   padding: 0.65rem 0.85rem;
-  background: transparent;
-  border: none;
   color: var(--color-text);
-  font-size: 0.9rem;
+  font-size: var(--font-size-caption);
   line-height: 1.4;
+  text-align: left;
   cursor: pointer;
-  transition: background 0.15s;
+  border: 0;
+  background: transparent;
 }
 
 .resultButton:hover {
@@ -90,40 +98,37 @@
 .noResults {
   position: absolute;
   top: calc(100% + 0.35rem);
-  left: 0;
   right: 0;
+  left: 0;
   padding: 0.85rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+  text-align: center;
   background: var(--color-surface);
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-control);
-  color: var(--color-text-muted);
-  font-size: 0.9rem;
-  text-align: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-panel);
 }
 
 @media (max-width: 560px) {
-  .searchContainer {
-    left: 1rem;
-    right: 1rem;
-    width: auto;
+  .searchContainer:not(.searchInline) {
     top: 0.5rem;
-  }
-  @keyframes slideUpMobile {
-    from {
-      transform: translateY(100%);
-    }
-    to {
-      transform: translateY(0);
-    }
+    right: 1rem;
+    left: 1rem;
+    width: auto;
   }
 }
 
 .spin {
-  animation: spin 1s linear infinite;
+  animation: search-spin 1s linear infinite;
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+@keyframes search-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }

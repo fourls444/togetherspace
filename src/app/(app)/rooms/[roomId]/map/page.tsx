@@ -1,8 +1,8 @@
 import { PlaceMapWorkspace } from "@/components/places/place-map-workspace";
-import type { PlaceMapItem } from "@/components/places/place-map";
 import styles from "@/components/places/place-map.module.css";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ErrorState } from "@/components/ui/error-state";
+import { attachPlaceCreators } from "@/lib/places/attach-place-creators";
 import { getRoomContext } from "@/lib/rooms/server";
 
 /** หน้าแผนที่ของห้อง แสดงสถานที่ที่สมาชิกบันทึกร่วมกัน */
@@ -32,38 +32,58 @@ export default async function RoomMapPage({
 
   const placesResult = await context.supabase
     .from("room_places")
-    .select("id, name, description, latitude, longitude, place_date, created_at")
+    .select(
+      "id, name, description, latitude, longitude, place_date, created_by",
+    )
     .eq("room_id", context.roomId)
     .order("created_at", { ascending: false });
 
-  const places: PlaceMapItem[] = (placesResult.data ?? []).map((place) => ({
-    id: place.id,
-    name: place.name,
-    description: place.description,
-    latitude: place.latitude,
-    longitude: place.longitude,
-    placeDate: place.place_date,
-  }));
+  const placeRows = placesResult.data ?? [];
+  const creatorIds = [
+    ...new Set(placeRows.map((place) => place.created_by)),
+  ];
+
+  const [profilesResult, roomProfilesResult] =
+    creatorIds.length > 0
+      ? await Promise.all([
+          context.supabase
+            .from("profiles")
+            .select("id, display_name, avatar_url")
+            .in("id", creatorIds),
+          context.supabase
+            .from("room_profiles")
+            .select("user_id, display_name, avatar_url")
+            .eq("room_id", context.roomId)
+            .in("user_id", creatorIds),
+        ])
+      : [
+          { data: [] as { id: string; display_name: string | null; avatar_url: string | null }[] },
+          {
+            data: [] as {
+              user_id: string;
+              display_name: string | null;
+              avatar_url: string | null;
+            }[],
+          },
+        ];
+
+  const places = attachPlaceCreators(
+    placeRows,
+    profilesResult.data ?? [],
+    roomProfilesResult.data ?? [],
+  );
 
   return (
     <div className={styles.page}>
       <section className={styles.hero}>
         <div>
-          <p className={styles.eyebrow}>แผนที่ของห้อง</p>
           <h1 className={styles.title}>สถานที่ที่อยากจำไว้ด้วยกัน</h1>
           <p className={styles.description}>
-            แตะบนแผนที่หรือค้นหาเพื่อปักหมุดที่เที่ยว/ร้านโปรดของห้องนี้
-            ถ้าอยากเริ่มจากจุดที่คุณอยู่ ให้กดปุ่มใช้ตำแหน่งปัจจุบัน
+            ดูเมืองที่มีความทรงจำ แล้วซูมเข้าแผนที่ถนนเมื่อจะปักหมุดใหม่
           </p>
         </div>
       </section>
 
-      {/*
-        PlaceMapWorkspace รับ places ทั้งหมดและจัดการ:
-        - แผนที่ + หมุดทั้งหมด
-        - ฟอร์มเพิ่มสถานที่ใหม่
-        - ช่องค้นหา
-      */}
       <PlaceMapWorkspace
         initialFlyToPlaceId={placeId}
         places={places}

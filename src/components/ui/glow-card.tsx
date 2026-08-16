@@ -5,7 +5,9 @@ import type { ReactNode } from "react";
 import BorderGlow, {
   type BorderGlowProps,
 } from "@/components/effects/border-glow/BorderGlow";
+import { useOptionalRoomTheme } from "@/components/rooms/room-theme-provider";
 import { ROOM_TYPE_THEME } from "@/lib/rooms/labels";
+import { hexToHslSpace } from "@/lib/rooms/themes";
 import type { RoomType } from "@/lib/types/database";
 
 const ROOM_COLORS = ["#C9B896", "#D8CBB0", "#F6F1E8"] as const;
@@ -25,7 +27,7 @@ type GlowCardProps = {
   roomType?: RoomType;
 } & Pick<BorderGlowProps, "aria-label" | "role">;
 
-/** การ์ด BorderGlow โทน Private Atelier */
+/** การ์ด BorderGlow — ในห้องใช้พาเลตธีมที่เลือก ไม่ล็อกหมึก Atelier */
 export function GlowCard({
   children,
   className,
@@ -40,14 +42,18 @@ export function GlowCard({
 }: GlowCardProps) {
   const isDanger = tone === "danger";
   const isRoom = tone === "room";
-  const theme = roomType ? ROOM_TYPE_THEME[roomType] : null;
+  const roomPalette = useOptionalRoomTheme()?.currentTheme.palette;
+  const typeTheme = roomType ? ROOM_TYPE_THEME[roomType] : null;
 
   return (
     <BorderGlow
       {...rest}
       animated={animated}
       backgroundColor={
-        backgroundColor ?? (isDanger ? "#2A1818" : "#141210")
+        backgroundColor ??
+        (isDanger
+          ? "#2A1818"
+          : (roomPalette?.surface ?? typeTheme?.background ?? "#141210"))
       }
       borderRadius={isRoom ? 8 : 6}
       className={className}
@@ -55,9 +61,15 @@ export function GlowCard({
         colors ??
         (isDanger
           ? [...DANGER_COLORS]
-          : theme
-            ? [...theme.colors]
-            : [...ROOM_COLORS])
+          : roomPalette
+            ? [
+                roomPalette.primary,
+                roomPalette.primaryHover,
+                roomPalette.text,
+              ]
+            : typeTheme
+              ? [...typeTheme.colors]
+              : [...ROOM_COLORS])
       }
       coneSpread={22}
       contentClassName={contentClassName}
@@ -65,7 +77,11 @@ export function GlowCard({
       fillOpacity={0.12}
       glowColor={
         glowColor ??
-        (isDanger ? "0 40 55" : (theme?.glowColor ?? "40 30 69"))
+        (isDanger
+          ? "0 40 55"
+          : roomPalette
+            ? hexToHslSpace(roomPalette.primary)
+            : (typeTheme?.glowColor ?? "40 30 69"))
       }
       glowIntensity={0.55}
       glowRadius={isRoom ? 20 : 16}

@@ -1,0 +1,279 @@
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: min(64vh, 38rem);
+  overflow: hidden;
+  background: var(--color-background);
+}
+
+.chrome {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 500;
+  max-width: min(36rem, calc(100% - 7.25rem));
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.viewToggle {
+  display: inline-flex;
+  flex: 0 0 auto;
+  padding: 0.2rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  box-shadow: var(--shadow-extrude-sm);
+}
+
+.viewToggle button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.15rem;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: var(--font-size-caption);
+  font-weight: 700;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+}
+
+.viewToggle button[aria-pressed="true"] {
+  color: var(--color-primary-text);
+  background: var(--color-primary);
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.loading,
+.empty {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  pointer-events: none;
+}
+
+.loading {
+  color: var(--color-text-muted);
+  background: var(--color-background);
+}
+
+.empty {
+  align-content: end;
+  padding-bottom: 5.5rem;
+}
+
+.emptyCard {
+  display: grid;
+  gap: 0.35rem;
+  max-width: 22rem;
+  padding: 0.85rem 1rem;
+  pointer-events: auto;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  box-shadow: var(--shadow-panel);
+}
+
+.emptyCard strong {
+  font-family: var(--font-display-thai), var(--font-display), serif;
+  font-size: var(--font-size-title);
+  font-weight: 400;
+}
+
+.emptyCard p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+  line-height: 1.55;
+}
+
+.pinHtml {
+  pointer-events: auto;
+}
+
+.pin {
+  overflow: hidden;
+  width: 8px;
+  height: 8px;
+  cursor: pointer;
+  pointer-events: auto;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-muted-surface);
+  box-shadow: var(--shadow-extrude-sm);
+  transition: transform 0.2s ease;
+}
+
+.clusterHtml {
+  pointer-events: auto;
+}
+
+.clusterChip,
+.memory {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  appearance: none;
+  font: inherit;
+  line-height: 1.2;
+  text-align: left;
+  cursor: pointer;
+}
+
+.clusterChip {
+  padding: 0.22rem 0.6rem 0.22rem 0.22rem;
+  color: var(--color-text);
+  font-size: var(--font-size-caption);
+  font-weight: 700;
+  white-space: nowrap;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  box-shadow: var(--shadow-extrude-sm);
+}
+
+.clusterChipSelected,
+.clusterChip:hover {
+  border-color: var(--color-primary);
+}
+
+.clusterFaces {
+  display: flex;
+  align-items: center;
+}
+
+.clusterFaces img,
+.memory img {
+  display: block;
+  object-fit: cover;
+  border-radius: 999px;
+}
+
+.clusterFaces img {
+  width: 1.35rem;
+  height: 1.35rem;
+  margin-left: -0.4rem;
+  box-shadow: 0 0 0 1px var(--color-surface);
+}
+
+.clusterFaces img:first-child {
+  margin-left: 0;
+}
+
+.viewToggle button:focus-visible,
+.pin:focus-visible,
+.clusterChip:focus-visible,
+.memory:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.pin img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pinHovered {
+  transform: scale(1.25);
+}
+
+.pinSelected {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-text) 50%, transparent),
+    var(--shadow-extrude-sm);
+}
+
+.memories {
+  position: absolute;
+  z-index: 3;
+  right: 1rem;
+  bottom: 4.35rem;
+  left: 1rem;
+  display: flex;
+  gap: 0.55rem;
+  max-width: calc(100% - 2rem);
+  padding-bottom: 0.15rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+}
+
+.memory {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 11.5rem;
+  min-height: 2.45rem;
+  padding: 0.25rem 0.7rem 0.25rem 0.25rem;
+  cursor: pointer;
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+}
+
+.memory:hover,
+.memorySelected {
+  border-color: var(--color-primary);
+}
+
+.memory img {
+  width: 1.85rem;
+  height: 1.85rem;
+}
+
+.memory .clusterFaces img {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.memory span {
+  overflow: hidden;
+  font-size: var(--font-size-caption);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .memories {
+    max-width: 100%;
+    bottom: 4.25rem;
+    left: 0.75rem;
+    right: 0.75rem;
+  }
+
+  .empty {
+    padding-bottom: 8rem;
+  }
+}

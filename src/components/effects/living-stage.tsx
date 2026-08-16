@@ -3,6 +3,8 @@
 import { useRef, type CSSProperties, type ReactNode } from "react";
 
 import { MagicBentoSpotlight } from "@/components/effects/magic-bento/MagicBentoCard";
+import { useOptionalRoomTheme } from "@/components/rooms/room-theme-provider";
+import { hexToRgbChannel } from "@/lib/rooms/themes";
 
 type LivingStageProps = {
   children: ReactNode;
@@ -22,16 +24,24 @@ export function LivingStage({
   style,
 }: LivingStageProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const palette = useOptionalRoomTheme()?.currentTheme.palette;
+  const glow = palette ? hexToRgbChannel(palette.primary) : glowRgb;
 
   return (
     <div
       className={`magic-bento-section${className ? ` ${className}` : ""}`}
       ref={ref}
-      style={{ "--glow-color": glowRgb, ...style } as CSSProperties}
+      style={
+        {
+          ...style,
+          "--glow-color": glow,
+          ...(palette ? { "--room-accent": palette.primary } : {}),
+        } as CSSProperties
+      }
     >
       <MagicBentoSpotlight
         enabled={spotlight}
-        glowColor={glowRgb}
+        glowColor={glow}
         sectionRef={ref}
       />
       {children}

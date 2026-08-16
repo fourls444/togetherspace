@@ -3,6 +3,8 @@
 import { type CSSProperties, type ReactNode } from "react";
 
 import { MagicBentoCard } from "@/components/effects/magic-bento/MagicBentoCard";
+import { useOptionalRoomTheme } from "@/components/rooms/room-theme-provider";
+import { hexToRgbChannel } from "@/lib/rooms/themes";
 
 type LivingCardProps = {
   children: ReactNode;
@@ -10,12 +12,15 @@ type LivingCardProps = {
   glowRgb?: string;
 };
 
-/** การ์ดที่รับแสงโลหะตามเมาส์ — Magic Bento โทน Atelier */
+/** การ์ดที่รับแสงโลหะตามเมาส์ — ในห้องย้อมตามธีมที่เลือก */
 export function LivingCard({
   children,
   className = "",
   glowRgb = "201, 184, 150",
 }: LivingCardProps) {
+  const palette = useOptionalRoomTheme()?.currentTheme.palette;
+  const glow = palette ? hexToRgbChannel(palette.primary) : glowRgb;
+
   return (
     <MagicBentoCard
       className={className}
@@ -24,7 +29,7 @@ export function LivingCard({
       enableMagnetism={false}
       enableStars={false}
       enableTilt={false}
-      glowColor={glowRgb}
+      glowColor={glow}
       style={{ borderRadius: "inherit" } as CSSProperties}
     >
       {children}
