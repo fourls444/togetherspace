@@ -6,6 +6,7 @@ import { ExternalLink, MapPin, MapPinPlus, Map, Pencil, Search, Trash2 } from "l
 
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { DateField } from "@/components/ui/date-field";
 import { Toast } from "@/components/ui/toast";
 import { deletePlace, updatePlace } from "@/features/places/actions";
 import type { PlaceMapItem, PlacePosition } from "@/components/places/place-map";
@@ -94,12 +95,10 @@ function PlaceItemEditor({
           <label className={formStyles.label} htmlFor={`edit-date-${place.id}`}>
             วันที่เกี่ยวข้อง (ไม่บังคับ)
           </label>
-          <input
-            className={formStyles.control}
+          <DateField
             defaultValue={place.placeDate ?? ""}
             id={`edit-date-${place.id}`}
             name="placeDate"
-            type="date"
           />
         </div>
 

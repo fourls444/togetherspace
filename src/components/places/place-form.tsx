@@ -2,8 +2,9 @@
 
 import { useActionState, useEffect } from "react";
 
-import { Button } from "@/components/ui/button";
 import { ActionSuccessToast } from "@/components/ui/action-success-toast";
+import { Button } from "@/components/ui/button";
+import { DateField } from "@/components/ui/date-field";
 import { FieldErrors } from "@/components/ui/field-errors";
 import { createPlace, type PlaceActionState } from "@/features/places/actions";
 import type { PlacePosition } from "@/components/places/place-map";
@@ -114,14 +115,12 @@ export function PlaceForm({
         <label className={formStyles.label} htmlFor="placeDate">
           วันที่เกี่ยวข้อง (ไม่บังคับ)
         </label>
-        <input
+        <DateField
           aria-describedby={
             state.fieldErrors?.placeDate ? "place-date-errors" : undefined
           }
-          className={formStyles.control}
           id="placeDate"
           name="placeDate"
-          type="date"
         />
         <FieldErrors
           id="place-date-errors"
