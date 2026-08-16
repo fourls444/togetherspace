@@ -9,15 +9,15 @@ import { useBackdropQuality } from "@/lib/motion/backdrop-quality";
 const FALL = {
   friend: {
     backgroundColor: "#0A0908",
-    colors: ["#C9B896", "#D8CBB0"],
+    colors: ["#C9B896", "#D8CBB0", "#F6F1E8"],
   },
   couple: {
     backgroundColor: "#0A0908",
-    colors: ["#C9968C", "#C9B896"],
+    colors: ["#C9968C", "#C9B896", "#F6F1E8"],
   },
   family: {
     backgroundColor: "#0A0908",
-    colors: ["#A8B08C", "#D8CBB0"],
+    colors: ["#A8B08C", "#D8CBB0", "#F6F1E8"],
   },
 } as const;
 
@@ -52,22 +52,22 @@ export function AppLightfall() {
   return (
     <Lightfall
       backgroundColor={theme.backgroundColor}
-      backgroundGlow={0.16}
+      backgroundGlow={1}
       className={styles.rays}
       colors={[...theme.colors]}
-      density={0.28}
-      dpr={quality.dpr}
-      glow={0.5}
+      density={1}
+      glow={1}
       mixBlendMode="screen"
-      mouseInteraction={false}
-      opacity={0.38}
-      speed={0.32}
-      streakCount={2}
-      streakLength={0.9}
-      streakWidth={0.7}
-      targetFps={quality.fps}
-      twinkle={0.25}
-      zoom={2.8}
+      mouseInteraction
+      mouseRadius={0.6}
+      mouseStrength={1}
+      opacity={1}
+      speed={1}
+      streakCount={8}
+      streakLength={1}
+      streakWidth={1}
+      twinkle={1}
+      zoom={2}
     />
   );
 }

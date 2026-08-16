@@ -28,7 +28,6 @@ export type LightfallProps = {
   mouseRadius?: number;
   mouseDampening?: number;
   mixBlendMode?: CSSProperties["mixBlendMode"];
-  /** Cap redraws. Backgrounds should stay at 24–30. */
   targetFps?: number;
 };
 
@@ -132,7 +131,7 @@ vec2 sceneC(vec2 frag, vec2 r) {
   float z = 0.0;
   float d = 1e3;
   vec4 O = vec4(0.0);
-  for (int k = 0; k < 24; k++) {
+  for (int k = 0; k < 39; k++) {
     if (d <= 1e-4) break;
     O = z * normalize(vec4(P, uZoom, 0.0)) - vec4(0.0, 4.0, 1.0, 0.0) / 4.5;
     d = 1.0 - sqrt(length(O * O));
@@ -173,7 +172,7 @@ void mainImage(out vec4 o, vec2 C) {
   vec2 rr = vec2(max(length(fw), 1e-5));
   float tail = 19.0 / max(uStreakLength, 0.05);
 
-  for (int m = 0; m < 8; m++) {
+  for (int m = 0; m < 16; m++) {
     if (m >= uStreakCount) break;
     float jf = float(m) + 1.0;
     float ic = fract(sin(dot(vec2(jf, floor(C.x / Y.x + 0.5)), vec2(7.0, 11.0)) * 73.0));
@@ -205,24 +204,24 @@ export default function Lightfall({
   className,
   dpr,
   paused = false,
-  colors = ["#C9B896", "#D8CBB0"],
+  colors = ["#C9B896", "#D8CBB0", "#F6F1E8"],
   backgroundColor = "#0A0908",
-  speed = 0.5,
-  streakCount = 2,
+  speed = 1,
+  streakCount = 8,
   streakWidth = 1,
   streakLength = 1,
   glow = 1,
-  density = 0.6,
+  density = 1,
   twinkle = 1,
-  zoom = 3,
-  backgroundGlow = 0.5,
+  zoom = 2,
+  backgroundGlow = 1,
   opacity = 1,
   mouseInteraction = true,
-  mouseStrength = 0.5,
-  mouseRadius = 1,
+  mouseStrength = 1,
+  mouseRadius = 0.6,
   mouseDampening = 0.15,
   mixBlendMode,
-  targetFps = 30,
+  targetFps = 60,
 }: LightfallProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const colorKey = colors.join(",");
@@ -235,9 +234,9 @@ export default function Lightfall({
     }
 
     const renderer = new Renderer({
-      dpr: dpr ?? 1,
+      dpr: dpr ?? (window.devicePixelRatio || 1),
       alpha: true,
-      antialias: false,
+      antialias: true,
     });
     const gl = renderer.gl;
     const canvas = gl.canvas;
@@ -266,7 +265,7 @@ export default function Lightfall({
       uMouseColor: { value: avg },
       uSpeed: { value: speed },
       uStreakCount: {
-        value: Math.max(1, Math.min(8, Math.round(streakCount))),
+        value: Math.max(1, Math.min(16, Math.round(streakCount))),
       },
       uStreakWidth: { value: streakWidth },
       uStreakLength: { value: streakLength },

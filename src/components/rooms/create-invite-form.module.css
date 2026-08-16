@@ -1,6 +1,7 @@
 .form {
   gap: 0.8rem;
-  max-width: 48rem;
+  width: 100%;
+  max-width: none;
 }
 
 .submit {

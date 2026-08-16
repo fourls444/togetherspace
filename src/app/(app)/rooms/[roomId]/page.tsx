@@ -304,24 +304,27 @@ export default async function RoomPage({
 
         {/* Album */}
         <LivingCard className={styles.liveShelf} glowRgb={glowRgb}>
-          <Link href={albumHref} className={styles.cardLink} prefetch>
-            <section aria-label={albumModule?.title ?? "รูปล่าสุด"} className={styles.wall}>
-              <div className={styles.wallHead}>
-                <div>
-                  <h2 className={styles.sectionTitle}><span className={styles.sectionIcon} aria-hidden><Images size={20} /></span>{albumModule?.title ?? "อัลบั้ม"}</h2>
-                  {albumModule?.description ? <p className={styles.sectionDescription}>{albumModule.description}</p> : null}
-                </div>
+          <section aria-label={albumModule?.title ?? "รูปล่าสุด"} className={styles.wall}>
+            <div className={styles.wallHead}>
+              <div>
+                <h2 className={styles.sectionTitle}><span className={styles.sectionIcon} aria-hidden><Images size={20} /></span>{albumModule?.title ?? "อัลบั้ม"}</h2>
+                {albumModule?.description ? <p className={styles.sectionDescription}>{albumModule.description}</p> : null}
               </div>
+              <Link className={styles.more} href={albumHref} prefetch>
+                ไปอัลบั้ม
+              </Link>
+            </div>
             {photos.length > 0 ? (
-              <RoomPhotoWall albumHref={albumHref} photos={photos} />
+              <RoomPhotoWall photos={photos} />
             ) : (
-              <EmptySlot
-                icon="🖼️"
-                copy="ยังไม่มีรูปในอัลบั้ม เริ่มจากโมเมนต์แรกของห้องนี้ได้เลย"
-              />
+              <Link href={albumHref} className={styles.cardLink} prefetch>
+                <EmptySlot
+                  icon="🖼️"
+                  copy="ยังไม่มีรูปในอัลบั้ม เริ่มจากโมเมนต์แรกของห้องนี้ได้เลย"
+                />
+              </Link>
             )}
           </section>
-          </Link>
         </LivingCard>
 
         <div className={styles.colStack}>

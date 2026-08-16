@@ -1,7 +1,13 @@
 .stack {
   display: grid;
   gap: 1.25rem;
-  width: min(100%, 64rem);
+  width: 100%;
+  min-width: 0;
+}
+
+.stack > :global(*) {
+  width: 100%;
+  min-width: 0;
 }
 
 .pageHead {
@@ -37,6 +43,8 @@
 }
 
 .pairCard {
+  width: 100%;
+  min-width: 0;
   align-self: stretch;
 }
 

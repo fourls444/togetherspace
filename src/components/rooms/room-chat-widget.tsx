@@ -302,7 +302,6 @@ export function RoomChatWidget({
           </span>
         ) : null}
         <span className={styles.launcherText}>
-          <span className={styles.eyebrow}>แชทของห้อง</span>
           <strong>{roomName}</strong>
           {latestMessage ? (
             <small>

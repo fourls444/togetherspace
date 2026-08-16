@@ -60,8 +60,8 @@ uniform vec3 lineGradient[8];
 uniform int lineGradientCount;
 
 const vec3 BLACK = vec3(0.0);
-const vec3 WARM  = vec3(232.0, 160.0, 85.0) / 255.0;
-const vec3 NAVY  = vec3(13.0,  20.0,  36.0) / 255.0;
+const vec3 INK   = vec3(10.0, 9.0, 8.0) / 255.0;
+const vec3 METAL = vec3(201.0, 184.0, 150.0) / 255.0;
 
 mat2 rotate(float r) {
   return mat2(cos(r), sin(r), -sin(r), cos(r));
@@ -73,8 +73,8 @@ vec3 background_color(vec2 uv) {
   float y = sin(uv.x - 0.2) * 0.3 - 0.1;
   float m = uv.y - y;
 
-  col += mix(NAVY, BLACK, smoothstep(0.0, 1.0, abs(m)));
-  col += mix(WARM, BLACK, smoothstep(0.0, 1.0, abs(m - 0.8)));
+  col += mix(INK, BLACK, smoothstep(0.0, 1.0, abs(m)));
+  col += mix(METAL, BLACK, smoothstep(0.0, 1.0, abs(m - 0.8)));
   return col * 0.5;
 }
 
@@ -216,6 +216,7 @@ type WavePosition = {
 };
 
 export type FloatingLinesProps = {
+  className?: string;
   linesGradient?: string[];
   enabledWaves?: WaveName[];
   lineCount?: number | number[];
@@ -231,6 +232,8 @@ export type FloatingLinesProps = {
   parallax?: boolean;
   parallaxStrength?: number;
   mixBlendMode?: CSSProperties["mixBlendMode"];
+  /** window = ตามเคอร์เซอร์ทั้งหน้า (พื้นหลังที่ pointer-events: none) */
+  pointerTarget?: "element" | "window";
 };
 
 function hexToVec3(hex: string) {
@@ -255,6 +258,7 @@ function hexToVec3(hex: string) {
 }
 
 export default function FloatingLines({
+  className,
   linesGradient,
   enabledWaves = ["top", "middle", "bottom"],
   lineCount = [6],
@@ -270,6 +274,7 @@ export default function FloatingLines({
   parallax = true,
   parallaxStrength = 0.2,
   mixBlendMode = "screen",
+  pointerTarget = "element",
 }: FloatingLinesProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const targetMouseRef = useRef(new Vector2(-1000, -1000));
@@ -464,8 +469,15 @@ export default function FloatingLines({
     };
 
     if (interactive) {
-      renderer.domElement.addEventListener("pointermove", handlePointerMove);
-      renderer.domElement.addEventListener("pointerleave", handlePointerLeave);
+      const moveTarget =
+        pointerTarget === "window" ? window : renderer.domElement;
+      moveTarget.addEventListener("pointermove", handlePointerMove);
+      if (pointerTarget === "element") {
+        renderer.domElement.addEventListener(
+          "pointerleave",
+          handlePointerLeave,
+        );
+      }
     }
 
     let raf = 0;
@@ -501,14 +513,15 @@ export default function FloatingLines({
       cancelAnimationFrame(raf);
       if (ro) ro.disconnect();
       if (interactive) {
-        renderer.domElement.removeEventListener(
-          "pointermove",
-          handlePointerMove,
-        );
-        renderer.domElement.removeEventListener(
-          "pointerleave",
-          handlePointerLeave,
-        );
+        const moveTarget =
+          pointerTarget === "window" ? window : renderer.domElement;
+        moveTarget.removeEventListener("pointermove", handlePointerMove);
+        if (pointerTarget === "element") {
+          renderer.domElement.removeEventListener(
+            "pointerleave",
+            handlePointerLeave,
+          );
+        }
       }
       geometry.dispose();
       material.dispose();
@@ -545,12 +558,13 @@ export default function FloatingLines({
     bottomWaveX,
     bottomWaveY,
     bottomWaveRotate,
+    pointerTarget,
   ]);
 
   return (
     <div
       ref={containerRef}
-      className="floating-lines-container"
+      className={`floating-lines-container${className ? ` ${className}` : ""}`}
       style={{ mixBlendMode }}
     />
   );

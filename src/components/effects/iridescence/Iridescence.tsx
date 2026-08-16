@@ -17,6 +17,8 @@ export type IridescenceProps = {
   targetFps?: number;
   /** ถ้า false วาดเฟรมเดียวแล้วหยุด */
   live?: boolean;
+  /** silk = ไหมในห้อง; classic = shader ต้นฉบับ React Bits */
+  variant?: "silk" | "classic";
 };
 
 const VERTEX = `
@@ -31,7 +33,7 @@ void main() {
 }
 `;
 
-const FRAGMENT = `
+const SILK_FRAGMENT = `
 precision highp float;
 
 uniform float uTime;
@@ -73,6 +75,37 @@ void main() {
 }
 `;
 
+const CLASSIC_FRAGMENT = `
+precision highp float;
+
+uniform float uTime;
+uniform vec3 uColor;
+uniform vec3 uResolution;
+uniform vec2 uMouse;
+uniform float uAmplitude;
+uniform float uSpeed;
+
+varying vec2 vUv;
+
+void main() {
+  float mr = min(uResolution.x, uResolution.y);
+  vec2 uv = (vUv.xy * 2.0 - 1.0) * uResolution.xy / mr;
+
+  uv += (uMouse - vec2(0.5)) * uAmplitude;
+
+  float d = -uTime * 0.5 * uSpeed;
+  float a = 0.0;
+  for (float i = 0.0; i < 8.0; ++i) {
+    a += cos(i - d - a * uv.x);
+    d += sin(uv.y * i + a);
+  }
+  d += uTime * 0.5 * uSpeed;
+  vec3 col = vec3(cos(uv * vec2(d, a)) * 0.6 + 0.4, cos(a + d) * 0.5 + 0.5);
+  col = cos(col * cos(vec3(d, a, 2.5)) * 0.5 + 0.5) * uColor;
+  gl_FragColor = vec4(col, 1.0);
+}
+`;
+
 /** React Bits Iridescence — ผ้าไหมมุก ใช้ ogl */
 export default function Iridescence({
   className,
@@ -81,12 +114,14 @@ export default function Iridescence({
   speed = 0.45,
   amplitude = 0.1,
   mouseReact = false,
-  dpr = 0.7,
-  targetFps = 24,
+  dpr,
+  targetFps,
   live = true,
+  variant = "silk",
 }: IridescenceProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const colorKey = `${color.join(",")}|${ink.join(",")}`;
+  const classic = variant === "classic";
 
   useEffect(() => {
     const container = containerRef.current;
@@ -95,10 +130,17 @@ export default function Iridescence({
       return;
     }
 
+    const pixelRatio =
+      dpr ??
+      (classic
+        ? Math.min(window.devicePixelRatio || 1, 2)
+        : 0.7);
+    const fps = targetFps ?? (classic ? 60 : 24);
+
     const renderer = new Renderer({
-      dpr,
+      dpr: pixelRatio,
       alpha: false,
-      antialias: false,
+      antialias: classic,
     });
     const gl = renderer.gl;
     const canvas = gl.canvas;
@@ -118,16 +160,18 @@ export default function Iridescence({
       number,
       number,
     ];
-    gl.clearColor(ir, ig, ib, 1);
+    gl.clearColor(classic ? 1 : ir, classic ? 1 : ig, classic ? 1 : ib, 1);
     const mouse = { x: 0.5, y: 0.5 };
 
     const program = new Program(gl, {
       vertex: VERTEX,
-      fragment: FRAGMENT,
+      fragment: classic ? CLASSIC_FRAGMENT : SILK_FRAGMENT,
       uniforms: {
         uTime: { value: 0 },
         uColor: { value: new Color(cr, cg, cb) },
-        uInk: { value: new Color(ir, ig, ib) },
+        ...(classic
+          ? {}
+          : { uInk: { value: new Color(ir, ig, ib) } }),
         uResolution: {
           value: new Color(
             gl.canvas.width,
@@ -166,7 +210,7 @@ export default function Iridescence({
     let frame = 0;
     let lastDraw = 0;
     let visible = true;
-    const minFrameMs = 1000 / Math.max(12, Math.min(60, targetFps));
+    const minFrameMs = 1000 / Math.max(12, Math.min(60, fps));
 
     const loop = (time: number) => {
       frame = requestAnimationFrame(loop);
@@ -217,7 +261,8 @@ export default function Iridescence({
       program.uniforms.uMouse.value[1] = y;
     };
     if (mouseReact) {
-      container.addEventListener("pointermove", onPointerMove);
+      const mouseTarget = classic ? window : container;
+      mouseTarget.addEventListener("pointermove", onPointerMove);
     }
 
     return () => {
@@ -226,14 +271,15 @@ export default function Iridescence({
       ro.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
       if (mouseReact) {
-        container.removeEventListener("pointermove", onPointerMove);
+        const mouseTarget = classic ? window : container;
+        mouseTarget.removeEventListener("pointermove", onPointerMove);
       }
       if (canvas.parentElement === container) {
         container.removeChild(canvas);
       }
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
-  }, [amplitude, colorKey, dpr, live, mouseReact, speed, targetFps]);
+  }, [amplitude, classic, colorKey, dpr, live, mouseReact, speed, targetFps]);
 
   return (
     <div

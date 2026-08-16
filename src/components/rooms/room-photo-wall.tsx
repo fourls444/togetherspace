@@ -1,9 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
-import DepthCarousel from "@/components/effects/depth-carousel/DepthCarousel";
-import { useOptionalRoomTheme } from "@/components/rooms/room-theme-provider";
+import { AlbumPrints } from "@/components/effects/draggable-card/DraggableCard";
 import styles from "@/components/rooms/room-home.module.css";
 
 type Photo = {
@@ -13,30 +10,24 @@ type Photo = {
 };
 
 type RoomPhotoWallProps = {
-  albumHref: string;
+  albumHref?: string;
   photos: Photo[];
 };
 
-export function RoomPhotoWall({ albumHref, photos }: RoomPhotoWallProps) {
-  const router = useRouter();
-  const tint =
-    useOptionalRoomTheme()?.currentTheme.palette.background ?? "#0A0908";
-
+/** กองรูปโพลารอยด์บนหน้าห้อง — ลากได้ กดเพื่อดูใหญ่ */
+export function RoomPhotoWall({ photos }: RoomPhotoWallProps) {
   if (photos.length === 0) return null;
 
   return (
     <div className={styles.carousel}>
-      <DepthCarousel
+      <AlbumPrints
         ariaLabel="รูปล่าสุดในอัลบั้ม"
-        autoplay={photos.length > 1}
         items={photos.map((photo) => ({
           alt: photo.caption?.trim() || "รูปในอัลบั้ม",
+          caption: photo.caption,
+          id: photo.id,
           image: photo.image_url,
         }))}
-        loop
-        showControls={false}
-        showIndicators={false}
-        tint={tint}
       />
     </div>
   );
